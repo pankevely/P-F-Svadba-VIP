@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>P+F Svadba — Font test 03</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Encode+Sans+Condensed:wght@300;900&family=Sansita:wght@400;700&display=swap');
+
+  /* ============================================================
+     THEME COLORS — change these four values in one place.
+     Light system theme -> --bg-light / --text-light
+     Dark  system theme -> --bg-dark  / --text-dark
+     ============================================================ */
+  :root{
+    --bg-light:   #ffd400;   /* page background — light mode */
+    --text-light: #000000;   /* text color      — light mode */
+    --bg-dark:    #cc0000;   /* page background — dark mode */
+    --text-dark:  #ffffff;   /* text color      — dark mode */
+
+    /* active colors: default to light, overridden below in dark mode */
+    --bg:   var(--bg-light);
+    --text: var(--text-light);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:   var(--bg-dark);
+      --text: var(--text-dark);
+    }
+  }
+  /* ============================================================ */
+
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); }
+  .wrap{ color:var(--text); font-family:'Encode Sans Condensed', system-ui, sans-serif;
+         padding:26px; max-width:760px; margin:0 auto; }
+
+  .tag{ display:block; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+        font-size:11px; letter-spacing:.04em; opacity:.7; margin:0 0 6px; }
+  .rule{ border:none; border-top:1px solid var(--text); opacity:.2; margin:18px 0; }
+
+  .h{ font-family:'Sansita', serif; font-weight:700; font-size:30px; line-height:1.15; margin:0; }
+  .body{ font-weight:300; font-size:20px; line-height:1.45; margin:0; }
+  .accent{ font-weight:900; font-size:20px; line-height:1.4; margin:0; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <span class="tag">SANSITA · 700 — heading</span>
+    <p class="h">Patrícia &amp; Filip</p>
+
+    <hr class="rule">
+
+    <span class="tag">ENCODE SANS CONDENSED · Light 300 — body</span>
+    <p class="body">Pozývame vás osláviť našu svadbu. Obrad sa začína o štvrtej popoludní, večera a tanec nasledujú.</p>
+
+    <hr class="rule">
+
+    <span class="tag">ENCODE SANS CONDENSED · Black 900 — accents</span>
+    <p class="accent">SOBOTA · 12. SEPTEMBER · 16:00</p>
+
+    <hr class="rule">
+
+    <span class="tag">Light theme → yellow bg / black text · Dark theme → red bg / white text</span>
+    <span class="tag">This page = GitHub Pages test page. Not indexed by search engines.</span>
+  </div>
+</body>
+</html>
