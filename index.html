@@ -4,66 +4,57 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>P+F Svadba — Font test 03</title>
+<title>Patrícia &amp; Filip — 5. 9. 2026</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Encode+Sans+Condensed:wght@300;900&family=Sansita:wght@400;700&display=swap');
 
   /* ============================================================
-     THEME COLORS — change these four values in one place.
-     Light system theme -> --bg-light / --text-light
-     Dark  system theme -> --bg-dark  / --text-dark
+     WEBSITE CHROME — black/white only (Brand Kit §2).
+     Backgrounds match Notion; text swaps by prefers-color-scheme.
      ============================================================ */
   :root{
-    --bg-light:   #ffd400;   /* page background — light mode */
-    --text-light: #000000;   /* text color      — light mode */
-    --bg-dark:    #cc0000;   /* page background — dark mode */
-    --text-dark:  #ffffff;   /* text color      — dark mode */
+    --bg-light:          #FFFFFF;
+    --text-normal-light: #3F3F3F;
+    --text-accent-light: #1F1F1F;
+    --bg-dark:           #191919;
+    --text-normal-dark:  #C1C1C1;
+    --text-accent-dark:  #E1E1E1;
 
-    /* active colors: default to light, overridden below in dark mode */
-    --bg:   var(--bg-light);
-    --text: var(--text-light);
+    --bg:           var(--bg-light);
+    --text-normal:  var(--text-normal-light);
+    --text-accent:  var(--text-accent-light);
   }
   @media (prefers-color-scheme: dark){
     :root{
-      --bg:   var(--bg-dark);
-      --text: var(--text-dark);
+      --bg:           var(--bg-dark);
+      --text-normal:  var(--text-normal-dark);
+      --text-accent:  var(--text-accent-dark);
     }
   }
   /* ============================================================ */
 
   *{ box-sizing:border-box; }
-  body{ margin:0; background:var(--bg); }
-  .wrap{ color:var(--text); font-family:'Encode Sans Condensed', system-ui, sans-serif;
-         padding:26px; max-width:760px; margin:0 auto; }
+  body{ margin:0; background:var(--bg);
+        font-family:'Encode Sans Condensed', system-ui, sans-serif; }
+  .wrap{ min-height:100vh; display:flex; flex-direction:column;
+         align-items:center; justify-content:center; gap:14px;
+         text-align:center; padding:40px 26px; }
 
-  .tag{ display:block; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
-        font-size:11px; letter-spacing:.04em; opacity:.7; margin:0 0 6px; }
-  .rule{ border:none; border-top:1px solid var(--text); opacity:.2; margin:18px 0; }
-
-  .h{ font-family:'Sansita', serif; font-weight:700; font-size:30px; line-height:1.15; margin:0; }
-  .body{ font-weight:300; font-size:20px; line-height:1.45; margin:0; }
-  .accent{ font-weight:900; font-size:20px; line-height:1.4; margin:0; }
+  h1{ font-family:'Sansita', serif; font-weight:700; margin:0;
+      font-size:clamp(34px, 7vw, 60px); line-height:1.1;
+      color:var(--text-accent); }
+  .date{ font-weight:900; font-size:clamp(15px, 3.5vw, 20px);
+         letter-spacing:.02em; color:var(--text-accent);
+         text-transform:uppercase; }
+  .note{ font-weight:300; font-size:15px; color:var(--text-normal);
+         opacity:.75; margin-top:6px; }
 </style>
 </head>
 <body>
   <div class="wrap">
-    <span class="tag">SANSITA · 700 — heading</span>
-    <p class="h">Filip Kevély Haiku-Hra HAIKU-HRA (0) 123 456 789 : = < > { } % á ä ú ů ľ č š ě ô ř "abc" 'abc' ± - – — │ : → ↑ ↓ ←</p>
-
-    <hr class="rule">
-
-    <span class="tag">ENCODE SANS CONDENSED · Light 300 — body</span>
-    <p class="body">Filip Kevély Haiku-Hra HAIKU-HRA (0) 123 456 789 : = < > { } % á ä ú ů ľ č š ě ô ř "abc" 'abc' ± - – — │ : → ↑ ↓ ←</p>
-
-    <hr class="rule">
-
-    <span class="tag">ENCODE SANS CONDENSED · Black 900 — accents</span>
-    <p class="accent">Filip Kevély Haiku-Hra HAIKU-HRA (0) 123 456 789 : = < > { } % á ä ú ů ľ č š ě ô ř "abc" 'abc' ± - – — │ : → ↑ ↓ ←</p>
-
-    <hr class="rule">
-
-    <span class="tag">Light theme → yellow bg / black text · Dark theme → red bg / white text</span>
-    <span class="tag">This page = GitHub Pages test page. Not indexed by search engines.</span>
+    <h1>Patrícia &amp; Filip</h1>
+    <p class="date">5. september 2026 · Rezort Partizán, Obyce</p>
+    <p class="note">Pripravujeme · Wedding site in progress</p>
   </div>
 </body>
 </html>
