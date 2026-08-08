@@ -10,7 +10,7 @@
 
   /* ============================================================
      WEBSITE CHROME — black/white only (Brand Kit §2).
-     Backgrounds match Notion; text swaps by prefers-color-scheme.
+     Backgrounds match the page theme; text swaps by prefers-color-scheme.
      ============================================================ */
   :root{
     --bg-light:          #FFFFFF;
@@ -34,27 +34,123 @@
   /* ============================================================ */
 
   *{ box-sizing:border-box; }
-  body{ margin:0; background:var(--bg);
-        font-family:'Encode Sans Condensed', system-ui, sans-serif; }
-  .wrap{ min-height:100vh; display:flex; flex-direction:column;
-         align-items:center; justify-content:center; gap:14px;
-         text-align:center; padding:40px 26px; }
+  html,body{ margin:0; padding:0; }
+  body{ font-family:'Encode Sans Condensed', system-ui, sans-serif; }
 
-  h1{ font-family:'Sansita', serif; font-weight:700; margin:0;
-      font-size:clamp(34px, 7vw, 60px); line-height:1.1;
-      color:var(--text-accent); }
-  .date{ font-weight:900; font-size:clamp(15px, 3.5vw, 20px);
-         letter-spacing:.02em; color:var(--text-accent);
-         text-transform:uppercase; }
-  .note{ font-weight:300; font-size:15px; color:var(--text-normal);
-         opacity:.75; margin-top:6px; }
+  /* -------- LAYER: bg (back) — solid theme background -------- */
+  .bg{
+    position:fixed; inset:0;
+    background:var(--bg);
+    z-index:1;
+  }
+
+  /* -------- LAYER: content_core (middle) — the only thing that scrolls -------- */
+  .content_core{
+    position:relative;
+    z-index:2;
+  }
+  /* names block: horizontally centered, its vertical middle at 33% of viewport height */
+  .names{
+    height:66vh;                 /* centered within 66vh => middle sits at 33vh */
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:0.28em;
+    padding:0 24px;
+    text-align:center;
+    line-height:1;
+  }
+  .name{                         /* "Patrícia" / "Filip" — Sansita 700, accent tier */
+    font-family:'Sansita', serif;
+    font-weight:700;
+    color:var(--text-accent);
+    font-size:clamp(40px, 8vw, 104px);
+  }
+  .amp{                          /* "&" — Encode Sans Condensed 300, normal tier */
+    font-family:'Encode Sans Condensed', system-ui, sans-serif;
+    font-weight:300;
+    color:var(--text-normal);
+    font-size:clamp(34px, 6.5vw, 84px);
+  }
+  /* tall empty div so the page scrolls well past one screen (>= 3x viewport height) */
+  .scroll_spacer{
+    height:320vh;
+  }
+
+  /* -------- LAYER: parallax (front) — 7 stacked planes pinned to viewport bottom -------- */
+  .parallax{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    height:100vh;
+    z-index:3;
+    pointer-events:none;         /* never intercept scroll / clicks */
+    overflow:hidden;
+  }
+  .parallax img{
+    position:absolute;
+    left:50%;
+    bottom:0;
+    width:100%;
+    height:auto;
+    transform:translate3d(-50%,0,0);
+    will-change:transform;
+    display:block;
+    -webkit-user-select:none; user-select:none;
+  }
+  /* z-order within the stack: 01 frontmost … 07 backmost */
+  .p1{ z-index:37; } .p2{ z-index:36; } .p3{ z-index:35; } .p4{ z-index:34; }
+  .p5{ z-index:33; } .p6{ z-index:32; } .p7{ z-index:31; }
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>Patrícia &amp; Filip</h1>
-    <p class="date">5. september 2026 · Rezort Partizán, Obyce</p>
-    <p class="note">Pripravujeme · Wedding site in progress</p>
+
+  <!-- bg layer -->
+  <div class="bg"></div>
+
+  <!-- content_core layer (scrolls) -->
+  <div class="content_core">
+    <div class="names">
+      <span class="name">Patrícia</span>
+      <span class="amp">&amp;</span>
+      <span class="name">Filip</span>
+    </div>
+    <div class="scroll_spacer"><!-- empty test spacer, >= 3x screen height --></div>
   </div>
+
+  <!-- parallax layer (front) — parallax_01 top of stack … parallax_07 bottom -->
+  <div class="parallax" aria-hidden="true">
+    <img class="p1" src="assets/img/parallax_01.webp" alt="">
+    <img class="p2" src="assets/img/parallax_02.webp" alt="">
+    <img class="p3" src="assets/img/parallax_03.webp" alt="">
+    <img class="p4" src="assets/img/parallax_04.webp" alt="">
+    <img class="p5" src="assets/img/parallax_05.webp" alt="">
+    <img class="p6" src="assets/img/parallax_06.webp" alt="">
+    <img class="p7" src="assets/img/parallax_07.webp" alt="">
+  </div>
+
+  <script>
+    /* Parallax on scroll — "camera descending while aimed up":
+       back planes (higher NN) move faster and DOWN, front planes (lower NN)
+       move slower and UP. coef is per-plane px-shift per px scrolled.
+       index 0..6 == parallax_01..07 */
+    (function(){
+      var imgs = Array.prototype.slice.call(document.querySelectorAll('.parallax img'));
+      var coef = [-0.10, -0.02, 0.06, 0.14, 0.24, 0.36, 0.50];
+      var ticking = false;
+      function apply(){
+        var y = window.scrollY || window.pageYOffset || 0;
+        for (var i=0;i<imgs.length;i++){
+          imgs[i].style.transform = 'translate3d(-50%,' + (coef[i]*y).toFixed(2) + 'px,0)';
+        }
+        ticking = false;
+      }
+      function onScroll(){
+        if(!ticking){ ticking = true; window.requestAnimationFrame(apply); }
+      }
+      window.addEventListener('scroll', onScroll, {passive:true});
+      window.addEventListener('resize', onScroll, {passive:true});
+      apply();
+    })();
+  </script>
 </body>
 </html>
