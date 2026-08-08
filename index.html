@@ -5,12 +5,53 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Patrícia &amp; Filip — 5. 9. 2026</title>
+
+<!-- ============================================================
+     ★ PARALLAX CONTROL PANEL ★   — tune everything here, in one place.
+     One block per plane, parallax_01 (frontmost) … parallax_07 (backmost).
+
+     Every distance is in vh  (vh = 1% of the screen's height), so it scales
+     with the window. Every knob is plain-language:
+
+       start   : where the plane sits BEFORE any scrolling.
+                   0        = its natural spot (bottom-pinned to the screen)
+                   positive = pushed DOWN to begin with (partly below screen)
+                   negative = lifted UP to begin with
+       stop    : the TOTAL distance the plane is allowed to move, i.e. the point
+                 where it STOPS reacting to scroll. The SIGN sets direction:
+                   negative = moves UP as you scroll
+                   positive = moves DOWN as you scroll
+                 (e.g. stop:-30 = drifts up 30% of screen height, then halts.)
+       speed   : how QUICKLY it reaches its 'stop'. Bigger = reacts faster
+                 (reaches the stop after less scrolling). Doesn't change WHERE
+                 it stops, only how soon.
+       easeIn  : true  = starts moving gently (slow ramp-up from rest)
+       easeOut : true  = arrives gently (slows down as it nears the stop)
+                 (both true = smooth glide in AND out; both false = linear.)
+
+     masterSpeed scales ALL speeds at once (quick global dial).
+     ============================================================ -->
+<script>
+  window.PARALLAX_CONFIG = {
+    masterSpeed: 1.0,
+    layers: [
+      /* parallax_01  (frontmost) */ { start: 0, stop: -14, speed: 0.10, easeIn: true, easeOut: true },
+      /* parallax_02               */ { start: 0, stop:  -6, speed: 0.10, easeIn: true, easeOut: true },
+      /* parallax_03               */ { start: 0, stop:   4, speed: 0.12, easeIn: true, easeOut: true },
+      /* parallax_04               */ { start: 0, stop:  12, speed: 0.14, easeIn: true, easeOut: true },
+      /* parallax_05               */ { start: 0, stop:  24, speed: 0.18, easeIn: true, easeOut: true },
+      /* parallax_06               */ { start: 0, stop:  38, speed: 0.24, easeIn: true, easeOut: true },
+      /* parallax_07  (backmost)   */ { start: 0, stop:  54, speed: 0.30, easeIn: true, easeOut: true }
+    ]
+  };
+</script>
+
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Encode+Sans+Condensed:wght@300;900&family=Sansita:wght@400;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Fira+Mono:wght@400;500;700&family=Fira+Sans+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Fira+Sans+Extra+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Fira+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Sansita:wght@400;700&display=swap');
 
   /* ============================================================
      WEBSITE CHROME — black/white only (Brand Kit §2).
-     Backgrounds match the page theme; text swaps by prefers-color-scheme.
+     Background matches the page theme; text swaps by prefers-color-scheme.
      ============================================================ */
   :root{
     --bg-light:          #FFFFFF;
@@ -35,66 +76,47 @@
 
   *{ box-sizing:border-box; }
   html,body{ margin:0; padding:0; }
-  body{ font-family:'Encode Sans Condensed', system-ui, sans-serif; }
+  /* normal / body text = Fira Sans Extra Condensed, Light (300) */
+  body{ font-family:'Fira Sans Extra Condensed', system-ui, sans-serif; font-weight:300; }
 
   /* -------- LAYER: bg (back) — solid theme background -------- */
-  .bg{
-    position:fixed; inset:0;
-    background:var(--bg);
-    z-index:1;
-  }
+  .bg{ position:fixed; inset:0; background:var(--bg); z-index:1; }
 
   /* -------- LAYER: content_core (middle) — the only thing that scrolls -------- */
-  .content_core{
-    position:relative;
-    z-index:2;
-  }
-  /* names block: horizontally centered, its vertical middle at 33% of viewport height */
+  .content_core{ position:relative; z-index:2; }
+
+  /* names: three centered lines; block's vertical middle sits at 33% viewport height */
   .names{
-    height:66vh;                 /* centered within 66vh => middle sits at 33vh */
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:0.28em;
-    padding:0 24px;
-    text-align:center;
-    line-height:1;
+    height:66vh;                 /* centered within 66vh => middle at 33vh */
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    gap:0.02em; line-height:0.98;
+    text-align:center; padding:0 24px;
   }
   .name{                         /* "Patrícia" / "Filip" — Sansita 700, accent tier */
-    font-family:'Sansita', serif;
-    font-weight:700;
+    font-family:'Sansita', serif; font-weight:700;
     color:var(--text-accent);
-    font-size:clamp(40px, 8vw, 104px);
+    font-size:clamp(44px, 9vw, 120px);
   }
-  .amp{                          /* "&" — Encode Sans Condensed 300, normal tier */
-    font-family:'Encode Sans Condensed', system-ui, sans-serif;
-    font-weight:300;
+  .amp{                          /* "&" — Fira Sans Condensed, ExtraLight (200), normal tier */
+    font-family:'Fira Sans Condensed', system-ui, sans-serif; font-weight:200;
     color:var(--text-normal);
-    font-size:clamp(34px, 6.5vw, 84px);
+    font-size:clamp(30px, 6vw, 80px); line-height:1;
   }
+
   /* tall empty div so the page scrolls well past one screen (>= 3x viewport height) */
-  .scroll_spacer{
-    height:320vh;
-  }
+  .scroll_spacer{ height:320vh; }
 
   /* -------- LAYER: parallax (front) — 7 stacked planes pinned to viewport bottom -------- */
   .parallax{
-    position:fixed;
-    left:0; right:0; bottom:0;
-    height:100vh;
-    z-index:3;
-    pointer-events:none;         /* never intercept scroll / clicks */
-    overflow:hidden;
+    position:fixed; left:0; right:0; bottom:0; height:100vh;
+    z-index:3; pointer-events:none; overflow:hidden;
   }
   .parallax img{
-    position:absolute;
-    left:50%;
-    bottom:0;
-    width:100%;
-    height:auto;
+    position:absolute; left:50%; bottom:0;
+    width:100%; height:auto;
     transform:translate3d(-50%,0,0);
-    will-change:transform;
-    display:block;
+    will-change:transform; display:block;
     -webkit-user-select:none; user-select:none;
   }
   /* z-order within the stack: 01 frontmost … 07 backmost */
@@ -128,25 +150,40 @@
     <img class="p7" src="assets/img/parallax_07.webp" alt="">
   </div>
 
+  <!-- ============ PARALLAX ENGINE (reads the control panel above) ============ -->
   <script>
-    /* Parallax on scroll — "camera descending while aimed up":
-       back planes (higher NN) move faster and DOWN, front planes (lower NN)
-       move slower and UP. coef is per-plane px-shift per px scrolled.
-       index 0..6 == parallax_01..07 */
     (function(){
+      var cfg  = window.PARALLAX_CONFIG || { masterSpeed:1, layers:[] };
       var imgs = Array.prototype.slice.call(document.querySelectorAll('.parallax img'));
-      var coef = [-0.10, -0.02, 0.06, 0.14, 0.24, 0.36, 0.50];
+
+      // easing shapes for the movement (progress p is 0..1 toward the stop)
+      function ease(p, i, o){
+        if(i && o) return p*p*(3-2*p);        // smooth in-out (smoothstep)
+        if(i)      return p*p;                 // ease-in
+        if(o)      return 1-(1-p)*(1-p);       // ease-out
+        return p;                              // linear
+      }
+
       var ticking = false;
       function apply(){
-        var y = window.scrollY || window.pageYOffset || 0;
-        for (var i=0;i<imgs.length;i++){
-          imgs[i].style.transform = 'translate3d(-50%,' + (coef[i]*y).toFixed(2) + 'px,0)';
+        var vh = window.innerHeight;
+        var y  = window.scrollY || window.pageYOffset || 0;
+        var m  = (cfg.masterSpeed == null ? 1 : cfg.masterSpeed);
+
+        for (var idx=0; idx<imgs.length; idx++){
+          var L = cfg.layers[idx] || {};
+          var startPx = (L.start || 0) / 100 * vh;   // initial offset
+          var stopPx  = (L.stop  || 0) / 100 * vh;   // total travel (signed)
+          var denom   = Math.abs(stopPx) || 1;
+          var prog    = Math.min(Math.max((L.speed || 0) * m * y / denom, 0), 1);
+          var eased   = ease(prog, !!L.easeIn, !!L.easeOut);
+          var disp    = startPx + stopPx * eased;
+          imgs[idx].style.transform = 'translate3d(-50%,' + disp.toFixed(2) + 'px,0)';
         }
         ticking = false;
       }
-      function onScroll(){
-        if(!ticking){ ticking = true; window.requestAnimationFrame(apply); }
-      }
+      function onScroll(){ if(!ticking){ ticking = true; requestAnimationFrame(apply); } }
+
       window.addEventListener('scroll', onScroll, {passive:true});
       window.addEventListener('resize', onScroll, {passive:true});
       apply();
