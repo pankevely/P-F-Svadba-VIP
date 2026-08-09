@@ -108,8 +108,8 @@
       visibility_v: 100
     },
     section_1_2: {
-      zIndex_h: 800, /*standard 800*/
-      zIndex_v: 800, /*standard 800*/
+      zIndex_h: 945, /*standard 800*/
+      zIndex_v: 945, /*standard 800*/
       visibility_h: 100,
       visibility_v: 100
     },
@@ -120,20 +120,20 @@
       visibility_v: 100
     },
     section_2_1: {
-      zIndex_h: 941, /*standard 730*/
-      zIndex_v: 941, /*standard 730*/
+      zIndex_h: 945, /*standard 730*/
+      zIndex_v: 945, /*standard 730*/
       visibility_h: 100,
       visibility_v: 100
     },
     section_2_2: {
-      zIndex_h: 942, /*standard 720*/
-      zIndex_v: 942, /*standard 720*/
+      zIndex_h: 945, /*standard 720*/
+      zIndex_v: 945, /*standard 720*/
       visibility_h: 100,
       visibility_v: 100
     },
     section_2_3: {
-      zIndex_h: 943, /*standard 710*/
-      zIndex_v: 943, /*standard 710*/
+      zIndex_h: 945, /*standard 710*/
+      zIndex_v: 945, /*standard 710*/
       visibility_h: 100,
       visibility_v: 100
     },
@@ -380,7 +380,7 @@
 </script>
 
 <!-- ============================================================================
-     ★ CONTROL PANEL SECTION — HERO CONTROLS ★
+     ★ CONTROL PANEL SECTION — SECTION 1 (HERO) ★
      Section 1 = three thirds (section_1_1 date | section_1_2 P+F+buttons | section_1_3
      location). H: side-by-side.  V: stacked (order 1_2, 1_1, 1_3). The hero is ONE
      screen (100dvh) split by RATIOS — no fixed dvh/dvw box sizes.
@@ -393,13 +393,19 @@
        flex  : RATIO share of its column's height.
        order : position within its column.
        align : 9-point content align, 2 chars [t|c|b][l|c|r] (cc, tl, br, bc, ...).
-       padT/padB : padding top/bottom (dvh)   padL/padR : padding left/right (dvw).
-     CONTENT SIZES (dateScale / locationScale / buttonScale) = % of the resulting &
-     size; the P+F group scales to fit its 'pf' box; buttonPad = % of button text.
+       padT/padB : padding top/bottom (dvh)   padL/padR : padding left/right (dvh).
+     Text sizes/weights/case/shift now live in the TEXT ELEMENTS panel (all linked to
+     the NAMES size). The P+F group scales to fit its 'pf' box.
      Every parameter has _h (landscape) / _v (portrait) variants.
      ============================================================================ -->
 <script>
   window.HERO = {
+
+    // ===== SECTION SIZE (% of one screen; 100 = one screen, 300 = three screens) =====
+    sectionWidth_h: 100,
+    sectionWidth_v: 100,
+    sectionHeight_h: 100,
+    sectionHeight_v: 100,
 
     // ===== COLUMNS: the three thirds of Section 1 (flex = ratio share of the hero) =====
     columns: {
@@ -417,7 +423,7 @@
       },
       section_1_3: {	//location//
         flex_h: 1,
-        flex_v: 1,
+        flex_v: 0.5,
         order_h: 3,
         order_v: 2
       }
@@ -430,7 +436,7 @@
         flex_v: 1,
         order_h: 1,
         order_v: 1,
-        align_h: 'cc',
+        align_h: 'cr',
         align_v: 'bc',
         padT_h: 10,
         padT_v: 0,
@@ -438,12 +444,12 @@
         padB_v: 0,
         padL_h: 0,
         padL_v: 0,
-        padR_h: 0,
+        padR_h: 5,
         padR_v: 0
       },
       pf: {
-        flex_h: 1,
-        flex_v: 1,
+        flex_h: 2,
+        flex_v: 2,
         order_h: 1,
         order_v: 1,
         align_h: 'cc',
@@ -459,13 +465,29 @@
       },
       buttonQ: {
         flex_h: 1,
-        flex_v: 1,
+        flex_v: 2,
         order_h: 2,
         order_v: 2,
-        align_h: 'cc',
-        align_v: 'cc',
-        padT_h: 0,
-        padT_v: 0,
+        align_h: 'bc',
+        align_v: 'bc',
+        padT_h: 8,
+        padT_v: 12,
+        padB_h: 0,
+        padB_v: 0,
+        padL_h: 16,
+        padL_v: 8,
+        padR_h: 16,
+        padR_v: 8
+      },
+      buttonQnote: {
+        flex_h: 1,
+        flex_v: 1,
+        order_h: 3,
+        order_v: 3,
+        align_h: 'tc',
+        align_v: 'tc',
+        padT_h: 1,
+        padT_v: 1,
         padB_h: 0,
         padB_v: 0,
         padL_h: 0,
@@ -474,11 +496,11 @@
         padR_v: 0
       },
       buttonScroll: {
-        flex_h: 1,
-        flex_v: 1,
+        flex_h: 2,
+        flex_v: 2,
         order_h: 3,
         order_v: 3,
-        align_h: 'cc',
+        align_h: 'tc',
         align_v: 'tc',
         padT_h: 0,
         padT_v: 0,
@@ -494,28 +516,242 @@
         flex_v: 1,
         order_h: 1,
         order_v: 1,
-        align_h: 'cc',
+        align_h: 'cl',
         align_v: 'tc',
         padT_h: 10,
         padT_v: 0,
         padB_h: 66,
         padB_v: 0,
-        padL_h: 0,
+        padL_h: 5,
         padL_v: 0,
         padR_h: 0,
         padR_v: 0
       }
     },
 
-    // ===== CONTENT SIZES (relative to the resulting & size) =====
-    dateScale_h: 33,
-    dateScale_v: 33,
-    locationScale_h: 33,
-    locationScale_v: 33,
-    buttonScale_h: 50,
-    buttonScale_v: 50,
-    buttonPad_h: 25,
-    buttonPad_v: 25
+  };
+</script>
+
+<!-- ============================================================================
+     ★ CONTROL PANEL SECTION — SECTION 2 ★
+     Section 2 = three thirds (section_2_1/2/3), each holding inner flex elements —
+     same system as SECTION 1 (HERO). H: side-by-side thirds; V: stacked thirds.
+       columns.<name> : flex (main-axis ratio share) + order.
+       flexes.<name>  : the inner elements (textCore1/2/3) — flex, order, 9-point
+                        align, padT/padB (dvh) + padL/padR (dvh).
+     Every parameter has _h (landscape) / _v (portrait) variants.
+     ============================================================================ -->
+<script>
+  window.SECTION2 = {
+
+    // ===== SECTION SIZE (% of one screen; 100 = one screen, 300 = three screens) =====
+    sectionWidth_h: 100,
+    sectionWidth_v: 100,
+    sectionHeight_h: 100,
+    sectionHeight_v: 300,
+
+    // ===== COLUMNS: the three thirds of Section 2 =====
+    columns: {
+      section_2_1: {
+        flex_h: 1,
+        flex_v: 1,
+        order_h: 1,
+        order_v: 1
+      },
+      section_2_2: {
+        flex_h: 1,
+        flex_v: 1,
+        order_h: 2,
+        order_v: 2
+      },
+      section_2_3: {
+        flex_h: 1,
+        flex_v: 1,
+        order_h: 3,
+        order_v: 3
+      }
+    },
+
+    // ===== INNER FLEXES: the textCore of each third =====
+    flexes: {
+      textCore1: {
+        flex_h: 1,
+        flex_v: 1,
+        order_h: 1,
+        order_v: 1,
+        align_h: 'tl',
+        align_v: 'tl',
+        padT_h: 10,
+        padT_v: 5,
+        padB_h: 10,
+        padB_v: 5,
+        padL_h: 10,
+        padL_v: 5,
+        padR_h: 10,
+        padR_v: 5
+      },
+      textCore2: {
+        flex_h: 1,
+        flex_v: 1,
+        order_h: 1,
+        order_v: 1,
+        align_h: 'tl',
+        align_v: 'tl',
+        padT_h: 10,
+        padT_v: 5,
+        padB_h: 10,
+        padB_v: 5,
+        padL_h: 10,
+        padL_v: 5,
+        padR_h: 10,
+        padR_v: 5
+      },
+      textCore3: {
+        flex_h: 1,
+        flex_v: 1,
+        order_h: 1,
+        order_v: 1,
+        align_h: 'tl',
+        align_v: 'tl',
+        padT_h: 10,
+        padT_v: 5,
+        padB_h: 10,
+        padB_v: 5,
+        padL_h: 10,
+        padL_v: 5,
+        padR_h: 10,
+        padR_v: 5
+      }
+    }
+  };
+</script>
+
+<!-- ============================================================================
+     ★ CONTROL PANEL SECTION — TEXT ELEMENTS ★
+     Every text block. Sizes are LINKED to the P+F NAMES (the single root): the names
+     scale to fit their box, and amp / date / location / button are EACH a % of the
+     names size — independent of one another. Per element:
+       size   : names = % of the fitted P+F size (100 = fills its box);
+                amp / date / location / button = % of the names size.
+       weight : font-weight (100-900).
+       font   : OPTIONAL font-family override (include fallbacks). Omit to keep the
+                element's CSS default font.
+       case   : text-transform — none / uppercase / lowercase / capitalize.
+       shift  : vertical nudge in em (+ down / - up) — floats text above/below its line.
+     Every parameter has _h (landscape) / _v (portrait) variants.
+     ============================================================================ -->
+<script>
+  window.TEXT = {
+
+    text_pf_names: {
+      size_h: 100,
+      size_v: 100,
+      weight_h: 700,
+      weight_v: 700,
+      case_h: 'none',
+      case_v: 'none',
+      shift_h: 0,
+      shift_v: 0
+    },
+    text_pf_amp: {
+      size_h: 90,
+      size_v: 90,
+      weight_h: 100,
+      weight_v: 100,
+      case_h: 'none',
+      case_v: 'none',
+      shift_h: 0.05,
+      shift_v: 0.05
+    },
+    text_date: {
+      size_h: 25,
+      size_v: 25,
+      weight_h: 300,
+      weight_v: 300,
+      case_h: 'none',
+      case_v: 'none',
+      shift_h: 0,
+      shift_v: 0
+    },
+    text_location: {
+      size_h: 25,
+      size_v: 20,
+      weight_h: 200,
+      weight_v: 200,
+      case_h: 'none',
+      case_v: 'none',
+      shift_h: 0,
+      shift_v: 0
+    },
+    text_buttonQ: {
+      size_h: 33,
+      size_v: 33,
+      weight_h: 400,
+      weight_v: 400,
+      case_h: 'uppercase',
+      case_v: 'uppercase',
+      shift_h: 0,
+      shift_v: 0
+    },
+    text_buttonQnote: {
+      size_h: 25,
+      size_v: 25,
+      weight_h: 300,
+      weight_v: 300,
+      font_h: "'Fira Sans Extra Condensed', system-ui, sans-serif",
+      font_v: "'Fira Sans Extra Condensed', system-ui, sans-serif",
+      case_h: 'none',
+      case_v: 'none',
+      shift_h: 0,
+      shift_v: 0
+    }
+  };
+</script>
+
+<!-- ============================================================================
+     ★ CONTROL PANEL SECTION — BUTTON & LINK STYLING ★
+     button : the fill that lives in a box core and stretches to fill it. Its
+              colour is per STATE (default / hover / active / focus) and per
+              orientation. (Its TEXT is styled in TEXT ELEMENTS.)
+     link   : inline links. dotted underline (on/off) + its colour + thickness (px);
+              plus text colour and hover colour. Applied to <a class="pf-link">.
+     Every parameter has _h (landscape) / _v (portrait) variants.
+     ============================================================================ -->
+<script>
+  window.BUTTONLINK = {
+
+    button: {
+      bg_h: '#FFFFFF',
+      bg_v: '#FFFFFF',
+      bgHover_h: '#F0F0F0',
+      bgHover_v: '#F0F0F0',
+      textColor_h: '#1F1F1F',
+      textColor_v: '#1F1F1F',
+      textColorHover_h: '#1F1F1F',
+      textColorHover_v: '#1F1F1F',
+      borderWidth_h: 0,
+      borderWidth_v: 0,
+      borderColor_h: '#1F1F1F',
+      borderColor_v: '#1F1F1F',
+      borderRadius_h: 0,
+      borderRadius_v: 0,
+      padY_h: 0,
+      padY_v: 0,
+      padX_h: 0,
+      padX_v: 0
+    },
+    link: {
+      color_h: '#1F1F1F',
+      color_v: '#1F1F1F',
+      hoverColor_h: '#000000',
+      hoverColor_v: '#000000',
+      dotted_h: true,
+      dotted_v: true,
+      underlineColor_h: '#1F1F1F',
+      underlineColor_v: '#1F1F1F',
+      underlineThickness_h: 1,
+      underlineThickness_v: 1
+    }
   };
 </script>
 
@@ -611,29 +847,36 @@
   .hero-date,
   .hero-location{ font-family:'Fira Sans Extra Condensed', system-ui, sans-serif; font-weight:100;
                   color:var(--text-accent); line-height:1.15; text-align:center; }
-  /* Dotazník button */
-  .hero-btn{ font-family:'Fira Sans Extra Condensed', system-ui, sans-serif; font-weight:500;
-             color:var(--text-accent); background:transparent;
-             border:1px solid var(--text-accent); border-radius:6px;
-             line-height:1; cursor:pointer; white-space:nowrap; }
+  /* link — colour via vars (so :hover works); underline set inline by JS */
+  a.pf-link{ color:var(--link-color, inherit); cursor:pointer; }
+  a.pf-link:hover{ color:var(--link-hover, inherit); }
+
+  /* section_2 text core — a plain lorem block; its layout (align/padding) comes
+     from its flex + liner, exactly like the section_1 elements. */
+  /* questionnaire button — a normal in-flow element that fills its area (inside the
+     liner padding); all its styling comes from the BUTTON panel via CSS vars. */
+  .qbtn{ flex:1 1 auto; align-self:stretch; min-width:0; min-height:0;
+         display:flex; align-items:center; justify-content:center;
+         cursor:pointer; white-space:nowrap;
+         font-family:'Fira Sans Extra Condensed', system-ui, sans-serif; font-weight:500;
+         background:var(--qbtn-bg,#fff); color:var(--qbtn-color,#1F1F1F);
+         border:var(--qbtn-bw,0px) solid var(--qbtn-bc,#1F1F1F);
+         border-radius:var(--qbtn-radius,0px); padding:var(--qbtn-pad,0.6em 1.2em); }
+  .qbtn:hover{ background:var(--qbtn-bg-h,#f0f0f0); color:var(--qbtn-color-h,#1F1F1F); }
+  /* buttonQ caption (its area = buttonQnote) */
+  .qnote{ font-family:'Fira Sans Extra Condensed', system-ui, sans-serif; font-weight:600;
+          color:var(--text-accent); font-size:clamp(13px, 1.4vw, 20px); text-align:center; }
+  /* pink = the element that now sits in each flex liner; the text lives inside it */
   /* scroll box (auto-scroll arrows added later) */
   .hero-scroll{ width:100%; height:100%; }
 
   /* section_2 row — three FULL-HEIGHT, one-third-width frames.
      On PORTRAIT screens they stack vertically (1 → 2 → 3). */
-  .sections{ display:flex; width:100%; }
-  .section{
-    position:relative; flex:1 1 0; min-width:0;
-    height:100vh; height:100dvh; height:var(--appvh,100dvh);
-    display:flex; align-items:center; justify-content:center;
-    color:var(--text-accent); font-weight:300;
-    font-size:clamp(18px, 3vw, 40px); letter-spacing:.01em;
-  }
-  @media (orientation: portrait){
-    .sections{ flex-direction:column; }
-    /* stacked: each section is its OWN full screen (don't let flex-basis:0 collapse it) */
-    .section{ width:100%; flex:0 0 auto; }
-  }
+  /* Section 2 — three thirds, same system as .s1 / .s1col (JS sets flex + order). */
+  .sections{ display:flex; width:100%; height:100vh; height:100dvh; height:var(--appvh,100dvh); align-items:stretch; }
+  @media (orientation: portrait){ .sections{ flex-direction:column; } }
+  .section{ position:relative; flex:1 1 0; overflow:hidden; min-width:0; min-height:0;
+            display:flex; flex-direction:column; }
 </style>
 </head>
 <body>
@@ -670,19 +913,20 @@
           </div>
         </div>
       </div>
-      <div class="hflex" data-flex="buttonQ"><div class="hliner"><button class="hero-btn" type="button"><span class="hero-btn-text">Dotazník</span></button></div></div>
+      <div class="hflex" data-flex="buttonQ"><div class="hliner"><button class="qbtn">Dotazník</button></div></div>
+      <div class="hflex" data-flex="buttonQnote"><div class="hliner"><span class="qnote">Ideálne vyplniť do 16.8., prosím.</span></div></div>
       <div class="hflex" data-flex="buttonScroll"><div class="hliner"><span class="hero-scroll" style="width:34px;height:34px;border-radius:50%;background:var(--text-accent);display:block;"></span></div></div>
     </div>
     <div class="s1col" data-layer="section_1_3">
-      <div class="hflex" data-flex="location"><div class="hliner"><span class="hero-location">Rezort Partizán • Obyce, Zlaté Moravce</span></div></div>
+      <div class="hflex" data-flex="location"><div class="hliner"><span class="hero-location"><a class="pf-link" href="https://maps.app.goo.gl/CcpAZgbuzZKfHp6Y9" target="_blank" rel="noopener">Rezort Partizán</a> • Obyce, Zlaté Moravce</span></div></div>
     </div>
   </div>
 
   <!-- screen 2 -->
   <div class="sections">
-    <div class="section" data-layer="section_2_1">section_2_1</div>
-    <div class="section" data-layer="section_2_2">section_2_2</div>
-    <div class="section" data-layer="section_2_3">section_2_3</div>
+    <div class="section" data-layer="section_2_1"><div class="hflex" data-flex="textCore1"><div class="hliner"></div></div></div>
+    <div class="section" data-layer="section_2_2"><div class="hflex" data-flex="textCore2"><div class="hliner"></div></div></div>
+    <div class="section" data-layer="section_2_3"><div class="hflex" data-flex="textCore3"><div class="hliner"></div></div></div>
   </div>
 
   <!-- ============ ENGINE (reads the control-panel sections above) ============ -->
@@ -718,6 +962,7 @@
       //      z-index + visibility (all layers), section BG colour, parallax image size
       function layout(){
         var vh = APPH;
+        var NAMES_PX = 0;
 
         Object.keys(LAYERS).forEach(function(name){
           var node = el(name); if(!node) return;
@@ -758,6 +1003,8 @@
           var vw = APPW;
           var aI = function(v){ return v === 't' ? 'flex-start' : (v === 'b' ? 'flex-end' : 'center'); };
           var jC = function(h){ return h === 'l' ? 'flex-start' : (h === 'r' ? 'flex-end' : 'center'); };
+          hero.style.width  = ((pick(HERO,'sectionWidth')  || 100) / 100 * document.documentElement.clientWidth).toFixed(1) + 'px';
+          hero.style.height = ((pick(HERO,'sectionHeight') || 100) / 100 * APPH).toFixed(1) + 'px';
           var COLS = HERO.columns || {};
           Object.keys(COLS).forEach(function(nm){
             var col = document.querySelector('.s1col[data-layer="' + nm + '"]'); if(!col) return;
@@ -766,9 +1013,9 @@
             col.style.order = (pick(c,'order') || 0);
           });
 
-          var FL = HERO.flexes || {};
+          var FL = Object.assign({}, HERO.flexes || {}, (window.SECTION2 || {}).flexes || {});
           Object.keys(FL).forEach(function(nm){
-            var fx = hero.querySelector('.hflex[data-flex="' + nm + '"]'); if(!fx) return;
+            var fx = document.querySelector('.hflex[data-flex="' + nm + '"]'); if(!fx) return;
             var f = FL[nm];
             fx.style.flex  = (pick(f,'flex') || 0) + ' 1 0';    // cell = ratio share (never moves)
             fx.style.order = (pick(f,'order') || 0);
@@ -778,13 +1025,19 @@
             ln.style.justifyContent = jC(a.charAt(1));
             ln.style.paddingTop    = ((pick(f,'padT') || 0) / 100 * vh).toFixed(1) + 'px';
             ln.style.paddingBottom = ((pick(f,'padB') || 0) / 100 * vh).toFixed(1) + 'px';
-            ln.style.paddingLeft   = ((pick(f,'padL') || 0) / 100 * vw).toFixed(1) + 'px';
-            ln.style.paddingRight  = ((pick(f,'padR') || 0) / 100 * vw).toFixed(1) + 'px';
+            ln.style.paddingLeft   = ((pick(f,'padL') || 0) / 100 * vh).toFixed(1) + 'px';
+            ln.style.paddingRight  = ((pick(f,'padR') || 0) / 100 * vh).toFixed(1) + 'px';
           });
 
-          // P+F group scaled to fit its flex box (BOTH height and available width)
+          // ---- TEXT ELEMENTS: sizes cascade from the & inside P+F ----
+          var T = window.TEXT || {};
+          var tv = function(el, k){ return pick(T[el] || {}, k); };
+          var ampEl = hero.querySelector('.amp');
+          var ampRatio = (tv('text_pf_amp','size') == null ? 66 : tv('text_pf_amp','size')) / 100;
+          if(ampEl) ampEl.style.fontSize = ampRatio + 'em';   // & = % of names (set before fitting)
+
           var names = hero.querySelector('.names');
-          var ampPx = 0;
+          var namesPx = 0, ampPx = 0;
           if(names){
             var pfBox = hero.querySelector('.hflex[data-flex="pf"] .hliner');
             names.style.fontSize = '100px';
@@ -797,21 +1050,79 @@
             }
             var scale = Math.min(availH / h0, availW / w0);
             if(!(scale > 0)) scale = availH / h0;
-            names.style.fontSize = (100 * scale).toFixed(2) + 'px';
-            var ampEl = names.querySelector('.amp');
-            if(ampEl) ampPx = parseFloat(getComputedStyle(ampEl).fontSize) || 0;
+            var nSize = (tv('text_pf_names','size') == null ? 100 : tv('text_pf_names','size')) / 100;
+            namesPx = 100 * scale * nSize; NAMES_PX = namesPx;
+            names.style.fontSize = namesPx.toFixed(2) + 'px';
+            ampPx = namesPx * ampRatio;
           }
-          var frac = function(k, def){ var v = pick(HERO, k); return (v == null ? def : v) / 100 * ampPx; };
-          var dEl = hero.querySelector('.hero-date');     if(dEl) dEl.style.fontSize = frac('dateScale', 33).toFixed(2) + 'px';
-          var lEl = hero.querySelector('.hero-location'); if(lEl) lEl.style.fontSize = frac('locationScale', 33).toFixed(2) + 'px';
-          var btn = hero.querySelector('.hero-btn');
-          if(btn){
-            btn.style.fontSize = frac('buttonScale', 50).toFixed(2) + 'px';
-            var txt = btn.querySelector('.hero-btn-text'); var textH = txt ? txt.offsetHeight : 0;
-            var bpad = pick(HERO, 'buttonPad'); var pad = (bpad == null ? 25 : bpad) / 100 * textH;
-            btn.style.padding = pad.toFixed(1) + 'px ' + pad.toFixed(1) + 'px';
-          }
+          var setSize = function(sel, el, def){ var n = hero.querySelector(sel); if(!n) return;
+            var sv = tv(el,'size'); n.style.fontSize = ((sv == null ? def : sv) / 100 * namesPx).toFixed(2) + 'px'; };
+          setSize('.hero-date','text_date',33);
+          setSize('.hero-location','text_location',33);
+          setSize('.qbtn','text_buttonQ',50);
+          setSize('.qnote','text_buttonQnote',12);
+
+          var styleText = function(sel, el){
+            var nodes = hero.querySelectorAll(sel);
+            for(var i=0;i<nodes.length;i++){
+              var n = nodes[i];
+              var w = tv(el,'weight'); if(w != null) n.style.fontWeight = w;
+              var ff = tv(el,'font');  if(ff != null) n.style.fontFamily = ff;
+              var c = tv(el,'case');   if(c != null) n.style.textTransform = c;
+              var sh = tv(el,'shift');
+              if(sh != null){ n.style.position = 'relative'; n.style.top = sh + 'em'; }
+            }
+          };
+          styleText('.name','text_pf_names'); styleText('.amp','text_pf_amp');
+          styleText('.hero-date','text_date'); styleText('.hero-location','text_location');
+          styleText('.qbtn','text_buttonQ'); styleText('.qnote','text_buttonQnote');
+
         }
+
+        // ---- SECTION 2 container size + columns (flex + order) ----
+        var _S2 = window.SECTION2 || {};
+        var _s2el = document.querySelector('.sections');
+        if(_s2el){
+          _s2el.style.width  = ((pick(_S2,'sectionWidth')  || 100) / 100 * document.documentElement.clientWidth).toFixed(1) + 'px';
+          _s2el.style.height = ((pick(_S2,'sectionHeight') || 100) / 100 * APPH).toFixed(1) + 'px';
+        }
+        var S2C = _S2.columns || {};
+        Object.keys(S2C).forEach(function(nm){
+          var col = document.querySelector('.section[data-layer="' + nm + '"]'); if(!col) return;
+          var c = S2C[nm];
+          col.style.flex  = (pick(c,'flex') || 0) + ' 1 0';
+          col.style.order = (pick(c,'order') || 0);
+        });
+
+        // ---- BUTTON (.qbtn) + LINK styling (CSS vars) ----
+        var UI = window.BUTTONLINK || {};
+        var _rs = document.documentElement.style;
+        var _qb = UI.button || {};
+        _rs.setProperty('--qbtn-bg',      pick(_qb,'bg')             || '#FFFFFF');
+        _rs.setProperty('--qbtn-bg-h',    pick(_qb,'bgHover')        || '#F0F0F0');
+        _rs.setProperty('--qbtn-color',   pick(_qb,'textColor')      || '#1F1F1F');
+        _rs.setProperty('--qbtn-color-h', pick(_qb,'textColorHover') || '#1F1F1F');
+        _rs.setProperty('--qbtn-bw',      ((pick(_qb,'borderWidth')  || 0)) + 'px');
+        _rs.setProperty('--qbtn-bc',      pick(_qb,'borderColor')    || '#1F1F1F');
+        _rs.setProperty('--qbtn-radius',  ((pick(_qb,'borderRadius') || 0)) + 'px');
+        var _py = pick(_qb,'padY'); if(_py == null){ _py = 0.6; }
+        var _px = pick(_qb,'padX'); if(_px == null){ _px = 1.2; }
+        _rs.setProperty('--qbtn-pad',     _py + 'em ' + _px + 'em');
+        var _lk = UI.link || {};
+        _rs.setProperty('--link-color', pick(_lk,'color')      || 'inherit');
+        _rs.setProperty('--link-hover', pick(_lk,'hoverColor') || 'inherit');
+        var _dot = !!pick(_lk,'dotted');
+        var _links = document.querySelectorAll('a.pf-link');
+        for(var _l=0; _l<_links.length; _l++){
+          var _a = _links[_l];
+          if(_dot){
+            _a.style.textDecorationLine      = 'underline';
+            _a.style.textDecorationStyle     = 'dotted';
+            _a.style.textDecorationColor     = pick(_lk,'underlineColor') || 'currentColor';
+            _a.style.textDecorationThickness = ((pick(_lk,'underlineThickness') || 1)) + 'px';
+          } else { _a.style.textDecorationLine = 'none'; }
+        }
+
       }
 
       // ---- APPLY: scroll-driven motion + blur ----
