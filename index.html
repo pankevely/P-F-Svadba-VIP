@@ -25,7 +25,7 @@
     defaultTheme: 'light',
 
     fillParallaxGaps_h: true,
-    fillParallaxGaps_v: true,
+    fillParallaxGaps_v: false,
 
     maxParallaxHeight100_h: true,
     maxParallaxHeight100_v: true
@@ -107,6 +107,18 @@
       visibility_h: 100,
       visibility_v: 100
     },
+    section_1_2: {
+      zIndex_h: 800, /*standard 800*/
+      zIndex_v: 800, /*standard 800*/
+      visibility_h: 100,
+      visibility_v: 100
+    },
+    section_1_3: {
+      zIndex_h: 800, /*standard 800*/
+      zIndex_v: 800, /*standard 800*/
+      visibility_h: 100,
+      visibility_v: 100
+    },
     section_2_1: {
       zIndex_h: 941, /*standard 730*/
       zIndex_v: 941, /*standard 730*/
@@ -171,7 +183,7 @@
 <script>
   window.PARALLAX = {
 
-    masterHeight_h: 33,
+    masterHeight_h: 50,
     masterHeight_v: 50,
     masterStart_h: -16,
     masterStart_v: -16,
@@ -341,8 +353,16 @@
   window.SECTIONS = {
 
     section_1_1: {
-      BG_h: 'rgba(255,255,0,0.67)',
-      BG_v: 'rgba(255,255,0,0.67)'
+      BG_h: 'rgba(255,0,0,0.12)',
+      BG_v: 'rgba(255,0,0,0.12)'
+    },
+    section_1_2: {
+      BG_h: 'rgba(0,170,0,0.12)',
+      BG_v: 'rgba(0,170,0,0.12)'
+    },
+    section_1_3: {
+      BG_h: 'rgba(0,0,255,0.12)',
+      BG_v: 'rgba(0,0,255,0.12)'
     },
     section_2_1: {
       BG_h: 'rgba(255,0,0,0.67)',
@@ -356,6 +376,146 @@
       BG_h: 'rgba(0,160,0,0.67)',
       BG_v: 'rgba(0,160,0,0.67)'
     }
+  };
+</script>
+
+<!-- ============================================================================
+     ★ CONTROL PANEL SECTION — HERO CONTROLS ★
+     Section 1 = three thirds (section_1_1 date | section_1_2 P+F+buttons | section_1_3
+     location). H: side-by-side.  V: stacked (order 1_2, 1_1, 1_3). The hero is ONE
+     screen (100dvh) split by RATIOS — no fixed dvh/dvw box sizes.
+
+     columns.<name> — the three thirds:
+       flex  : main-axis RATIO (share of the hero: width in H, height in V).
+               1/1/1 = equal thirds; 1/2/1 = quarter/half/quarter. Sums don't matter.
+       order : flow position (lower first).
+     flexes.<name> — one box per element (date, pf, buttonQ, buttonScroll, location):
+       flex  : RATIO share of its column's height.
+       order : position within its column.
+       align : 9-point content align, 2 chars [t|c|b][l|c|r] (cc, tl, br, bc, ...).
+       padT/padB : padding top/bottom (dvh)   padL/padR : padding left/right (dvw).
+     CONTENT SIZES (dateScale / locationScale / buttonScale) = % of the resulting &
+     size; the P+F group scales to fit its 'pf' box; buttonPad = % of button text.
+     Every parameter has _h (landscape) / _v (portrait) variants.
+     ============================================================================ -->
+<script>
+  window.HERO = {
+
+    // ===== COLUMNS: the three thirds of Section 1 (flex = ratio share of the hero) =====
+    columns: {
+      section_1_1: {	//date//
+        flex_h: 1,
+        flex_v: 2,
+        order_h: 1,
+        order_v: 1
+      },
+      section_1_2: {	//p+f//
+        flex_h: 1,
+        flex_v: 6,
+        order_h: 2,
+        order_v: 3
+      },
+      section_1_3: {	//location//
+        flex_h: 1,
+        flex_v: 1,
+        order_h: 3,
+        order_v: 2
+      }
+    },
+
+    // ===== INNER FLEXES: one box per element (flex = ratio share of its column) =====
+    flexes: {
+      date: {
+        flex_h: 1,
+        flex_v: 1,
+        order_h: 1,
+        order_v: 1,
+        align_h: 'cc',
+        align_v: 'bc',
+        padT_h: 10,
+        padT_v: 0,
+        padB_h: 66,
+        padB_v: 0,
+        padL_h: 0,
+        padL_v: 0,
+        padR_h: 0,
+        padR_v: 0
+      },
+      pf: {
+        flex_h: 1,
+        flex_v: 1,
+        order_h: 1,
+        order_v: 1,
+        align_h: 'cc',
+        align_v: 'cc',
+        padT_h: 10,
+        padT_v: 0,
+        padB_h: 0,
+        padB_v: 0,
+        padL_h: 0,
+        padL_v: 0,
+        padR_h: 0,
+        padR_v: 0
+      },
+      buttonQ: {
+        flex_h: 1,
+        flex_v: 1,
+        order_h: 2,
+        order_v: 2,
+        align_h: 'cc',
+        align_v: 'cc',
+        padT_h: 0,
+        padT_v: 0,
+        padB_h: 0,
+        padB_v: 0,
+        padL_h: 0,
+        padL_v: 0,
+        padR_h: 0,
+        padR_v: 0
+      },
+      buttonScroll: {
+        flex_h: 1,
+        flex_v: 1,
+        order_h: 3,
+        order_v: 3,
+        align_h: 'cc',
+        align_v: 'tc',
+        padT_h: 0,
+        padT_v: 0,
+        padB_h: 0,
+        padB_v: 0,
+        padL_h: 0,
+        padL_v: 0,
+        padR_h: 0,
+        padR_v: 0
+      },
+      location: {
+        flex_h: 1,
+        flex_v: 1,
+        order_h: 1,
+        order_v: 1,
+        align_h: 'cc',
+        align_v: 'tc',
+        padT_h: 10,
+        padT_v: 0,
+        padB_h: 66,
+        padB_v: 0,
+        padL_h: 0,
+        padL_v: 0,
+        padR_h: 0,
+        padR_v: 0
+      }
+    },
+
+    // ===== CONTENT SIZES (relative to the resulting & size) =====
+    dateScale_h: 33,
+    dateScale_v: 33,
+    locationScale_h: 33,
+    locationScale_v: 33,
+    buttonScale_h: 50,
+    buttonScale_v: 50,
+    buttonPad_h: 25,
+    buttonPad_v: 25
   };
 </script>
 
@@ -422,17 +582,42 @@
 
   /* ---- SCROLLING layers (normal flow) --------------------------------- */
   /* section_1_1 — one full screen; names centred horizontally, in the top third */
-  .section_1_1{ position:relative; width:100%; height:100vh; height:100dvh; }
-  .section_1_1 .names{
-    position:absolute; top:33%; left:50%; transform:translate(-50%,-50%);
-    width:100%; padding:0 24px; text-align:center;
-    display:flex; flex-direction:column; align-items:center;
-    gap:0.02em; line-height:0.98;
+  /* Section 1 hero — three thirds (section_1_1/2/3), each holding inner flex boxes.
+     Columns + inner flexes are sized/ordered/aligned/padded by JS from HERO CONTROLS.
+     H: columns side-by-side.  V: columns stacked. */
+  .s1{ display:flex; width:100%; height:100vh; height:100dvh; align-items:stretch; }
+  @media (orientation: portrait){ .s1{ flex-direction:column; } }
+  .s1col{ position:relative; flex:1 1 0; overflow:hidden; min-width:0; min-height:0;
+          display:flex; flex-direction:column; }   /* JS sets flex (ratio) + order */
+  /* cell = the ratio-sized area (never moves; JS sets flex + order) */
+  .hflex{ flex:1 1 0; position:relative; min-width:0; min-height:0; overflow:hidden; }
+  /* liner = fills the cell; carries padding + 9-point align (JS). Padding insets the
+     content WITHIN the cell, so the cell's ratio size never changes. */
+  .hliner{ position:absolute; inset:0; box-sizing:border-box; display:flex;
+           align-items:center; justify-content:center; }
+
+  /* P+F names group — scaled as ONE unit (by JS) to fit its flex box */
+  .names{
+    text-align:center; line-height:0.98;
+    display:flex; flex-direction:column; align-items:center; gap:0.02em;
+    font-size:100px;                  /* reference; JS overrides */
   }
   .name{ font-family:'Sansita', serif; font-weight:700;
-         color:var(--text-accent); font-size:clamp(44px, 9vw, 120px); }
+         color:var(--text-accent); font-size:1em; }               /* names = base size */
   .amp{  font-family:'Fira Sans Condensed', system-ui, sans-serif; font-weight:200;
-         color:var(--text-normal); font-size:clamp(30px, 6vw, 80px); line-height:1; }
+         color:var(--text-normal); font-size:0.66em; line-height:1; }  /* & = 66% of names */
+
+  /* date + location text — sizes set by JS as fractions of the & size */
+  .hero-date,
+  .hero-location{ font-family:'Fira Sans Extra Condensed', system-ui, sans-serif; font-weight:100;
+                  color:var(--text-accent); line-height:1.15; text-align:center; }
+  /* Dotazník button */
+  .hero-btn{ font-family:'Fira Sans Extra Condensed', system-ui, sans-serif; font-weight:500;
+             color:var(--text-accent); background:transparent;
+             border:1px solid var(--text-accent); border-radius:6px;
+             line-height:1; cursor:pointer; white-space:nowrap; }
+  /* scroll box (auto-scroll arrows added later) */
+  .hero-scroll{ width:100%; height:100%; }
 
   /* section_2 row — three FULL-HEIGHT, one-third-width frames.
      On PORTRAIT screens they stack vertically (1 → 2 → 3). */
@@ -470,13 +655,28 @@
 
   <!-- ===== SCROLLING layers (normal document flow) ===== -->
   <!-- screen 1 -->
-  <section class="section_1_1" data-layer="section_1_1">
-    <div class="names">
-      <span class="name">Patrícia</span>
-      <span class="amp">&amp;</span>
-      <span class="name">Filip</span>
+  <!-- Section 1 (hero): three thirds, each with inner flex boxes -->
+  <div class="s1">
+    <div class="s1col" data-layer="section_1_1">
+      <div class="hflex" data-flex="date"><div class="hliner"><span class="hero-date">5. september 2026</span></div></div>
     </div>
-  </section>
+    <div class="s1col" data-layer="section_1_2">
+      <div class="hflex" data-flex="pf">
+        <div class="hliner">
+          <div class="names">
+            <span class="name">Patrícia</span>
+            <span class="amp">&amp;</span>
+            <span class="name">Filip</span>
+          </div>
+        </div>
+      </div>
+      <div class="hflex" data-flex="buttonQ"><div class="hliner"><button class="hero-btn" type="button"><span class="hero-btn-text">Dotazník</span></button></div></div>
+      <div class="hflex" data-flex="buttonScroll"><div class="hliner"><span class="hero-scroll" style="width:34px;height:34px;border-radius:50%;background:var(--text-accent);display:block;"></span></div></div>
+    </div>
+    <div class="s1col" data-layer="section_1_3">
+      <div class="hflex" data-flex="location"><div class="hliner"><span class="hero-location">Rezort Partizán • Obyce, Zlaté Moravce</span></div></div>
+    </div>
+  </div>
 
   <!-- screen 2 -->
   <div class="sections">
@@ -492,6 +692,7 @@
       var PARALLAX = window.PARALLAX || {};
       var SECTIONS = window.SECTIONS || {};
       var GENERAL  = window.GENERAL  || {};
+      var HERO     = window.HERO     || {};
 
       function el(name){ return document.querySelector('[data-layer="' + name + '"]'); }
       // square counts as vertical (height >= width)
@@ -542,6 +743,67 @@
           p.img.style.left      = aScr + '%';                   // horizontal anchor: screen point
           p.img.style.transform = 'translateX(-' + aImg + '%)'; // horizontal anchor: image point
         });
+
+        // ---- HERO (Section 1): 3 columns (thirds) x inner flexes, all from HERO CONTROLS ----
+        var hero = document.querySelector('.s1');
+        if(hero){
+          var vw = window.innerWidth;
+          var aI = function(v){ return v === 't' ? 'flex-start' : (v === 'b' ? 'flex-end' : 'center'); };
+          var jC = function(h){ return h === 'l' ? 'flex-start' : (h === 'r' ? 'flex-end' : 'center'); };
+          var COLS = HERO.columns || {};
+          Object.keys(COLS).forEach(function(nm){
+            var col = document.querySelector('.s1col[data-layer="' + nm + '"]'); if(!col) return;
+            var c = COLS[nm];
+            col.style.flex  = (pick(c,'flex') || 0) + ' 1 0';   // main-axis ratio share
+            col.style.order = (pick(c,'order') || 0);
+          });
+
+          var FL = HERO.flexes || {};
+          Object.keys(FL).forEach(function(nm){
+            var fx = hero.querySelector('.hflex[data-flex="' + nm + '"]'); if(!fx) return;
+            var f = FL[nm];
+            fx.style.flex  = (pick(f,'flex') || 0) + ' 1 0';    // cell = ratio share (never moves)
+            fx.style.order = (pick(f,'order') || 0);
+            var ln = fx.querySelector('.hliner'); if(!ln) return;
+            var a = String(pick(f,'align') || 'cc').toLowerCase();
+            ln.style.alignItems     = aI(a.charAt(0));
+            ln.style.justifyContent = jC(a.charAt(1));
+            ln.style.paddingTop    = ((pick(f,'padT') || 0) / 100 * vh).toFixed(1) + 'px';
+            ln.style.paddingBottom = ((pick(f,'padB') || 0) / 100 * vh).toFixed(1) + 'px';
+            ln.style.paddingLeft   = ((pick(f,'padL') || 0) / 100 * vw).toFixed(1) + 'px';
+            ln.style.paddingRight  = ((pick(f,'padR') || 0) / 100 * vw).toFixed(1) + 'px';
+          });
+
+          // P+F group scaled to fit its flex box (BOTH height and available width)
+          var names = hero.querySelector('.names');
+          var ampPx = 0;
+          if(names){
+            var pfBox = hero.querySelector('.hflex[data-flex="pf"] .hliner');
+            names.style.fontSize = '100px';
+            var h0 = names.offsetHeight || 1, w0 = names.offsetWidth || 1;
+            var availH = h0, availW = w0;
+            if(pfBox){
+              var cs = getComputedStyle(pfBox);
+              availH = pfBox.clientHeight - (parseFloat(cs.paddingTop)  || 0) - (parseFloat(cs.paddingBottom) || 0);
+              availW = pfBox.clientWidth  - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight)  || 0);
+            }
+            var scale = Math.min(availH / h0, availW / w0);
+            if(!(scale > 0)) scale = availH / h0;
+            names.style.fontSize = (100 * scale).toFixed(2) + 'px';
+            var ampEl = names.querySelector('.amp');
+            if(ampEl) ampPx = parseFloat(getComputedStyle(ampEl).fontSize) || 0;
+          }
+          var frac = function(k, def){ var v = pick(HERO, k); return (v == null ? def : v) / 100 * ampPx; };
+          var dEl = hero.querySelector('.hero-date');     if(dEl) dEl.style.fontSize = frac('dateScale', 33).toFixed(2) + 'px';
+          var lEl = hero.querySelector('.hero-location'); if(lEl) lEl.style.fontSize = frac('locationScale', 33).toFixed(2) + 'px';
+          var btn = hero.querySelector('.hero-btn');
+          if(btn){
+            btn.style.fontSize = frac('buttonScale', 50).toFixed(2) + 'px';
+            var txt = btn.querySelector('.hero-btn-text'); var textH = txt ? txt.offsetHeight : 0;
+            var bpad = pick(HERO, 'buttonPad'); var pad = (bpad == null ? 25 : bpad) / 100 * textH;
+            btn.style.padding = pad.toFixed(1) + 'px ' + pad.toFixed(1) + 'px';
+          }
+        }
       }
 
       // ---- APPLY: scroll-driven motion + blur ----
@@ -589,6 +851,7 @@
       planes.forEach(function(p){ if(p.img && !p.img.complete) p.img.addEventListener('load', layout); });
       layout();
       apply();
+      if(document.fonts && document.fonts.ready){ document.fonts.ready.then(layout); }
 
       // ---- theme toggle (default light; remembers choice) ----
       var root = document.documentElement;
