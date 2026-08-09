@@ -6,43 +6,356 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Patrícia &amp; Filip — 5. 9. 2026</title>
 
-<!-- ============================================================
-     ★ PARALLAX CONTROL PANEL ★   — tune everything here, in one place.
-     One block per plane, parallax_01 (frontmost) … parallax_07 (backmost).
-
-     Every distance is in vh  (vh = 1% of the screen's height), so it scales
-     with the window. Every knob is plain-language:
-
-       start   : where the plane sits BEFORE any scrolling.
-                   0        = its natural spot (bottom-pinned to the screen)
-                   positive = pushed DOWN to begin with (partly below screen)
-                   negative = lifted UP to begin with
-       stop    : the TOTAL distance the plane is allowed to move, i.e. the point
-                 where it STOPS reacting to scroll. The SIGN sets direction:
-                   negative = moves UP as you scroll
-                   positive = moves DOWN as you scroll
-                 (e.g. stop:-30 = drifts up 30% of screen height, then halts.)
-       speed   : how QUICKLY it reaches its 'stop'. Bigger = reacts faster
-                 (reaches the stop after less scrolling). Doesn't change WHERE
-                 it stops, only how soon.
-       easeIn  : true  = starts moving gently (slow ramp-up from rest)
-       easeOut : true  = arrives gently (slows down as it nears the stop)
-                 (both true = smooth glide in AND out; both false = linear.)
-
-     masterSpeed scales ALL speeds at once (quick global dial).
-     ============================================================ -->
+<!-- ============================================================================
+     ★ CONTROL PANEL SECTION — GENERAL CONTROLS ★
+     Site-wide switches.
+       defaultTheme : theme the site OPENS in before the visitor toggles
+                      ('light' or 'dark'). Orientation-independent (no _h/_v).
+       fillParallaxGaps     : parallax "fill the gaps" — raise a plane's height so its
+                      width reaches the screen sides (only ever RAISES height,
+                      never lowers your tuned values).
+       maxParallaxHeight100 : cap parallax height at 100% of screen height (stops a plane
+                      from exceeding the screen on extreme aspect ratios).
+     ORIENTATION: fillParallaxGaps / maxParallaxHeight100 have _h (landscape) and _v (portrait)
+     variants; defaultTheme is a single global value.
+     ============================================================================ -->
 <script>
-  window.PARALLAX_CONFIG = {
-    masterSpeed: 1.0,
-    layers: [
-      /* parallax_01  (frontmost) */ { start: 0, stop: -14, speed: 0.10, easeIn: true, easeOut: true },
-      /* parallax_02               */ { start: 0, stop:  -6, speed: 0.10, easeIn: true, easeOut: true },
-      /* parallax_03               */ { start: 0, stop:   4, speed: 0.12, easeIn: true, easeOut: true },
-      /* parallax_04               */ { start: 0, stop:  12, speed: 0.14, easeIn: true, easeOut: true },
-      /* parallax_05               */ { start: 0, stop:  24, speed: 0.18, easeIn: true, easeOut: true },
-      /* parallax_06               */ { start: 0, stop:  38, speed: 0.24, easeIn: true, easeOut: true },
-      /* parallax_07  (backmost)   */ { start: 0, stop:  54, speed: 0.30, easeIn: true, easeOut: true }
-    ]
+  window.GENERAL = {
+
+    defaultTheme: 'light',
+
+    fillParallaxGaps_h: true,
+    fillParallaxGaps_v: true,
+
+    maxParallaxHeight100_h: true,
+    maxParallaxHeight100_v: true
+  };
+</script>
+
+<!-- Set the theme BEFORE first paint (from GENERAL.defaultTheme) so there's no flash. -->
+<script>
+  try {
+    var d = (window.GENERAL && window.GENERAL.defaultTheme) || 'light';
+    document.documentElement.setAttribute('data-theme', localStorage.getItem('pf-theme') || d);
+  } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
+</script>
+
+<!-- ============================================================================
+     ★ CONTROL PANEL SECTION — LIST OF LAYERS ★
+     Every layer, with the controls common to all layers.
+       zIndex     : stacking order (higher = closer to viewer; one shared pool).
+       visibility : 100 = solid … 0 = invisible.
+
+     ORIENTATION: every parameter has an _h (horizontal / landscape) and an _v
+     (vertical / portrait) variant. The site uses _h on landscape screens and _v
+     on portrait; a square screen counts as vertical.
+     ============================================================================ -->
+<script>
+  window.LAYERS = {
+
+    controls: {
+      zIndex_h: 1000, /*standard 1000*/
+      zIndex_v: 1000, /*standard 1000*/
+      visibility_h: 100,
+      visibility_v: 100
+    },
+    parallax_01: {
+      zIndex_h: 970, /*standard 970*/
+      zIndex_v: 970, /*standard 970*/
+      visibility_h: 100,
+      visibility_v: 100
+    },
+    parallax_02: {
+      zIndex_h: 960, /*standard 960*/
+      zIndex_v: 960, /*standard 960*/
+      visibility_h: 100,
+      visibility_v: 100
+    },
+    parallax_03: {
+      zIndex_h: 950, /*standard 950*/
+      zIndex_v: 950, /*standard 950*/
+      visibility_h: 100,
+      visibility_v: 100
+    },
+    parallax_04: {
+      zIndex_h: 940, /*standard 940*/
+      zIndex_v: 940, /*standard 940*/
+      visibility_h: 100,
+      visibility_v: 100
+    },
+    parallax_05: {
+      zIndex_h: 930, /*standard 930*/
+      zIndex_v: 930, /*standard 930*/
+      visibility_h: 100,
+      visibility_v: 100
+    },
+    parallax_06: {
+      zIndex_h: 920, /*standard 920*/
+      zIndex_v: 920, /*standard 920*/
+      visibility_h: 100,
+      visibility_v: 100
+    },
+    parallax_07: {
+      zIndex_h: 910, /*standard 910*/
+      zIndex_v: 910, /*standard 910*/
+      visibility_h: 100,
+      visibility_v: 100
+    },
+    section_1_1: {
+      zIndex_h: 800, /*standard 800*/
+      zIndex_v: 800, /*standard 800*/
+      visibility_h: 100,
+      visibility_v: 100
+    },
+    section_2_1: {
+      zIndex_h: 941, /*standard 730*/
+      zIndex_v: 941, /*standard 730*/
+      visibility_h: 100,
+      visibility_v: 100
+    },
+    section_2_2: {
+      zIndex_h: 942, /*standard 720*/
+      zIndex_v: 942, /*standard 720*/
+      visibility_h: 100,
+      visibility_v: 100
+    },
+    section_2_3: {
+      zIndex_h: 943, /*standard 710*/
+      zIndex_v: 943, /*standard 710*/
+      visibility_h: 100,
+      visibility_v: 100
+    },
+    BG: {
+      zIndex_h: 1, /*standard 1*/
+      zIndex_v: 1, /*standard 1*/
+      visibility_h: 100,
+      visibility_v: 100
+    }
+  };
+</script>
+
+<!-- ============================================================================
+     ★ CONTROL PANEL SECTION — PARALLAX CONTROLS ★
+     Parallax planes only. parallax_01 (frontmost) … 07 (backmost). Units = dvh.
+
+     SIZE:
+       masterHeight : image HEIGHT as % of screen height, pinned to the frame
+                      bottom (width follows the image's aspect, so it may overflow
+                      the sides or leave gaps). e.g. 33 = each plane is 33% tall.
+       heightAlt    : per-plane tweak; final height = masterHeight + heightAlt.
+
+     HORIZONTAL ANCHOR (left-right placement when the image is wider than the screen):
+       anchorImageX  : the point ON THE IMAGE (% of image width; 50 = centre).
+       anchorScreenX : where that point lands ON SCREEN (% of screen width).
+                       50/50 = centred crop. e.g. 75/75 keeps the image's 75% point
+                       at 75% of the screen. GLOBAL, so all planes stay aligned.
+
+     MOTION (image's BOTTOM edge; + = ABOVE frame bottom = UP, − = BELOW = DOWN):
+       start        : position at page TOP (no scroll). 0 = on the frame bottom.
+       distance     : how far it MOVES from start by max scroll
+                      (start -2 + distance 3 => ends 1 above the frame bottom).
+       acceleration : finish earlier. 0 = at page bottom; 16 = at 84%; neg = 0; cap 99 = 1%.
+       easeIn/easeOut : true = start / arrive gently.
+
+     BLUR (its own timeline):
+       blurStart / blurEnd : blur px at page top / at max scroll (interpolates).
+       blurAcceleration    : finish the blur change earlier (same 0..99 rule).
+
+     GLOBALS:
+       masterHeight, masterStart, masterDistance, masterAcceleration (added to each
+       plane's matching value); anchorImageX, anchorScreenX (whole stack, no per-plane).
+
+     ORIENTATION: every parameter has _h (landscape) and _v (portrait) variants;
+     _h on landscape screens, _v on portrait (square = vertical).
+     ============================================================================ -->
+<script>
+  window.PARALLAX = {
+
+    masterHeight_h: 33,
+    masterHeight_v: 50,
+    masterStart_h: -16,
+    masterStart_v: -16,
+    masterDistance_h: 0,
+    masterDistance_v: 0,
+    masterAcceleration_h: 0,
+    masterAcceleration_v: 0,
+
+    anchorImageX_h: 50,
+    anchorImageX_v: 75,
+    anchorScreenX_h: 50,
+    anchorScreenX_v: 75,
+
+    parallax_01: {
+      heightAlt_h: 0,
+      heightAlt_v: 0,
+      start_h: 0,
+      start_v: 0,
+      distance_h: 16,
+      distance_v: 16,
+      acceleration_h: 0,
+      acceleration_v: 0,
+      blurStart_h: 0,
+      blurStart_v: 0,
+      blurEnd_h: 0,
+      blurEnd_v: 0,
+      blurAcceleration_h: 0,
+      blurAcceleration_v: 0,
+      easeIn_h: false,
+      easeIn_v: false,
+      easeOut_h: false,
+      easeOut_v: false
+    },
+    parallax_02: {
+      heightAlt_h: 0,
+      heightAlt_v: 0,
+      start_h: 0,
+      start_v: 0,
+      distance_h: 12,
+      distance_v: 16,
+      acceleration_h: 0,
+      acceleration_v: 0,
+      blurStart_h: 0,
+      blurStart_v: 0,
+      blurEnd_h: 0,
+      blurEnd_v: 0,
+      blurAcceleration_h: 0,
+      blurAcceleration_v: 0,
+      easeIn_h: false,
+      easeIn_v: false,
+      easeOut_h: false,
+      easeOut_v: false
+    },
+    parallax_03: {
+      heightAlt_h: 0,
+      heightAlt_v: 0,
+      start_h: 0,
+      start_v: 0,
+      distance_h: 8,
+      distance_v: 8,
+      acceleration_h: 0,
+      acceleration_v: 0,
+      blurStart_h: 0,
+      blurStart_v: 0,
+      blurEnd_h: 0,
+      blurEnd_v: 0,
+      blurAcceleration_h: 0,
+      blurAcceleration_v: 0,
+      easeIn_h: false,
+      easeIn_v: false,
+      easeOut_h: false,
+      easeOut_v: false
+    },
+    parallax_04: {
+      heightAlt_h: 0,
+      heightAlt_v: 0,
+      start_h: 0,
+      start_v: 0,
+      distance_h: 4,
+      distance_v: 4,
+      acceleration_h: 0,
+      acceleration_v: 0,
+      blurStart_h: 0,
+      blurStart_v: 0,
+      blurEnd_h: 0,
+      blurEnd_v: 0,
+      blurAcceleration_h: 0,
+      blurAcceleration_v: 0,
+      easeIn_h: false,
+      easeIn_v: false,
+      easeOut_h: false,
+      easeOut_v: false
+    },
+    parallax_05: {
+      heightAlt_h: 0,
+      heightAlt_v: 0,
+      start_h: 0,
+      start_v: 0,
+      distance_h: -6,
+      distance_v: -6,
+      acceleration_h: 0,
+      acceleration_v: 0,
+      blurStart_h: 0,
+      blurStart_v: 0,
+      blurEnd_h: 0,
+      blurEnd_v: 0,
+      blurAcceleration_h: 0,
+      blurAcceleration_v: 0,
+      easeIn_h: false,
+      easeIn_v: false,
+      easeOut_h: false,
+      easeOut_v: false
+    },
+    parallax_06: {
+      heightAlt_h: 0,
+      heightAlt_v: 0,
+      start_h: -2,
+      start_v: -2,
+      distance_h: -12,
+      distance_v: -8,
+      acceleration_h: 0,
+      acceleration_v: 0,
+      blurStart_h: 0,
+      blurStart_v: 0,
+      blurEnd_h: 0,
+      blurEnd_v: 0,
+      blurAcceleration_h: 0,
+      blurAcceleration_v: 0,
+      easeIn_h: false,
+      easeIn_v: false,
+      easeOut_h: false,
+      easeOut_v: false
+    },
+    parallax_07: {
+      heightAlt_h: 0,
+      heightAlt_v: 0,
+      start_h: 0,
+      start_v: 0,
+      distance_h: -16,
+      distance_v: -16,
+      acceleration_h: 0,
+      acceleration_v: 0,
+      blurStart_h: 0,
+      blurStart_v: 0,
+      blurEnd_h: 0,
+      blurEnd_v: 0,
+      blurAcceleration_h: 0,
+      blurAcceleration_v: 0,
+      easeIn_h: false,
+      easeIn_v: false,
+      easeOut_h: false,
+      easeOut_v: false
+    }
+  };
+</script>
+
+<!-- ============================================================================
+     ★ CONTROL PANEL SECTION — SECTION CONTROLS ★
+     The content sections (section_1_1 = the names screen; section_2_1..3 = the
+     three-up row). For now just:
+       BG : the frame's background colour (any CSS colour). Handy for SEEING each
+            layer while testing; 'transparent' = no fill.
+
+     ORIENTATION: _h (landscape) and _v (portrait) variants; square = vertical.
+     ============================================================================ -->
+<script>
+  window.SECTIONS = {
+
+    section_1_1: {
+      BG_h: 'rgba(255,255,0,0.67)',
+      BG_v: 'rgba(255,255,0,0.67)'
+    },
+    section_2_1: {
+      BG_h: 'rgba(255,0,0,0.67)',
+      BG_v: 'rgba(255,0,0,0.67)'
+    },
+    section_2_2: {
+      BG_h: 'rgba(0,0,255,0.67)',
+      BG_v: 'rgba(0,0,255,0.67)'
+    },
+    section_2_3: {
+      BG_h: 'rgba(0,160,0,0.67)',
+      BG_v: 'rgba(0,160,0,0.67)'
+    }
   };
 </script>
 
@@ -51,7 +364,7 @@
 
   /* ============================================================
      WEBSITE CHROME — black/white only (Brand Kit §2).
-     Background matches the page theme; text swaps by prefers-color-scheme.
+     BOTH palettes kept; active one chosen by data-theme. Default = LIGHT.
      ============================================================ */
   :root{
     --bg-light:          #FFFFFF;
@@ -61,132 +374,232 @@
     --text-normal-dark:  #C1C1C1;
     --text-accent-dark:  #E1E1E1;
 
-    --bg:           var(--bg-light);
-    --text-normal:  var(--text-normal-light);
-    --text-accent:  var(--text-accent-light);
+    --bg:          var(--bg-light);
+    --text-normal: var(--text-normal-light);
+    --text-accent: var(--text-accent-light);
   }
-  @media (prefers-color-scheme: dark){
-    :root{
-      --bg:           var(--bg-dark);
-      --text-normal:  var(--text-normal-dark);
-      --text-accent:  var(--text-accent-dark);
-    }
+  :root[data-theme="light"]{
+    --bg:          var(--bg-light);
+    --text-normal: var(--text-normal-light);
+    --text-accent: var(--text-accent-light);
+  }
+  :root[data-theme="dark"]{
+    --bg:          var(--bg-dark);
+    --text-normal: var(--text-normal-dark);
+    --text-accent: var(--text-accent-dark);
   }
   /* ============================================================ */
 
   *{ box-sizing:border-box; }
   html,body{ margin:0; padding:0; }
-  /* normal / body text = Fira Sans Extra Condensed, Light (300) */
   body{ font-family:'Fira Sans Extra Condensed', system-ui, sans-serif; font-weight:300; }
 
-  /* -------- LAYER: bg (back) — solid theme background -------- */
-  .bg{ position:fixed; inset:0; background:var(--bg); z-index:1; }
+  /* ---- FIXED layers (don't scroll) ------------------------------------ */
+  .bg{ position:fixed; inset:0; background:var(--bg); pointer-events:none; }
 
-  /* -------- LAYER: content_core (middle) — the only thing that scrolls -------- */
-  .content_core{ position:relative; z-index:2; }
-
-  /* names: three centered lines; block's vertical middle sits at 33% viewport height */
-  .names{
-    height:66vh;                 /* centered within 66vh => middle at 33vh */
-    display:flex; flex-direction:column;
-    align-items:center; justify-content:center;
-    gap:0.02em; line-height:0.98;
-    text-align:center; padding:0 24px;
-  }
-  .name{                         /* "Patrícia" / "Filip" — Sansita 700, accent tier */
-    font-family:'Sansita', serif; font-weight:700;
-    color:var(--text-accent);
-    font-size:clamp(44px, 9vw, 120px);
-  }
-  .amp{                          /* "&" — Fira Sans Condensed, ExtraLight (200), normal tier */
-    font-family:'Fira Sans Condensed', system-ui, sans-serif; font-weight:200;
-    color:var(--text-normal);
-    font-size:clamp(30px, 6vw, 80px); line-height:1;
-  }
-
-  /* tall empty div so the page scrolls well past one screen (>= 3x viewport height) */
-  .scroll_spacer{ height:320vh; }
-
-  /* -------- LAYER: parallax (front) — 7 stacked planes pinned to viewport bottom -------- */
-  .parallax{
-    position:fixed; left:0; right:0; bottom:0; height:100vh;
-    z-index:3; pointer-events:none; overflow:hidden;
-  }
-  .parallax img{
+  /* parallax plane — full-screen fixed frame; the webp is pinned to its bottom.
+     Sizing (height + width) is set by JS from masterHeight/heightAlt.
+     Motion = translate the FRAME; blur = on the img. */
+  .parallax{ position:fixed; inset:0; pointer-events:none; }
+  .parallax > img{
     position:absolute; left:50%; bottom:0;
-    width:100%; height:auto;
-    transform:translate3d(-50%,0,0);
-    will-change:transform; display:block;
-    -webkit-user-select:none; user-select:none;
+    width:auto; height:33dvh;                 /* JS overrides with the tuned height */
+    transform:translateX(-50%);
+    display:block; -webkit-user-select:none; user-select:none;
   }
-  /* z-order within the stack: 01 frontmost … 07 backmost */
-  .p1{ z-index:37; } .p2{ z-index:36; } .p3{ z-index:35; } .p4{ z-index:34; }
-  .p5{ z-index:33; } .p6{ z-index:32; } .p7{ z-index:31; }
+
+  /* controls — full-screen fixed frame; click-through except its buttons */
+  .controls{ position:fixed; inset:0; pointer-events:none; }
+  .theme-toggle{
+    position:absolute; top:18px; right:18px;
+    width:34px; height:34px; border-radius:50%;
+    background:var(--text-accent);
+    border:1px solid var(--bg);
+    box-shadow:0 0 0 1px var(--text-accent);
+    cursor:pointer; pointer-events:auto; padding:0;
+    transition:background .2s ease;
+  }
+
+  /* ---- SCROLLING layers (normal flow) --------------------------------- */
+  /* section_1_1 — one full screen; names centred horizontally, in the top third */
+  .section_1_1{ position:relative; width:100%; height:100vh; height:100dvh; }
+  .section_1_1 .names{
+    position:absolute; top:33%; left:50%; transform:translate(-50%,-50%);
+    width:100%; padding:0 24px; text-align:center;
+    display:flex; flex-direction:column; align-items:center;
+    gap:0.02em; line-height:0.98;
+  }
+  .name{ font-family:'Sansita', serif; font-weight:700;
+         color:var(--text-accent); font-size:clamp(44px, 9vw, 120px); }
+  .amp{  font-family:'Fira Sans Condensed', system-ui, sans-serif; font-weight:200;
+         color:var(--text-normal); font-size:clamp(30px, 6vw, 80px); line-height:1; }
+
+  /* section_2 row — three FULL-HEIGHT, one-third-width frames.
+     On PORTRAIT screens they stack vertically (1 → 2 → 3). */
+  .sections{ display:flex; width:100%; }
+  .section{
+    position:relative; flex:1 1 0; min-width:0;
+    height:100vh; height:100dvh;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--text-accent); font-weight:300;
+    font-size:clamp(18px, 3vw, 40px); letter-spacing:.01em;
+  }
+  @media (orientation: portrait){
+    .sections{ flex-direction:column; }
+    /* stacked: each section is its OWN full screen (don't let flex-basis:0 collapse it) */
+    .section{ width:100%; flex:0 0 auto; }
+  }
 </style>
 </head>
 <body>
 
-  <!-- bg layer -->
-  <div class="bg"></div>
+  <!-- ===== FIXED layers ===== -->
+  <div class="bg" data-layer="BG"></div>
 
-  <!-- content_core layer (scrolls) -->
-  <div class="content_core">
+  <div class="parallax" data-layer="parallax_01"><img src="assets/img/parallax_01.webp" alt=""></div>
+  <div class="parallax" data-layer="parallax_02"><img src="assets/img/parallax_02.webp" alt=""></div>
+  <div class="parallax" data-layer="parallax_03"><img src="assets/img/parallax_03.webp" alt=""></div>
+  <div class="parallax" data-layer="parallax_04"><img src="assets/img/parallax_04.webp" alt=""></div>
+  <div class="parallax" data-layer="parallax_05"><img src="assets/img/parallax_05.webp" alt=""></div>
+  <div class="parallax" data-layer="parallax_06"><img src="assets/img/parallax_06.webp" alt=""></div>
+  <div class="parallax" data-layer="parallax_07"><img src="assets/img/parallax_07.webp" alt=""></div>
+
+  <div class="controls" data-layer="controls">
+    <button class="theme-toggle" type="button" aria-label="Prepnúť svetlý/tmavý režim"></button>
+  </div>
+
+  <!-- ===== SCROLLING layers (normal document flow) ===== -->
+  <!-- screen 1 -->
+  <section class="section_1_1" data-layer="section_1_1">
     <div class="names">
       <span class="name">Patrícia</span>
       <span class="amp">&amp;</span>
       <span class="name">Filip</span>
     </div>
-    <div class="scroll_spacer"><!-- empty test spacer, >= 3x screen height --></div>
+  </section>
+
+  <!-- screen 2 -->
+  <div class="sections">
+    <div class="section" data-layer="section_2_1">section_2_1</div>
+    <div class="section" data-layer="section_2_2">section_2_2</div>
+    <div class="section" data-layer="section_2_3">section_2_3</div>
   </div>
 
-  <!-- parallax layer (front) — parallax_01 top of stack … parallax_07 bottom -->
-  <div class="parallax" aria-hidden="true">
-    <img class="p1" src="assets/img/parallax_01.webp" alt="">
-    <img class="p2" src="assets/img/parallax_02.webp" alt="">
-    <img class="p3" src="assets/img/parallax_03.webp" alt="">
-    <img class="p4" src="assets/img/parallax_04.webp" alt="">
-    <img class="p5" src="assets/img/parallax_05.webp" alt="">
-    <img class="p6" src="assets/img/parallax_06.webp" alt="">
-    <img class="p7" src="assets/img/parallax_07.webp" alt="">
-  </div>
-
-  <!-- ============ PARALLAX ENGINE (reads the control panel above) ============ -->
+  <!-- ============ ENGINE (reads the control-panel sections above) ============ -->
   <script>
     (function(){
-      var cfg  = window.PARALLAX_CONFIG || { masterSpeed:1, layers:[] };
-      var imgs = Array.prototype.slice.call(document.querySelectorAll('.parallax img'));
+      var LAYERS   = window.LAYERS   || {};
+      var PARALLAX = window.PARALLAX || {};
+      var SECTIONS = window.SECTIONS || {};
+      var GENERAL  = window.GENERAL  || {};
 
-      // easing shapes for the movement (progress p is 0..1 toward the stop)
-      function ease(p, i, o){
-        if(i && o) return p*p*(3-2*p);        // smooth in-out (smoothstep)
-        if(i)      return p*p;                 // ease-in
-        if(o)      return 1-(1-p)*(1-p);       // ease-out
-        return p;                              // linear
+      function el(name){ return document.querySelector('[data-layer="' + name + '"]'); }
+      // square counts as vertical (height >= width)
+      function vertical(){ return window.innerHeight >= window.innerWidth; }
+      // read the orientation-active variant of a base parameter
+      function pick(obj, base){ if(!obj) return undefined; return obj[base + (vertical() ? '_v' : '_h')]; }
+
+      function ease(p,i,o){ if(i&&o) return p*p*(3-2*p); if(i) return p*p; if(o) return 1-(1-p)*(1-p); return p; }
+
+      var planes = Object.keys(PARALLAX)
+        .filter(function(k){ return /^parallax_/.test(k); })
+        .map(function(k){ var f = el(k); return { cfg:PARALLAX[k], frame:f, img: f ? f.querySelector('img') : null }; });
+
+      // ---- LAYOUT: orientation-dependent, NOT scroll-dependent ----
+      //      z-index + visibility (all layers), section BG colour, parallax image size
+      function layout(){
+        var vh = window.innerHeight;
+
+        Object.keys(LAYERS).forEach(function(name){
+          var node = el(name); if(!node) return;
+          var z = pick(LAYERS[name], 'zIndex');     if(z != null) node.style.zIndex  = z;
+          var v = pick(LAYERS[name], 'visibility'); if(v != null) node.style.opacity = v / 100;
+        });
+
+        Object.keys(SECTIONS).forEach(function(name){
+          var node = el(name); if(!node) return;
+          var c = pick(SECTIONS[name], 'BG'); if(c != null) node.style.backgroundColor = c;
+        });
+
+        var mH   = pick(PARALLAX, 'masterHeight') || 0;
+        var fill = !!pick(GENERAL, 'fillParallaxGaps');       // GENERAL CONTROLS toggle
+        var cap  = !!pick(GENERAL, 'maxParallaxHeight100');   // GENERAL CONTROLS toggle
+        var vw   = window.innerWidth;
+        var aImg = pick(PARALLAX, 'anchorImageX');  if(aImg == null) aImg = 50;
+        var aScr = pick(PARALLAX, 'anchorScreenX'); if(aScr == null) aScr = 50;
+        planes.forEach(function(p){
+          if(!p.img) return;
+          var hPct = mH + (pick(p.cfg, 'heightAlt') || 0);   // % of screen height
+          // FILL THE GAPS: raise height so the image width reaches the sides.
+          // imgAspect read LIVE from the actual image (needs it loaded).
+          if(fill && p.img.naturalWidth && p.img.naturalHeight){
+            var minPct = 100 * (vw / vh) / (p.img.naturalWidth / p.img.naturalHeight);
+            if(hPct < minPct) hPct = minPct;
+          }
+          if(cap && hPct > 100) hPct = 100;                  // never taller than the screen
+          p.img.style.height    = (hPct / 100 * vh).toFixed(1) + 'px';
+          p.img.style.width     = 'auto';
+          p.img.style.left      = aScr + '%';                   // horizontal anchor: screen point
+          p.img.style.transform = 'translateX(-' + aImg + '%)'; // horizontal anchor: image point
+        });
       }
 
+      // ---- APPLY: scroll-driven motion + blur ----
       var ticking = false;
       function apply(){
         var vh = window.innerHeight;
         var y  = window.scrollY || window.pageYOffset || 0;
-        var m  = (cfg.masterSpeed == null ? 1 : cfg.masterSpeed);
+        var maxScroll = Math.max(1, document.documentElement.scrollHeight - vh);
+        var mSt  = pick(PARALLAX, 'masterStart')        || 0;
+        var mDi  = pick(PARALLAX, 'masterDistance')     || 0;
+        var mAcc = pick(PARALLAX, 'masterAcceleration') || 0;
+        var prog = Math.min(Math.max(y / maxScroll, 0), 1);   // shared raw scroll progress 0..1
 
-        for (var idx=0; idx<imgs.length; idx++){
-          var L = cfg.layers[idx] || {};
-          var startPx = (L.start || 0) / 100 * vh;   // initial offset
-          var stopPx  = (L.stop  || 0) / 100 * vh;   // total travel (signed)
-          var denom   = Math.abs(stopPx) || 1;
-          var prog    = Math.min(Math.max((L.speed || 0) * m * y / denom, 0), 1);
-          var eased   = ease(prog, !!L.easeIn, !!L.easeOut);
-          var disp    = startPx + stopPx * eased;
-          imgs[idx].style.transform = 'translate3d(-50%,' + disp.toFixed(2) + 'px,0)';
-        }
+        planes.forEach(function(p){
+          if(!p.frame) return;
+          var L = p.cfg;
+          var startPos = (pick(L,'start')    || 0) + mSt;   // dvh above frame bottom @ page top
+          var travel   = (pick(L,'distance') || 0) + mDi;   // how far it MOVES from start (dvh)
+
+          var accel = (pick(L,'acceleration') || 0) + mAcc;
+          if(accel < 0)  accel = 0;
+          if(accel > 99) accel = 99;
+          var t = Math.min(prog / ((100 - accel) / 100), 1);
+
+          var posDvh = startPos + travel * ease(t, !!pick(L,'easeIn'), !!pick(L,'easeOut'));
+          p.frame.style.transform = 'translateY(' + (-(posDvh / 100) * vh).toFixed(2) + 'px)';
+
+          // blur: blurStart -> blurEnd on its OWN acceleration
+          var bAcc = (pick(L,'blurAcceleration') || 0);
+          if(bAcc < 0)  bAcc = 0;
+          if(bAcc > 99) bAcc = 99;
+          var bt = Math.min(prog / ((100 - bAcc) / 100), 1);
+          var b0 = pick(L,'blurStart') || 0, b1 = pick(L,'blurEnd') || 0;
+          if(p.img) p.img.style.filter = 'blur(' + (b0 + (b1 - b0) * bt).toFixed(2) + 'px)';
+        });
         ticking = false;
       }
       function onScroll(){ if(!ticking){ ticking = true; requestAnimationFrame(apply); } }
 
       window.addEventListener('scroll', onScroll, {passive:true});
-      window.addEventListener('resize', onScroll, {passive:true});
+      window.addEventListener('resize', function(){ layout(); onScroll(); }, {passive:true});
+      window.addEventListener('orientationchange', function(){ layout(); onScroll(); });
+
+      // images may not be measured yet on first paint; re-run layout when each loads
+      planes.forEach(function(p){ if(p.img && !p.img.complete) p.img.addEventListener('load', layout); });
+      layout();
       apply();
+
+      // ---- theme toggle (default light; remembers choice) ----
+      var root = document.documentElement;
+      var btn  = document.querySelector('.theme-toggle');
+      if(btn){
+        btn.addEventListener('click', function(){
+          var next = (root.getAttribute('data-theme') === 'light') ? 'dark' : 'light';
+          root.setAttribute('data-theme', next);
+          try { localStorage.setItem('pf-theme', next); } catch(e){}
+        });
+      }
     })();
   </script>
 </body>
