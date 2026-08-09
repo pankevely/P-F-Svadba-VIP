@@ -25,7 +25,7 @@
     defaultTheme: 'light',
 
     fillParallaxGaps_h: true,
-    fillParallaxGaps_v: false,
+    fillParallaxGaps_v: true,
 
     maxParallaxHeight100_h: true,
     maxParallaxHeight100_v: true
@@ -192,9 +192,9 @@
     masterAcceleration_h: 0,
     masterAcceleration_v: 0,
 
-    anchorImageX_h: 50,
+    anchorImageX_h: 75,
     anchorImageX_v: 75,
-    anchorScreenX_h: 50,
+    anchorScreenX_h: 75,
     anchorScreenX_v: 75,
 
     parallax_01: {
@@ -560,7 +560,7 @@
   /* parallax plane — full-screen fixed frame; the webp is pinned to its bottom.
      Sizing (height + width) is set by JS from masterHeight/heightAlt.
      Motion = translate the FRAME; blur = on the img. */
-  .parallax{ position:fixed; inset:0; pointer-events:none; }
+  .parallax{ position:fixed; inset:0; pointer-events:none; will-change:transform; backface-visibility:hidden; }
   .parallax > img{
     position:absolute; left:50%; bottom:0;
     width:auto; height:33dvh;                 /* JS overrides with the tuned height */
@@ -585,7 +585,7 @@
   /* Section 1 hero — three thirds (section_1_1/2/3), each holding inner flex boxes.
      Columns + inner flexes are sized/ordered/aligned/padded by JS from HERO CONTROLS.
      H: columns side-by-side.  V: columns stacked. */
-  .s1{ display:flex; width:100%; height:100vh; height:100dvh; align-items:stretch; }
+  .s1{ display:flex; width:100%; height:100vh; height:100dvh; height:var(--appvh,100dvh); align-items:stretch; }
   @media (orientation: portrait){ .s1{ flex-direction:column; } }
   .s1col{ position:relative; flex:1 1 0; overflow:hidden; min-width:0; min-height:0;
           display:flex; flex-direction:column; }   /* JS sets flex (ratio) + order */
@@ -624,7 +624,7 @@
   .sections{ display:flex; width:100%; }
   .section{
     position:relative; flex:1 1 0; min-width:0;
-    height:100vh; height:100dvh;
+    height:100vh; height:100dvh; height:var(--appvh,100dvh);
     display:flex; align-items:center; justify-content:center;
     color:var(--text-accent); font-weight:300;
     font-size:clamp(18px, 3vw, 40px); letter-spacing:.01em;
@@ -694,6 +694,14 @@
       var GENERAL  = window.GENERAL  || {};
       var HERO     = window.HERO     || {};
 
+      // ---- STABLE viewport size: frozen so the mobile URL bar (which changes
+      //      innerHeight on scroll) can't reflow the layout. Updated only on a
+      //      real width / orientation change. ----
+      var APPW = window.innerWidth, APPH = window.innerHeight;
+      function setVH(){ APPW = window.innerWidth; APPH = window.innerHeight;
+                        document.documentElement.style.setProperty('--appvh', APPH + 'px'); }
+      setVH();
+
       function el(name){ return document.querySelector('[data-layer="' + name + '"]'); }
       // square counts as vertical (height >= width)
       function vertical(){ return window.innerHeight >= window.innerWidth; }
@@ -709,7 +717,7 @@
       // ---- LAYOUT: orientation-dependent, NOT scroll-dependent ----
       //      z-index + visibility (all layers), section BG colour, parallax image size
       function layout(){
-        var vh = window.innerHeight;
+        var vh = APPH;
 
         Object.keys(LAYERS).forEach(function(name){
           var node = el(name); if(!node) return;
@@ -725,7 +733,7 @@
         var mH   = pick(PARALLAX, 'masterHeight') || 0;
         var fill = !!pick(GENERAL, 'fillParallaxGaps');       // GENERAL CONTROLS toggle
         var cap  = !!pick(GENERAL, 'maxParallaxHeight100');   // GENERAL CONTROLS toggle
-        var vw   = window.innerWidth;
+        var vw   = APPW;
         var aImg = pick(PARALLAX, 'anchorImageX');  if(aImg == null) aImg = 50;
         var aScr = pick(PARALLAX, 'anchorScreenX'); if(aScr == null) aScr = 50;
         planes.forEach(function(p){
@@ -747,7 +755,7 @@
         // ---- HERO (Section 1): 3 columns (thirds) x inner flexes, all from HERO CONTROLS ----
         var hero = document.querySelector('.s1');
         if(hero){
-          var vw = window.innerWidth;
+          var vw = APPW;
           var aI = function(v){ return v === 't' ? 'flex-start' : (v === 'b' ? 'flex-end' : 'center'); };
           var jC = function(h){ return h === 'l' ? 'flex-start' : (h === 'r' ? 'flex-end' : 'center'); };
           var COLS = HERO.columns || {};
@@ -809,7 +817,7 @@
       // ---- APPLY: scroll-driven motion + blur ----
       var ticking = false;
       function apply(){
-        var vh = window.innerHeight;
+        var vh = APPH;
         var y  = window.scrollY || window.pageYOffset || 0;
         var maxScroll = Math.max(1, document.documentElement.scrollHeight - vh);
         var mSt  = pick(PARALLAX, 'masterStart')        || 0;
@@ -844,8 +852,12 @@
       function onScroll(){ if(!ticking){ ticking = true; requestAnimationFrame(apply); } }
 
       window.addEventListener('scroll', onScroll, {passive:true});
-      window.addEventListener('resize', function(){ layout(); onScroll(); }, {passive:true});
-      window.addEventListener('orientationchange', function(){ layout(); onScroll(); });
+      window.addEventListener('resize', function(){
+        var flip = (window.innerHeight >= window.innerWidth) !== (APPH >= APPW);
+        if(window.innerWidth !== APPW || flip){ setVH(); layout(); }   // genuine layout change only
+        onScroll();
+      }, {passive:true});
+      window.addEventListener('orientationchange', function(){ setVH(); layout(); onScroll(); });
 
       // images may not be measured yet on first paint; re-run layout when each loads
       planes.forEach(function(p){ if(p.img && !p.img.complete) p.img.addEventListener('load', layout); });
