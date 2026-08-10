@@ -27,8 +27,8 @@
     fillParallaxGaps_h: true,
     fillParallaxGaps_v: true,
 
-    maxParallaxHeight100_h: true,
-    maxParallaxHeight100_v: true
+    maxParallaxHeight100_h: false,
+    maxParallaxHeight100_v: false
   };
 </script>
 
@@ -120,7 +120,7 @@
       visibility_v: 100
     },
     section_2_1: {
-      zIndex_h: 945, /*standard 730*/
+      zIndex_h: 945, /*standard 730*/	
       zIndex_v: 945, /*standard 730*/
       visibility_h: 100,
       visibility_v: 100
@@ -149,6 +149,9 @@
 <!-- ============================================================================
      ★ CONTROL PANEL SECTION — PARALLAX CONTROLS ★
      Parallax planes only. parallax_01 (frontmost) … 07 (backmost). Units = dvh.
+     sky_01 is a parallax plane too, but it lives INSIDE the BG layer (fixed,
+     full-screen backdrop) so it sits behind every mountain plane. Same controls
+     as the others. Raise its heightAlt to make the sky fill more of the screen.
 
      SIZE:
        masterHeight : image HEIGHT as % of screen height, pinned to the frame
@@ -160,7 +163,7 @@
        anchorImageX  : the point ON THE IMAGE (% of image width; 50 = centre).
        anchorScreenX : where that point lands ON SCREEN (% of screen width).
                        50/50 = centred crop. e.g. 75/75 keeps the image's 75% point
-                       at 75% of the screen. GLOBAL, so all planes stay aligned.
+                       at 75% of the screen. PER-PLANE — each image placed independently.
 
      MOTION (image's BOTTOM edge; + = ABOVE frame bottom = UP, − = BELOW = DOWN):
        start        : position at page TOP (no scroll). 0 = on the frame bottom.
@@ -173,9 +176,16 @@
        blurStart / blurEnd : blur px at page top / at max scroll (interpolates).
        blurAcceleration    : finish the blur change earlier (same 0..99 rule).
 
+     COLOUR / GRADE (static; applied as filters, so they respect the image's
+     transparent torn edges):
+       saturate / brightness / contrast : percent, 100 = unchanged.
+       opacity  : percent, 100 = solid … 0 = invisible (this plane's image only).
+       tint     : colorization strength, 0 = off … 100 = fully tinted (monochrome).
+       tintHue  : the tint colour as a hue rotation in degrees (0 ≈ warm sepia).
+
      GLOBALS:
        masterHeight, masterStart, masterDistance, masterAcceleration (added to each
-       plane's matching value); anchorImageX, anchorScreenX (whole stack, no per-plane).
+       plane's matching value). anchorImageX / anchorScreenX are now PER-PLANE.
 
      ORIENTATION: every parameter has _h (landscape) and _v (portrait) variants;
      _h on landscape screens, _v on portrait (square = vertical).
@@ -192,14 +202,13 @@
     masterAcceleration_h: 0,
     masterAcceleration_v: 0,
 
-    anchorImageX_h: 75,
-    anchorImageX_v: 75,
-    anchorScreenX_h: 75,
-    anchorScreenX_v: 75,
-
     parallax_01: {
       heightAlt_h: 0,
       heightAlt_v: 0,
+      anchorImageX_h: 75,
+      anchorImageX_v: 75,
+      anchorScreenX_h: 75,
+      anchorScreenX_v: 75,
       start_h: 0,
       start_v: 0,
       distance_h: 16,
@@ -212,6 +221,18 @@
       blurEnd_v: 0,
       blurAcceleration_h: 0,
       blurAcceleration_v: 0,
+      saturate_h: 100,
+      saturate_v: 100,
+      brightness_h: 100,
+      brightness_v: 100,
+      contrast_h: 100,
+      contrast_v: 100,
+      opacity_h: 100,
+      opacity_v: 100,
+      tint_h: 0,
+      tint_v: 0,
+      tintHue_h: 0,
+      tintHue_v: 0,
       easeIn_h: false,
       easeIn_v: false,
       easeOut_h: false,
@@ -220,6 +241,10 @@
     parallax_02: {
       heightAlt_h: 0,
       heightAlt_v: 0,
+      anchorImageX_h: 75,
+      anchorImageX_v: 75,
+      anchorScreenX_h: 75,
+      anchorScreenX_v: 75,
       start_h: 0,
       start_v: 0,
       distance_h: 12,
@@ -232,6 +257,18 @@
       blurEnd_v: 0,
       blurAcceleration_h: 0,
       blurAcceleration_v: 0,
+      saturate_h: 100,
+      saturate_v: 100,
+      brightness_h: 100,
+      brightness_v: 100,
+      contrast_h: 100,
+      contrast_v: 100,
+      opacity_h: 100,
+      opacity_v: 100,
+      tint_h: 0,
+      tint_v: 0,
+      tintHue_h: 0,
+      tintHue_v: 0,
       easeIn_h: false,
       easeIn_v: false,
       easeOut_h: false,
@@ -240,6 +277,10 @@
     parallax_03: {
       heightAlt_h: 0,
       heightAlt_v: 0,
+      anchorImageX_h: 75,
+      anchorImageX_v: 75,
+      anchorScreenX_h: 75,
+      anchorScreenX_v: 75,
       start_h: 0,
       start_v: 0,
       distance_h: 8,
@@ -252,6 +293,18 @@
       blurEnd_v: 0,
       blurAcceleration_h: 0,
       blurAcceleration_v: 0,
+      saturate_h: 100,
+      saturate_v: 100,
+      brightness_h: 100,
+      brightness_v: 100,
+      contrast_h: 100,
+      contrast_v: 100,
+      opacity_h: 100,
+      opacity_v: 100,
+      tint_h: 0,
+      tint_v: 0,
+      tintHue_h: 0,
+      tintHue_v: 0,
       easeIn_h: false,
       easeIn_v: false,
       easeOut_h: false,
@@ -260,6 +313,10 @@
     parallax_04: {
       heightAlt_h: 0,
       heightAlt_v: 0,
+      anchorImageX_h: 75,
+      anchorImageX_v: 75,
+      anchorScreenX_h: 75,
+      anchorScreenX_v: 75,
       start_h: 0,
       start_v: 0,
       distance_h: 4,
@@ -272,6 +329,18 @@
       blurEnd_v: 0,
       blurAcceleration_h: 0,
       blurAcceleration_v: 0,
+      saturate_h: 100,
+      saturate_v: 100,
+      brightness_h: 100,
+      brightness_v: 100,
+      contrast_h: 100,
+      contrast_v: 100,
+      opacity_h: 100,
+      opacity_v: 100,
+      tint_h: 0,
+      tint_v: 0,
+      tintHue_h: 0,
+      tintHue_v: 0,
       easeIn_h: false,
       easeIn_v: false,
       easeOut_h: false,
@@ -280,6 +349,10 @@
     parallax_05: {
       heightAlt_h: 0,
       heightAlt_v: 0,
+      anchorImageX_h: 75,
+      anchorImageX_v: 75,
+      anchorScreenX_h: 75,
+      anchorScreenX_v: 75,
       start_h: 0,
       start_v: 0,
       distance_h: -6,
@@ -292,6 +365,18 @@
       blurEnd_v: 0,
       blurAcceleration_h: 0,
       blurAcceleration_v: 0,
+      saturate_h: 100,
+      saturate_v: 100,
+      brightness_h: 100,
+      brightness_v: 100,
+      contrast_h: 100,
+      contrast_v: 100,
+      opacity_h: 100,
+      opacity_v: 100,
+      tint_h: 0,
+      tint_v: 0,
+      tintHue_h: 0,
+      tintHue_v: 0,
       easeIn_h: false,
       easeIn_v: false,
       easeOut_h: false,
@@ -300,6 +385,10 @@
     parallax_06: {
       heightAlt_h: 0,
       heightAlt_v: 0,
+      anchorImageX_h: 75,
+      anchorImageX_v: 75,
+      anchorScreenX_h: 75,
+      anchorScreenX_v: 75,
       start_h: -2,
       start_v: -2,
       distance_h: -12,
@@ -312,6 +401,18 @@
       blurEnd_v: 0,
       blurAcceleration_h: 0,
       blurAcceleration_v: 0,
+      saturate_h: 100,
+      saturate_v: 100,
+      brightness_h: 100,
+      brightness_v: 100,
+      contrast_h: 100,
+      contrast_v: 100,
+      opacity_h: 100,
+      opacity_v: 100,
+      tint_h: 0,
+      tint_v: 0,
+      tintHue_h: 0,
+      tintHue_v: 0,
       easeIn_h: false,
       easeIn_v: false,
       easeOut_h: false,
@@ -320,6 +421,10 @@
     parallax_07: {
       heightAlt_h: 0,
       heightAlt_v: 0,
+      anchorImageX_h: 75,
+      anchorImageX_v: 75,
+      anchorScreenX_h: 75,
+      anchorScreenX_v: 75,
       start_h: 0,
       start_v: 0,
       distance_h: -16,
@@ -332,6 +437,54 @@
       blurEnd_v: 0,
       blurAcceleration_h: 0,
       blurAcceleration_v: 0,
+      saturate_h: 100,
+      saturate_v: 100,
+      brightness_h: 100,
+      brightness_v: 100,
+      contrast_h: 100,
+      contrast_v: 100,
+      opacity_h: 100,
+      opacity_v: 100,
+      tint_h: 0,
+      tint_v: 0,
+      tintHue_h: 0,
+      tintHue_v: 0,
+      easeIn_h: false,
+      easeIn_v: false,
+      easeOut_h: false,
+      easeOut_v: false
+    },
+    sky_01: {
+      heightAlt_h: 50,
+      heightAlt_v: 100,
+      anchorImageX_h: 75,
+      anchorImageX_v: 75,
+      anchorScreenX_h: 75,
+      anchorScreenX_v: 75,
+      start_h: 25,
+      start_v: 33,
+      distance_h: -25,
+      distance_v: -33,
+      acceleration_h: 0,
+      acceleration_v: 0,
+      blurStart_h: 32, //32 works//
+      blurStart_v: 32, //32 works//
+      blurEnd_h: 0,
+      blurEnd_v: 0,
+      blurAcceleration_h: 20,
+      blurAcceleration_v: 20,
+      saturate_h: 80,
+      saturate_v: 80,
+      brightness_h: 100,
+      brightness_v: 100,
+      contrast_h: 100,
+      contrast_v: 100,
+      opacity_h: 33,
+      opacity_v: 33,
+      tint_h: 0,
+      tint_v: 0,
+      tintHue_h: 0,
+      tintHue_v: 0,
       easeIn_h: false,
       easeIn_v: false,
       easeOut_h: false,
@@ -882,7 +1035,9 @@
 <body>
 
   <!-- ===== FIXED layers ===== -->
-  <div class="bg" data-layer="BG"></div>
+  <div class="bg" data-layer="BG">
+    <div class="parallax" data-layer="sky_01"><img src="assets/img/sky_01.webp" alt=""></div>
+  </div>
 
   <div class="parallax" data-layer="parallax_01"><img src="assets/img/parallax_01.webp" alt=""></div>
   <div class="parallax" data-layer="parallax_02"><img src="assets/img/parallax_02.webp" alt=""></div>
@@ -955,7 +1110,7 @@
       function ease(p,i,o){ if(i&&o) return p*p*(3-2*p); if(i) return p*p; if(o) return 1-(1-p)*(1-p); return p; }
 
       var planes = Object.keys(PARALLAX)
-        .filter(function(k){ return /^parallax_/.test(k); })
+        .filter(function(k){ return /^(parallax_|sky_)/.test(k); })
         .map(function(k){ var f = el(k); return { cfg:PARALLAX[k], frame:f, img: f ? f.querySelector('img') : null }; });
 
       // ---- LAYOUT: orientation-dependent, NOT scroll-dependent ----
@@ -979,10 +1134,10 @@
         var fill = !!pick(GENERAL, 'fillParallaxGaps');       // GENERAL CONTROLS toggle
         var cap  = !!pick(GENERAL, 'maxParallaxHeight100');   // GENERAL CONTROLS toggle
         var vw   = APPW;
-        var aImg = pick(PARALLAX, 'anchorImageX');  if(aImg == null) aImg = 50;
-        var aScr = pick(PARALLAX, 'anchorScreenX'); if(aScr == null) aScr = 50;
         planes.forEach(function(p){
           if(!p.img) return;
+          var aImg = pick(p.cfg, 'anchorImageX');  if(aImg == null) aImg = 50;
+          var aScr = pick(p.cfg, 'anchorScreenX'); if(aScr == null) aScr = 50;
           var hPct = mH + (pick(p.cfg, 'heightAlt') || 0);   // % of screen height
           // FILL THE GAPS: raise height so the image width reaches the sides.
           // imgAspect read LIVE from the actual image (needs it loaded).
@@ -995,6 +1150,12 @@
           p.img.style.width     = 'auto';
           p.img.style.left      = aScr + '%';                   // horizontal anchor: screen point
           p.img.style.transform = 'translateX(-' + aImg + '%)'; // horizontal anchor: image point
+
+          // ---- COLOUR / GRADE (static, alpha-safe filters) ----
+          var g = function(k, d){ var v = pick(p.cfg, k); return v == null ? d : v; };
+          p.grade = 'saturate(' + g('saturate',100) + '%) brightness(' + g('brightness',100)
+                  + '%) contrast(' + g('contrast',100) + '%) opacity(' + g('opacity',100)
+                  + '%) sepia(' + g('tint',0) + '%) hue-rotate(' + g('tintHue',0) + 'deg)';
         });
 
         // ---- HERO (Section 1): 3 columns (thirds) x inner flexes, all from HERO CONTROLS ----
@@ -1156,7 +1317,7 @@
           if(bAcc > 99) bAcc = 99;
           var bt = Math.min(prog / ((100 - bAcc) / 100), 1);
           var b0 = pick(L,'blurStart') || 0, b1 = pick(L,'blurEnd') || 0;
-          if(p.img) p.img.style.filter = 'blur(' + (b0 + (b1 - b0) * bt).toFixed(2) + 'px)';
+          if(p.img) p.img.style.filter = 'blur(' + (b0 + (b1 - b0) * bt).toFixed(2) + 'px) ' + (p.grade || '');
         });
         ticking = false;
       }
