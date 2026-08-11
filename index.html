@@ -101,6 +101,27 @@
       visibility_h: 100,
       visibility_v: 100
     },
+<<<<<<< HEAD
+=======
+    section_2_1: {
+      zIndex_h: 945, /*standard 730*/	
+      zIndex_v: 945, /*standard 730*/
+      visibility_h: 100,
+      visibility_v: 100
+    },
+    section_2_2: {
+      zIndex_h: 945, /*standard 720*/
+      zIndex_v: 945, /*standard 720*/
+      visibility_h: 100,
+      visibility_v: 100
+    },
+    section_2_3: {
+      zIndex_h: 945, /*standard 710*/
+      zIndex_v: 945, /*standard 710*/
+      visibility_h: 100,
+      visibility_v: 100
+    },
+>>>>>>> 2e9c70a719162540979a42c377556edc345b265b
     BG: {
       zIndex_h: 1, /*standard 1*/
       zIndex_v: 1, /*standard 1*/
@@ -462,6 +483,34 @@
      Section 1 = ONE CSS-grid container holding five items: date, pf, buttonQ
      (button + its caption), buttonScroll, location. No column wrappers, no liner.
 
+<<<<<<< HEAD
+=======
+     ORIENTATION: _h (landscape) and _v (portrait) variants; square = vertical.
+     ============================================================================ -->
+<script>
+  window.SECTIONS = {
+
+    section_2_1: {
+      BG_h: 'rgba(255,0,0,0.0)',
+      BG_v: 'rgba(255,0,0,0.0)'
+    },
+    section_2_2: {
+      BG_h: 'rgba(0,0,255,0.0)',
+      BG_v: 'rgba(0,0,255,0.0)'
+    },
+    section_2_3: {
+      BG_h: 'rgba(0,160,0,0.0)',
+      BG_v: 'rgba(0,160,0,0.0)'
+    }
+  };
+</script>
+
+<!-- ============================================================================
+     ★ CONTROL PANEL SECTION — SECTION 1 (GRID 1) ★
+     Section 1 = ONE CSS-grid container holding five items: date, pf, buttonQ
+     (button + its caption), buttonScroll, location. No column wrappers, no liner.
+
+>>>>>>> 2e9c70a719162540979a42c377556edc345b265b
      SKELETON (per orientation):
        columns / rows : CSS grid track strings (e.g. '1fr 1fr 1fr'). rows split the
                         middle stack; date/location span all rows in landscape.
@@ -551,10 +600,20 @@
 </script>
 
 <!-- ============================================================================
+<<<<<<< HEAD
      ★ CONTROL PANEL  — GRID 2 ★
      Section 2 = ONE CSS-grid container, currently a single full-screen placeholder
      cell. Same controls as GRID 1 (columns/rows/gap + per-item colStart/colSpan/
      rowStart/rowSpan, align, padding, zIndex, visibility, bg), _h / _v. Fill later.
+=======
+     ★ CONTROL PANEL SECTION — SECTION 2 ★
+     Section 2 = three thirds (section_2_1/2/3), each holding inner flex elements —
+     same flex model Section 1 used before the Grid rebuild. H: thirds; V: stacked.
+       columns.<name> : flex (main-axis ratio share) + order.
+       flexes.<name>  : the inner elements (textCore1/2/3) — flex, order, 9-point
+                        align, padT/padB (dvh) + padL/padR (dvh).
+     Every parameter has _h (landscape) / _v (portrait) variants.
+>>>>>>> 2e9c70a719162540979a42c377556edc345b265b
      ============================================================================ -->
 <script>
   window.GRID2 = {
@@ -824,7 +883,11 @@
   .qgroup{ display:flex; flex-direction:column; align-items:center; gap:14px; }
   /* normal button — sized by its own padding; colours/radius from the BUTTON panel */
   .qbtn{ display:inline-flex; align-items:center; justify-content:center;
+<<<<<<< HEAD
          cursor:pointer; white-space:nowrap; text-decoration:none;
+=======
+         cursor:pointer; white-space:nowrap;
+>>>>>>> 2e9c70a719162540979a42c377556edc345b265b
          font-family:'Fira Sans Extra Condensed', system-ui, sans-serif; font-weight:500;
          background:var(--qbtn-bg,#fff); color:var(--qbtn-color,#1F1F1F);
          border:var(--qbtn-bw,0px) solid var(--qbtn-bc,#1F1F1F);
@@ -876,7 +939,11 @@
   <!-- screen 1 -->
   <!-- Section 1 (hero): three thirds, each with inner flex boxes -->
   <div class="s1">
+<<<<<<< HEAD
     <div class="cell" data-cell="date"><span class="hero-date">5. september 2026 • 13:00</span></div>
+=======
+    <div class="cell" data-cell="date"><span class="hero-date">5. september 2026</span></div>
+>>>>>>> 2e9c70a719162540979a42c377556edc345b265b
     <div class="cell" data-cell="pf">
       <div class="names">
         <span class="name">Patrícia</span>
@@ -886,11 +953,19 @@
     </div>
     <div class="cell" data-cell="buttonQ">
       <div class="qgroup">
+<<<<<<< HEAD
         <a class="qbtn" href="https://forms.gle/BbAA4TGnBj7z1JMPA" target="_blank" rel="noopener noreferrer">Dotazník</a>
         <span class="qnote">Ideálne vyplniť do 16.8., prosím.</span>
       </div>
     </div>
     <div class="cell" data-cell="buttonScroll"><span class="hero-scroll"><img class="arr-rest" src="assets/img/arrow1.svg" alt="Prejsť nižšie"><img class="arr-hover" src="assets/img/arrow1_hover.svg" alt=""></span></div>
+=======
+        <button class="qbtn">Dotazník</button>
+        <span class="qnote">Ideálne vyplniť do 16.8., prosím.</span>
+      </div>
+    </div>
+    <div class="cell" data-cell="buttonScroll"><span class="hero-scroll" style="width:34px;height:34px;border-radius:50%;background:var(--text-accent);display:block;"></span></div>
+>>>>>>> 2e9c70a719162540979a42c377556edc345b265b
     <div class="cell" data-cell="location"><span class="hero-location"><a class="pf-link" href="https://maps.app.goo.gl/CcpAZgbuzZKfHp6Y9" target="_blank" rel="noopener">Rezort Partizán</a> • Obyce, Zlaté Moravce</span></div>
   </div>
 
@@ -1000,6 +1075,25 @@
             var bg = pick(it,'bg');        if(bg != null) cell.style.background = bg;
           });
 
+<<<<<<< HEAD
+=======
+          // SECTION 2 cells still use the flex .hflex/.hliner model
+          var FL = (window.SECTION2 || {}).flexes || {};
+          Object.keys(FL).forEach(function(nm){
+            var fx = document.querySelector('.hflex[data-flex="' + nm + '"]'); if(!fx) return;
+            var f = FL[nm];
+            fx.style.flex  = (pick(f,'flex') || 0) + ' 1 0';
+            fx.style.order = (pick(f,'order') || 0);
+            var ln = fx.querySelector('.hliner'); if(!ln) return;
+            var a = String(pick(f,'align') || 'cc').toLowerCase();
+            ln.style.alignItems     = aI(a.charAt(0));
+            ln.style.justifyContent = jC(a.charAt(1));
+            ln.style.paddingTop    = ((pick(f,'padT') || 0) / 100 * vh).toFixed(1) + 'px';
+            ln.style.paddingBottom = ((pick(f,'padB') || 0) / 100 * vh).toFixed(1) + 'px';
+            ln.style.paddingLeft   = ((pick(f,'padL') || 0) / 100 * vh).toFixed(1) + 'px';
+            ln.style.paddingRight  = ((pick(f,'padR') || 0) / 100 * vh).toFixed(1) + 'px';
+          });
+>>>>>>> 2e9c70a719162540979a42c377556edc345b265b
 
           // ---- TEXT ELEMENTS: sizes cascade from the & inside P+F ----
           var T = window.TEXT || {};
