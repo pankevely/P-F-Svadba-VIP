@@ -7,7 +7,7 @@
 <title>Patrícia &amp; Filip — 5. 9. 2026</title>
 
 <!-- ============================================================================
-     ★ CONTROL PANEL SECTION — GENERAL CONTROLS ★
+     ★ CONTROL PANEL  — GENERAL CONTROLS ★
      Site-wide switches.
        defaultTheme : theme the site OPENS in before the visitor toggles
                       ('light' or 'dark'). Orientation-independent (no _h/_v).
@@ -41,7 +41,7 @@
 </script>
 
 <!-- ============================================================================
-     ★ CONTROL PANEL SECTION — LIST OF LAYERS ★
+     ★ CONTROL PANEL  — LIST OF LAYERS ★
      Every layer, with the controls common to all layers.
        zIndex     : stacking order (higher = closer to viewer; one shared pool).
        visibility : 100 = solid … 0 = invisible.
@@ -101,24 +101,6 @@
       visibility_h: 100,
       visibility_v: 100
     },
-    section_2_1: {
-      zIndex_h: 945, /*standard 730*/	
-      zIndex_v: 945, /*standard 730*/
-      visibility_h: 100,
-      visibility_v: 100
-    },
-    section_2_2: {
-      zIndex_h: 945, /*standard 720*/
-      zIndex_v: 945, /*standard 720*/
-      visibility_h: 100,
-      visibility_v: 100
-    },
-    section_2_3: {
-      zIndex_h: 945, /*standard 710*/
-      zIndex_v: 945, /*standard 710*/
-      visibility_h: 100,
-      visibility_v: 100
-    },
     BG: {
       zIndex_h: 1, /*standard 1*/
       zIndex_v: 1, /*standard 1*/
@@ -129,7 +111,7 @@
 </script>
 
 <!-- ============================================================================
-     ★ CONTROL PANEL SECTION — PARALLAX CONTROLS ★
+     ★ CONTROL PANEL  — PARALLAX CONTROLS ★
      Parallax planes only. parallax_01 (frontmost) … 07 (backmost). Units = dvh.
      sky_01 is a parallax plane too, but it lives INSIDE the BG layer (fixed,
      full-screen backdrop) so it sits behind every mountain plane. Same controls
@@ -476,34 +458,7 @@
 </script>
 
 <!-- ============================================================================
-     ★ CONTROL PANEL SECTION — SECTION CONTROLS ★
-     The content sections (section_1_1 = the names screen; section_2_1..3 = the
-     three-up row). For now just:
-       BG : the frame's background colour (any CSS colour). Handy for SEEING each
-            layer while testing; 'transparent' = no fill.
-
-     ORIENTATION: _h (landscape) and _v (portrait) variants; square = vertical.
-     ============================================================================ -->
-<script>
-  window.SECTIONS = {
-
-    section_2_1: {
-      BG_h: 'rgba(255,0,0,0.0)',
-      BG_v: 'rgba(255,0,0,0.0)'
-    },
-    section_2_2: {
-      BG_h: 'rgba(0,0,255,0.0)',
-      BG_v: 'rgba(0,0,255,0.0)'
-    },
-    section_2_3: {
-      BG_h: 'rgba(0,160,0,0.0)',
-      BG_v: 'rgba(0,160,0,0.0)'
-    }
-  };
-</script>
-
-<!-- ============================================================================
-     ★ CONTROL PANEL SECTION — SECTION 1 (GRID 1) ★
+     ★ CONTROL PANEL  — GRID 1 ★
      Section 1 = ONE CSS-grid container holding five items: date, pf, buttonQ
      (button + its caption), buttonScroll, location. No column wrappers, no liner.
 
@@ -596,101 +551,47 @@
 </script>
 
 <!-- ============================================================================
-     ★ CONTROL PANEL SECTION — SECTION 2 ★
-     Section 2 = three thirds (section_2_1/2/3), each holding inner flex elements —
-     same flex model Section 1 used before the Grid rebuild. H: thirds; V: stacked.
-       columns.<name> : flex (main-axis ratio share) + order.
-       flexes.<name>  : the inner elements (textCore1/2/3) — flex, order, 9-point
-                        align, padT/padB (dvh) + padL/padR (dvh).
-     Every parameter has _h (landscape) / _v (portrait) variants.
+     ★ CONTROL PANEL  — GRID 2 ★
+     Section 2 = ONE CSS-grid container, currently a single full-screen placeholder
+     cell. Same controls as GRID 1 (columns/rows/gap + per-item colStart/colSpan/
+     rowStart/rowSpan, align, padding, zIndex, visibility, bg), _h / _v. Fill later.
      ============================================================================ -->
 <script>
-  window.SECTION2 = {
+  window.GRID2 = {
 
-    // ===== SECTION SIZE (% of one screen; 100 = one screen, 300 = three screens) =====
+    // ===== CONTAINER SIZE (% of one screen) =====
     sectionWidth_h: 100,
     sectionWidth_v: 100,
     sectionHeight_h: 100,
-    sectionHeight_v: 300,
+    sectionHeight_v: 100,
 
-    // ===== COLUMNS: the three thirds of Section 2 =====
-    columns: {
-      section_2_1: {
-        flex_h: 1,
-        flex_v: 1,
-        order_h: 1,
-        order_v: 1
-      },
-      section_2_2: {
-        flex_h: 1,
-        flex_v: 1,
-        order_h: 2,
-        order_v: 2
-      },
-      section_2_3: {
-        flex_h: 1,
-        flex_v: 1,
-        order_h: 3,
-        order_v: 3
-      }
-    },
+    // ===== GRID SKELETON =====
+    columns_h: '1fr',
+    columns_v: '1fr',
+    rows_h: '1fr',
+    rows_v: '1fr',
+    gap_h: 0,
+    gap_v: 0,
 
-    // ===== INNER FLEXES: the textCore of each third =====
-    flexes: {
-      textCore1: {
-        flex_h: 1,
-        flex_v: 1,
-        order_h: 1,
-        order_v: 1,
-        align_h: 'tl',
-        align_v: 'tl',
-        padT_h: 10,
-        padT_v: 5,
-        padB_h: 10,
-        padB_v: 5,
-        padL_h: 10,
-        padL_v: 5,
-        padR_h: 10,
-        padR_v: 5
-      },
-      textCore2: {
-        flex_h: 1,
-        flex_v: 1,
-        order_h: 1,
-        order_v: 1,
-        align_h: 'tl',
-        align_v: 'tl',
-        padT_h: 10,
-        padT_v: 5,
-        padB_h: 10,
-        padB_v: 5,
-        padL_h: 10,
-        padL_v: 5,
-        padR_h: 10,
-        padR_v: 5
-      },
-      textCore3: {
-        flex_h: 1,
-        flex_v: 1,
-        order_h: 1,
-        order_v: 1,
-        align_h: 'tl',
-        align_v: 'tl',
-        padT_h: 10,
-        padT_v: 5,
-        padB_h: 10,
-        padB_v: 5,
-        padL_h: 10,
-        padL_v: 5,
-        padR_h: 10,
-        padR_v: 5
+    // ===== ITEMS (one full-screen placeholder for now) =====
+    items: {
+      placeholder: {
+        colStart_h: 1, colStart_v: 1, colSpan_h: 1, colSpan_v: 1,
+        rowStart_h: 1, rowStart_v: 1, rowSpan_h: 1, rowSpan_v: 1,
+        align_h: 'cc', align_v: 'cc',
+        padT_h: 0, padT_v: 0, padB_h: 0, padB_v: 0,
+        padL_h: 0, padL_v: 0, padR_h: 0, padR_v: 0,
+        zIndex_h: 980, zIndex_v: 980,
+        visibility_h: 100, visibility_v: 100,
+        bg_h: 'transparent', bg_v: 'transparent'
       }
     }
+
   };
 </script>
 
 <!-- ============================================================================
-     ★ CONTROL PANEL SECTION — TEXT ELEMENTS ★
+     ★ CONTROL PANEL  — TEXT ELEMENTS ★
      Every text block. Sizes are LINKED to the P+F NAMES (the single root): the names
      scale to fit their box, and amp / date / location / button are EACH a % of the
      names size — independent of one another. Per element:
@@ -772,7 +673,7 @@
 </script>
 
 <!-- ============================================================================
-     ★ CONTROL PANEL SECTION — BUTTON & LINK STYLING ★
+     ★ CONTROL PANEL  — BUTTON & LINK STYLING ★
      button : the fill that lives in a box core and stretches to fill it. Its
               colour is per STATE (default / hover / active / focus) and per
               orientation. (Its TEXT is styled in TEXT ELEMENTS.)
@@ -870,6 +771,7 @@
   /* controls — full-screen fixed frame; click-through except its buttons */
   .controls{ position:fixed; inset:0; pointer-events:none; }
   .theme-toggle{
+    display:none;
     position:absolute; top:18px; right:18px;
     width:34px; height:34px; border-radius:50%;
     background:var(--text-accent);
@@ -922,7 +824,7 @@
   .qgroup{ display:flex; flex-direction:column; align-items:center; gap:14px; }
   /* normal button — sized by its own padding; colours/radius from the BUTTON panel */
   .qbtn{ display:inline-flex; align-items:center; justify-content:center;
-         cursor:pointer; white-space:nowrap;
+         cursor:pointer; white-space:nowrap; text-decoration:none;
          font-family:'Fira Sans Extra Condensed', system-ui, sans-serif; font-weight:500;
          background:var(--qbtn-bg,#fff); color:var(--qbtn-color,#1F1F1F);
          border:var(--qbtn-bw,0px) solid var(--qbtn-bc,#1F1F1F);
@@ -931,9 +833,16 @@
   /* buttonQ caption (its area = buttonQnote) */
   .qnote{ font-family:'Fira Sans Extra Condensed', system-ui, sans-serif; font-weight:600;
           color:var(--text-accent); font-size:clamp(13px, 1.4vw, 20px); text-align:center; }
+  /* GRID 2 placeholder copy (sized/styled from text_buttonQnote by JS) */
+  .s2note{ font-family:'Fira Sans Extra Condensed', system-ui, sans-serif; font-weight:600;
+           color:var(--text-accent); text-align:center; }
   /* pink = the element that now sits in each flex liner; the text lives inside it */
   /* scroll box (auto-scroll arrows added later) */
-  .hero-scroll{ width:100%; height:100%; }
+  .hero-scroll{ display:inline-block; line-height:0; cursor:pointer; }
+  .hero-scroll img{ width:44px; height:auto; display:block; }
+  .hero-scroll .arr-hover{ display:none; }
+  .hero-scroll:hover .arr-rest{ display:none; }
+  .hero-scroll:hover .arr-hover{ display:block; }
 
   /* section_2 row — three FULL-HEIGHT, one-third-width frames.
      On PORTRAIT screens they stack vertically (1 → 2 → 3). */
@@ -967,7 +876,7 @@
   <!-- screen 1 -->
   <!-- Section 1 (hero): three thirds, each with inner flex boxes -->
   <div class="s1">
-    <div class="cell" data-cell="date"><span class="hero-date">5. september 2026</span></div>
+    <div class="cell" data-cell="date"><span class="hero-date">5. september 2026 • 13:00</span></div>
     <div class="cell" data-cell="pf">
       <div class="names">
         <span class="name">Patrícia</span>
@@ -977,19 +886,17 @@
     </div>
     <div class="cell" data-cell="buttonQ">
       <div class="qgroup">
-        <button class="qbtn">Dotazník</button>
+        <a class="qbtn" href="https://forms.gle/BbAA4TGnBj7z1JMPA" target="_blank" rel="noopener noreferrer">Dotazník</a>
         <span class="qnote">Ideálne vyplniť do 16.8., prosím.</span>
       </div>
     </div>
-    <div class="cell" data-cell="buttonScroll"><span class="hero-scroll" style="width:34px;height:34px;border-radius:50%;background:var(--text-accent);display:block;"></span></div>
+    <div class="cell" data-cell="buttonScroll"><span class="hero-scroll"><img class="arr-rest" src="assets/img/arrow1.svg" alt="Prejsť nižšie"><img class="arr-hover" src="assets/img/arrow1_hover.svg" alt=""></span></div>
     <div class="cell" data-cell="location"><span class="hero-location"><a class="pf-link" href="https://maps.app.goo.gl/CcpAZgbuzZKfHp6Y9" target="_blank" rel="noopener">Rezort Partizán</a> • Obyce, Zlaté Moravce</span></div>
   </div>
 
   <!-- screen 2 -->
   <div class="sections">
-    <div class="section" data-layer="section_2_1"><div class="hflex" data-flex="textCore1"><div class="hliner"></div></div></div>
-    <div class="section" data-layer="section_2_2"><div class="hflex" data-flex="textCore2"><div class="hliner"></div></div></div>
-    <div class="section" data-layer="section_2_3"><div class="hflex" data-flex="textCore3"><div class="hliner"></div></div></div>
+    <div class="cell" data-cell="placeholder"><span class="s2note">Tu raz niečo bude, sľubujeme. Medzičasom – vyplňte <a class="pf-link" href="https://forms.gle/BbAA4TGnBj7z1JMPA" target="_blank" rel="noopener noreferrer">dotazník</a>, prosím.</span></div>
   </div>
 
   <!-- ============ ENGINE (reads the control-panel sections above) ============ -->
@@ -997,7 +904,6 @@
     (function(){
       var LAYERS   = window.LAYERS   || {};
       var PARALLAX = window.PARALLAX || {};
-      var SECTIONS = window.SECTIONS || {};
       var GENERAL  = window.GENERAL  || {};
       var GRID1    = window.GRID1    || {};
 
@@ -1033,10 +939,6 @@
           var v = pick(LAYERS[name], 'visibility'); if(v != null) node.style.opacity = v / 100;
         });
 
-        Object.keys(SECTIONS).forEach(function(name){
-          var node = el(name); if(!node) return;
-          var c = pick(SECTIONS[name], 'BG'); if(c != null) node.style.backgroundColor = c;
-        });
 
         var mH   = pick(PARALLAX, 'masterHeight') || 0;
         var fill = !!pick(GENERAL, 'fillParallaxGaps');       // GENERAL CONTROLS toggle
@@ -1098,22 +1000,6 @@
             var bg = pick(it,'bg');        if(bg != null) cell.style.background = bg;
           });
 
-          // SECTION 2 cells still use the flex .hflex/.hliner model
-          var FL = (window.SECTION2 || {}).flexes || {};
-          Object.keys(FL).forEach(function(nm){
-            var fx = document.querySelector('.hflex[data-flex="' + nm + '"]'); if(!fx) return;
-            var f = FL[nm];
-            fx.style.flex  = (pick(f,'flex') || 0) + ' 1 0';
-            fx.style.order = (pick(f,'order') || 0);
-            var ln = fx.querySelector('.hliner'); if(!ln) return;
-            var a = String(pick(f,'align') || 'cc').toLowerCase();
-            ln.style.alignItems     = aI(a.charAt(0));
-            ln.style.justifyContent = jC(a.charAt(1));
-            ln.style.paddingTop    = ((pick(f,'padT') || 0) / 100 * vh).toFixed(1) + 'px';
-            ln.style.paddingBottom = ((pick(f,'padB') || 0) / 100 * vh).toFixed(1) + 'px';
-            ln.style.paddingLeft   = ((pick(f,'padL') || 0) / 100 * vh).toFixed(1) + 'px';
-            ln.style.paddingRight  = ((pick(f,'padR') || 0) / 100 * vh).toFixed(1) + 'px';
-          });
 
           // ---- TEXT ELEMENTS: sizes cascade from the & inside P+F ----
           var T = window.TEXT || {};
@@ -1165,20 +1051,46 @@
 
         }
 
-        // ---- SECTION 2 container size + columns (flex + order) ----
-        var _S2 = window.SECTION2 || {};
-        var _s2el = document.querySelector('.sections');
-        if(_s2el){
-          _s2el.style.width  = ((pick(_S2,'sectionWidth')  || 100) / 100 * document.documentElement.clientWidth).toFixed(1) + 'px';
-          _s2el.style.height = ((pick(_S2,'sectionHeight') || 100) / 100 * APPH).toFixed(1) + 'px';
+        // ---- GRID 2 (Section 2): one grid, one placeholder cell ----
+        var G2 = window.GRID2 || {};
+        var g2el = document.querySelector('.sections');
+        if(g2el){
+          g2el.style.width  = ((pick(G2,'sectionWidth')  || 100) / 100 * document.documentElement.clientWidth).toFixed(1) + 'px';
+          g2el.style.height = ((pick(G2,'sectionHeight') || 100) / 100 * APPH).toFixed(1) + 'px';
+          var g2c = pick(G2,'columns'); if(g2c != null) g2el.style.gridTemplateColumns = g2c;
+          var g2r = pick(G2,'rows');    if(g2r != null) g2el.style.gridTemplateRows    = g2r;
+          g2el.style.gap = ((pick(G2,'gap') || 0)) + 'px';
+          var g2V = function(v){ return v === 't' ? 'start' : (v === 'b' ? 'end' : 'center'); };
+          var g2H = function(h){ return h === 'l' ? 'start' : (h === 'r' ? 'end' : 'center'); };
+          var G2I = G2.items || {};
+          Object.keys(G2I).forEach(function(nm){
+            var cell = g2el.querySelector('.cell[data-cell="' + nm + '"]'); if(!cell) return;
+            var it = G2I[nm];
+            cell.style.gridColumn = (pick(it,'colStart') || 1) + ' / span ' + (pick(it,'colSpan') || 1);
+            cell.style.gridRow    = (pick(it,'rowStart') || 1) + ' / span ' + (pick(it,'rowSpan') || 1);
+            var a = String(pick(it,'align') || 'cc').toLowerCase();
+            cell.style.alignItems   = g2V(a.charAt(0));
+            cell.style.justifyItems = g2H(a.charAt(1));
+            cell.style.paddingTop    = ((pick(it,'padT') || 0) / 100 * vh).toFixed(1) + 'px';
+            cell.style.paddingBottom = ((pick(it,'padB') || 0) / 100 * vh).toFixed(1) + 'px';
+            cell.style.paddingLeft   = ((pick(it,'padL') || 0) / 100 * vh).toFixed(1) + 'px';
+            cell.style.paddingRight  = ((pick(it,'padR') || 0) / 100 * vh).toFixed(1) + 'px';
+            var z = pick(it,'zIndex');     if(z != null) cell.style.zIndex  = z;
+            var vv = pick(it,'visibility'); if(vv != null) cell.style.opacity = vv / 100;
+            var bg = pick(it,'bg');        if(bg != null) cell.style.background = bg;
+          });
         }
-        var S2C = _S2.columns || {};
-        Object.keys(S2C).forEach(function(nm){
-          var col = document.querySelector('.section[data-layer="' + nm + '"]'); if(!col) return;
-          var c = S2C[nm];
-          col.style.flex  = (pick(c,'flex') || 0) + ' 1 0';
-          col.style.order = (pick(c,'order') || 0);
-        });
+        // GRID 2 placeholder copy — styled by the text_buttonQnote TEXT entry
+        var s2n = document.querySelector('.s2note');
+        if(s2n){
+          var T2 = window.TEXT || {};
+          var q2 = function(k){ return pick(T2['text_buttonQnote'] || {}, k); };
+          var sz2 = q2('size'); if(sz2 == null) sz2 = 12;
+          s2n.style.fontSize = (sz2 / 100 * NAMES_PX).toFixed(2) + 'px';
+          var w2 = q2('weight'); if(w2 != null) s2n.style.fontWeight = w2;
+          var f2 = q2('font');   if(f2 != null) s2n.style.fontFamily = f2;
+          var c2 = q2('case');   if(c2 != null) s2n.style.textTransform = c2;
+        }
 
         // ---- BUTTON (.qbtn) + LINK styling (CSS vars) ----
         var UI = window.BUTTONLINK || {};
@@ -1264,6 +1176,10 @@
 
       // ---- theme toggle (default light; remembers choice) ----
       var root = document.documentElement;
+      var scr = document.querySelector('.hero-scroll');
+      if(scr){ scr.addEventListener('click', function(){
+        window.scrollBy({ top: (window.innerHeight || document.documentElement.clientHeight), left: 0, behavior: 'smooth' });
+      }); }
       var btn  = document.querySelector('.theme-toggle');
       if(btn){
         btn.addEventListener('click', function(){
