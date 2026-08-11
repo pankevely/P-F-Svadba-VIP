@@ -101,24 +101,6 @@
       visibility_h: 100,
       visibility_v: 100
     },
-    section_1_1: {
-      zIndex_h: 800, /*standard 800*/
-      zIndex_v: 800, /*standard 800*/
-      visibility_h: 100,
-      visibility_v: 100
-    },
-    section_1_2: {
-      zIndex_h: 945, /*standard 800*/
-      zIndex_v: 945, /*standard 800*/
-      visibility_h: 100,
-      visibility_v: 100
-    },
-    section_1_3: {
-      zIndex_h: 800, /*standard 800*/
-      zIndex_v: 800, /*standard 800*/
-      visibility_h: 100,
-      visibility_v: 100
-    },
     section_2_1: {
       zIndex_h: 945, /*standard 730*/	
       zIndex_v: 945, /*standard 730*/
@@ -505,18 +487,6 @@
 <script>
   window.SECTIONS = {
 
-    section_1_1: {
-      BG_h: 'rgba(255,0,0,0.0)',
-      BG_v: 'rgba(255,0,0,0.0)'
-    },
-    section_1_2: {
-      BG_h: 'rgba(0,170,0,0.0)',
-      BG_v: 'rgba(0,170,0,0.0)'
-    },
-    section_1_3: {
-      BG_h: 'rgba(0,0,255,0.0)',
-      BG_v: 'rgba(0,0,255,0.0)'
-    },
     section_2_1: {
       BG_h: 'rgba(255,0,0,0.0)',
       BG_v: 'rgba(255,0,0,0.0)'
@@ -533,154 +503,94 @@
 </script>
 
 <!-- ============================================================================
-     ★ CONTROL PANEL SECTION — SECTION 1 (HERO) ★
-     Section 1 = three thirds (section_1_1 date | section_1_2 P+F+buttons | section_1_3
-     location). H: side-by-side.  V: stacked (order 1_2, 1_1, 1_3). The hero is ONE
-     screen (100dvh) split by RATIOS — no fixed dvh/dvw box sizes.
+     ★ CONTROL PANEL SECTION — SECTION 1 (GRID 1) ★
+     Section 1 = ONE CSS-grid container holding five items: date, pf, buttonQ
+     (button + its caption), buttonScroll, location. No column wrappers, no liner.
 
-     columns.<name> — the three thirds:
-       flex  : main-axis RATIO (share of the hero: width in H, height in V).
-               1/1/1 = equal thirds; 1/2/1 = quarter/half/quarter. Sums don't matter.
-       order : flow position (lower first).
-     flexes.<name> — one box per element (date, pf, buttonQ, buttonScroll, location):
-       flex  : RATIO share of its column's height.
-       order : position within its column.
-       align : 9-point content align, 2 chars [t|c|b][l|c|r] (cc, tl, br, bc, ...).
-       padT/padB : padding top/bottom (dvh)   padL/padR : padding left/right (dvh).
-     Text sizes/weights/case/shift now live in the TEXT ELEMENTS panel (all linked to
-     the NAMES size). The P+F group scales to fit its 'pf' box.
+     SKELETON (per orientation):
+       columns / rows : CSS grid track strings (e.g. '1fr 1fr 1fr'). rows split the
+                        middle stack; date/location span all rows in landscape.
+       gap            : grid gap in px.
+     ITEMS.<name> — one grid cell per element:
+       colStart/colSpan, rowStart/rowSpan : where the cell sits + how many tracks it spans.
+       align  : 9-point content align inside the cell, 2 chars [t|c|b][l|c|r].
+       padT/padB/padL/padR : padding in dvh (insets content; never resizes the cell).
+       zIndex : stacking vs the parallax planes (pf 945 sits above some; date/location 800).
+       visibility : 0..100 opacity.   bg : debug fill ('transparent' = none).
+     Text size/weight/case/shift/font live in the TEXT ELEMENTS panel (linked to the
+     NAMES size); the P+F group still scales to fit its 'pf' cell.
      Every parameter has _h (landscape) / _v (portrait) variants.
      ============================================================================ -->
 <script>
-  window.HERO = {
+  window.GRID1 = {
 
-    // ===== SECTION SIZE (% of one screen; 100 = one screen, 300 = three screens) =====
+    // ===== CONTAINER SIZE (% of one screen) =====
     sectionWidth_h: 100,
     sectionWidth_v: 100,
     sectionHeight_h: 100,
     sectionHeight_v: 100,
 
-    // ===== COLUMNS: the three thirds of Section 1 (flex = ratio share of the hero) =====
-    columns: {
-      section_1_1: {	//date//
-        flex_h: 1,
-        flex_v: 1.5,
-        order_h: 1,
-        order_v: 1
-      },
-      section_1_2: {	//p+f//
-        flex_h: 1,
-        flex_v: 6,
-        order_h: 2,
-        order_v: 3
-      },
-      section_1_3: {	//location//
-        flex_h: 1,
-        flex_v: 0.5,
-        order_h: 3,
-        order_v: 2
-      }
-    },
+    // ===== GRID SKELETON (track strings + gap px) =====
+    columns_h: '1fr 1fr 1fr',
+    columns_v: '1fr',
+    rows_h: '1fr 1fr 1fr',
+    rows_v: '4fr 1fr 1fr 2fr 3fr',
+    gap_h: 0,
+    gap_v: 0,
 
-    // ===== INNER FLEXES: one box per element (flex = ratio share of its column) =====
-    flexes: {
+    // ===== ITEMS: placement + align + padding(dvh) + zIndex + visibility + bg =====
+    items: {
       date: {
-        flex_h: 1,
-        flex_v: 1,
-        order_h: 1,
-        order_v: 1,
-        align_h: 'cr',
-        align_v: 'bc',
-        padT_h: 10,
-        padT_v: 0,
-        padB_h: 66,
-        padB_v: 0,
-        padL_h: 0,
-        padL_v: 0,
-        padR_h: 5,
-        padR_v: 0
+        colStart_h: 1, colStart_v: 1, colSpan_h: 1, colSpan_v: 1,
+        rowStart_h: 1, rowStart_v: 2, rowSpan_h: 3, rowSpan_v: 1,
+        align_h: 'tr', align_v: 'bc',
+        padT_h: 20, padT_v: 0, padB_h: 0, padB_v: 0,
+        padL_h: 0,  padL_v: 0, padR_h: 4, padR_v: 0,
+        zIndex_h: 800, zIndex_v: 800,
+        visibility_h: 100, visibility_v: 100,
+        bg_h: 'transparent', bg_v: 'transparent'
       },
       pf: {
-        flex_h: 2,
-        flex_v: 2,
-        order_h: 1,
-        order_v: 1,
-        align_h: 'cc',
-        align_v: 'cc',
-        padT_h: 10,
-        padT_v: 0,
-        padB_h: 0,
-        padB_v: 0,
-        padL_h: 0,
-        padL_v: 0,
-        padR_h: 0,
-        padR_v: 0
+        colStart_h: 2, colStart_v: 1, colSpan_h: 1, colSpan_v: 1,
+        rowStart_h: 1, rowStart_v: 1, rowSpan_h: 1, rowSpan_v: 1,
+        align_h: 'cc', align_v: 'cc',
+        padT_h: 10, padT_v: 15, padB_h: 0, padB_v: 0,
+        padL_h: 0, padL_v: 0, padR_h: 0, padR_v: 0,
+        zIndex_h: 945, zIndex_v: 945,
+        visibility_h: 100, visibility_v: 100,
+        bg_h: 'transparent', bg_v: 'transparent'
       },
       buttonQ: {
-        flex_h: 1,
-        flex_v: 1.5,
-        order_h: 2,
-        order_v: 2,
-        align_h: 'bc',
-        align_v: 'bc',
-        padT_h: 8,
-        padT_v: 8,
-        padB_h: 0,
-        padB_v: 0,
-        padL_h: 16,
-        padL_v: 8,
-        padR_h: 16,
-        padR_v: 8
-      },
-      buttonQnote: {
-        flex_h: 1,
-        flex_v: 1,
-        order_h: 3,
-        order_v: 3,
-        align_h: 'tc',
-        align_v: 'tc',
-        padT_h: 1,
-        padT_v: 1,
-        padB_h: 0,
-        padB_v: 0,
-        padL_h: 0,
-        padL_v: 0,
-        padR_h: 0,
-        padR_v: 0
+        colStart_h: 2, colStart_v: 1, colSpan_h: 1, colSpan_v: 1,
+        rowStart_h: 2, rowStart_v: 4, rowSpan_h: 1, rowSpan_v: 1,
+        align_h: 'cc', align_v: 'cc',
+        padT_h: 0, padT_v: 0, padB_h: 0, padB_v: 0,
+        padL_h: 0, padL_v: 0, padR_h: 0, padR_v: 0,
+        zIndex_h: 945, zIndex_v: 945,
+        visibility_h: 100, visibility_v: 100,
+        bg_h: 'transparent', bg_v: 'transparent'
       },
       buttonScroll: {
-        flex_h: 2,
-        flex_v: 2,
-        order_h: 3,
-        order_v: 3,
-        align_h: 'tc',
-        align_v: 'tc',
-        padT_h: 6,
-        padT_v: 0,
-        padB_h: 0,
-        padB_v: 0,
-        padL_h: 0,
-        padL_v: 0,
-        padR_h: 0,
-        padR_v: 0
+        colStart_h: 2, colStart_v: 1, colSpan_h: 1, colSpan_v: 1,
+        rowStart_h: 3, rowStart_v: 5, rowSpan_h: 1, rowSpan_v: 1,
+        align_h: 'tc', align_v: 'cc',
+        padT_h: 5, padT_v: 0, padB_h: 0, padB_v: 0,
+        padL_h: 0, padL_v: 0, padR_h: 0, padR_v: 0,
+        zIndex_h: 945, zIndex_v: 945,
+        visibility_h: 100, visibility_v: 100,
+        bg_h: 'transparent', bg_v: 'transparent'
       },
       location: {
-        flex_h: 1,
-        flex_v: 1,
-        order_h: 1,
-        order_v: 1,
-        align_h: 'cl',
-        align_v: 'tc',
-        padT_h: 10,
-        padT_v: 0,
-        padB_h: 66,
-        padB_v: 0,
-        padL_h: 5,
-        padL_v: 0,
-        padR_h: 0,
-        padR_v: 0
+        colStart_h: 3, colStart_v: 1, colSpan_h: 1, colSpan_v: 1,
+        rowStart_h: 1, rowStart_v: 3, rowSpan_h: 3, rowSpan_v: 1,
+        align_h: 'tl', align_v: 'tc',
+        padT_h: 20, padT_v: 0, padB_h: 0, padB_v: 0,
+        padL_h: 4,  padL_v: 0, padR_h: 0, padR_v: 0,
+        zIndex_h: 800, zIndex_v: 800,
+        visibility_h: 100, visibility_v: 100,
+        bg_h: 'transparent', bg_v: 'transparent'
       }
-    },
+    }
 
   };
 </script>
@@ -688,7 +598,7 @@
 <!-- ============================================================================
      ★ CONTROL PANEL SECTION — SECTION 2 ★
      Section 2 = three thirds (section_2_1/2/3), each holding inner flex elements —
-     same system as SECTION 1 (HERO). H: side-by-side thirds; V: stacked thirds.
+     same flex model Section 1 used before the Grid rebuild. H: thirds; V: stacked.
        columns.<name> : flex (main-axis ratio share) + order.
        flexes.<name>  : the inner elements (textCore1/2/3) — flex, order, 9-point
                         align, padT/padB (dvh) + padL/padR (dvh).
@@ -888,10 +798,10 @@
       borderColor_v: '#1F1F1F',
       borderRadius_h: 0,
       borderRadius_v: 0,
-      padY_h: 0,
-      padY_v: 0,
-      padX_h: 0,
-      padX_v: 0
+      padY_h: 1,
+      padY_v: 1,
+      padX_h: 4,
+      padX_v: 4
     },
     link: {
       color_h: '#1F1F1F',
@@ -972,16 +882,16 @@
   /* ---- SCROLLING layers (normal flow) --------------------------------- */
   /* section_1_1 — one full screen; names centred horizontally, in the top third */
   /* Section 1 hero — three thirds (section_1_1/2/3), each holding inner flex boxes.
-     Columns + inner flexes are sized/ordered/aligned/padded by JS from HERO CONTROLS.
+     Section 2 cells are sized/ordered/aligned/padded by JS from the SECTION 2 panel.
      H: columns side-by-side.  V: columns stacked. */
-  .s1{ display:flex; width:100%; height:100vh; height:100dvh; height:var(--appvh,100dvh); align-items:stretch; }
-  @media (orientation: portrait){ .s1{ flex-direction:column; } }
-  .s1col{ position:relative; flex:1 1 0; overflow:hidden; min-width:0; min-height:0;
-          display:flex; flex-direction:column; }   /* JS sets flex (ratio) + order */
-  /* cell = the ratio-sized area (never moves; JS sets flex + order) */
+  /* Section 1 = GRID 1: one CSS-grid container; JS sets template-columns/rows + gap. */
+  .s1{ display:grid; width:100%; height:100vh; height:100dvh; height:var(--appvh,100dvh); }
+  /* cell = one grid item = its own alignment box (the old absolute liner is gone).
+     JS sets grid-column/row, place-items (9-pt align), padding, z-index, opacity, bg. */
+  .cell{ position:relative; box-sizing:border-box; min-width:0; min-height:0; overflow:hidden;
+         display:grid; align-items:center; justify-items:center; }
+  /* .hflex / .hliner stay — Section 2 still uses the flex model for now. */
   .hflex{ flex:1 1 0; position:relative; min-width:0; min-height:0; overflow:hidden; }
-  /* liner = fills the cell; carries padding + 9-point align (JS). Padding insets the
-     content WITHIN the cell, so the cell's ratio size never changes. */
   .hliner{ position:absolute; inset:0; box-sizing:border-box; display:flex;
            align-items:center; justify-content:center; }
 
@@ -1008,8 +918,10 @@
      from its flex + liner, exactly like the section_1 elements. */
   /* questionnaire button — a normal in-flow element that fills its area (inside the
      liner padding); all its styling comes from the BUTTON panel via CSS vars. */
-  .qbtn{ flex:1 1 auto; align-self:stretch; min-width:0; min-height:0;
-         display:flex; align-items:center; justify-content:center;
+  /* buttonQ content: the button with its caption stacked below (one grid child) */
+  .qgroup{ display:flex; flex-direction:column; align-items:center; gap:14px; }
+  /* normal button — sized by its own padding; colours/radius from the BUTTON panel */
+  .qbtn{ display:inline-flex; align-items:center; justify-content:center;
          cursor:pointer; white-space:nowrap;
          font-family:'Fira Sans Extra Condensed', system-ui, sans-serif; font-weight:500;
          background:var(--qbtn-bg,#fff); color:var(--qbtn-color,#1F1F1F);
@@ -1025,8 +937,8 @@
 
   /* section_2 row — three FULL-HEIGHT, one-third-width frames.
      On PORTRAIT screens they stack vertically (1 → 2 → 3). */
-  /* Section 2 — three thirds, same system as .s1 / .s1col (JS sets flex + order). */
-  .sections{ display:flex; width:100%; height:100vh; height:100dvh; height:var(--appvh,100dvh); align-items:stretch; }
+  /* Section 2 — three thirds, flex model (JS sets flex + order); Grid 2 comes later. */
+  .sections{ display:grid; width:100%; height:100vh; height:100dvh; height:var(--appvh,100dvh); align-items:stretch; }
   @media (orientation: portrait){ .sections{ flex-direction:column; } }
   .section{ position:relative; flex:1 1 0; overflow:hidden; min-width:0; min-height:0;
             display:flex; flex-direction:column; }
@@ -1055,26 +967,22 @@
   <!-- screen 1 -->
   <!-- Section 1 (hero): three thirds, each with inner flex boxes -->
   <div class="s1">
-    <div class="s1col" data-layer="section_1_1">
-      <div class="hflex" data-flex="date"><div class="hliner"><span class="hero-date">5. september 2026</span></div></div>
-    </div>
-    <div class="s1col" data-layer="section_1_2">
-      <div class="hflex" data-flex="pf">
-        <div class="hliner">
-          <div class="names">
-            <span class="name">Patrícia</span>
-            <span class="amp">&amp;</span>
-            <span class="name">Filip</span>
-          </div>
-        </div>
+    <div class="cell" data-cell="date"><span class="hero-date">5. september 2026</span></div>
+    <div class="cell" data-cell="pf">
+      <div class="names">
+        <span class="name">Patrícia</span>
+        <span class="amp">&amp;</span>
+        <span class="name">Filip</span>
       </div>
-      <div class="hflex" data-flex="buttonQ"><div class="hliner"><button class="qbtn">Dotazník</button></div></div>
-      <div class="hflex" data-flex="buttonQnote"><div class="hliner"><span class="qnote">Ideálne vyplniť do 16.8., prosím.</span></div></div>
-      <div class="hflex" data-flex="buttonScroll"><div class="hliner"><span class="hero-scroll" style="width:34px;height:34px;border-radius:50%;background:var(--text-accent);display:block;"></span></div></div>
     </div>
-    <div class="s1col" data-layer="section_1_3">
-      <div class="hflex" data-flex="location"><div class="hliner"><span class="hero-location"><a class="pf-link" href="https://maps.app.goo.gl/CcpAZgbuzZKfHp6Y9" target="_blank" rel="noopener">Rezort Partizán</a> • Obyce, Zlaté Moravce</span></div></div>
+    <div class="cell" data-cell="buttonQ">
+      <div class="qgroup">
+        <button class="qbtn">Dotazník</button>
+        <span class="qnote">Ideálne vyplniť do 16.8., prosím.</span>
+      </div>
     </div>
+    <div class="cell" data-cell="buttonScroll"><span class="hero-scroll" style="width:34px;height:34px;border-radius:50%;background:var(--text-accent);display:block;"></span></div>
+    <div class="cell" data-cell="location"><span class="hero-location"><a class="pf-link" href="https://maps.app.goo.gl/CcpAZgbuzZKfHp6Y9" target="_blank" rel="noopener">Rezort Partizán</a> • Obyce, Zlaté Moravce</span></div>
   </div>
 
   <!-- screen 2 -->
@@ -1091,7 +999,7 @@
       var PARALLAX = window.PARALLAX || {};
       var SECTIONS = window.SECTIONS || {};
       var GENERAL  = window.GENERAL  || {};
-      var HERO     = window.HERO     || {};
+      var GRID1    = window.GRID1    || {};
 
       // ---- STABLE viewport size: frozen so the mobile URL bar (which changes
       //      innerHeight on scroll) can't reflow the layout. Updated only on a
@@ -1158,27 +1066,44 @@
                   + '%) sepia(' + g('tint',0) + '%) hue-rotate(' + g('tintHue',0) + 'deg)';
         });
 
-        // ---- HERO (Section 1): 3 columns (thirds) x inner flexes, all from HERO CONTROLS ----
+        // ---- GRID 1 (Section 1): one grid, five cells, all from GRID 1 CONTROLS ----
         var hero = document.querySelector('.s1');
         if(hero){
           var vw = APPW;
           var aI = function(v){ return v === 't' ? 'flex-start' : (v === 'b' ? 'flex-end' : 'center'); };
           var jC = function(h){ return h === 'l' ? 'flex-start' : (h === 'r' ? 'flex-end' : 'center'); };
-          hero.style.width  = ((pick(HERO,'sectionWidth')  || 100) / 100 * document.documentElement.clientWidth).toFixed(1) + 'px';
-          hero.style.height = ((pick(HERO,'sectionHeight') || 100) / 100 * APPH).toFixed(1) + 'px';
-          var COLS = HERO.columns || {};
-          Object.keys(COLS).forEach(function(nm){
-            var col = document.querySelector('.s1col[data-layer="' + nm + '"]'); if(!col) return;
-            var c = COLS[nm];
-            col.style.flex  = (pick(c,'flex') || 0) + ' 1 0';   // main-axis ratio share
-            col.style.order = (pick(c,'order') || 0);
+          hero.style.width  = ((pick(GRID1,'sectionWidth')  || 100) / 100 * document.documentElement.clientWidth).toFixed(1) + 'px';
+          hero.style.height = ((pick(GRID1,'sectionHeight') || 100) / 100 * APPH).toFixed(1) + 'px';
+          // GRID 1: container track skeleton
+          var gCols = pick(GRID1,'columns'); if(gCols != null) hero.style.gridTemplateColumns = gCols;
+          var gRows = pick(GRID1,'rows');    if(gRows != null) hero.style.gridTemplateRows    = gRows;
+          hero.style.gap = ((pick(GRID1,'gap') || 0)) + 'px';
+          var aV = function(v){ return v === 't' ? 'start' : (v === 'b' ? 'end' : 'center'); };
+          var aH = function(h){ return h === 'l' ? 'start' : (h === 'r' ? 'end' : 'center'); };
+          var ITEMS = GRID1.items || {};
+          Object.keys(ITEMS).forEach(function(nm){
+            var cell = document.querySelector('.cell[data-cell="' + nm + '"]'); if(!cell) return;
+            var it = ITEMS[nm];
+            cell.style.gridColumn = (pick(it,'colStart') || 1) + ' / span ' + (pick(it,'colSpan') || 1);
+            cell.style.gridRow    = (pick(it,'rowStart') || 1) + ' / span ' + (pick(it,'rowSpan') || 1);
+            var a = String(pick(it,'align') || 'cc').toLowerCase();
+            cell.style.alignItems   = aV(a.charAt(0));
+            cell.style.justifyItems = aH(a.charAt(1));
+            cell.style.paddingTop    = ((pick(it,'padT') || 0) / 100 * vh).toFixed(1) + 'px';
+            cell.style.paddingBottom = ((pick(it,'padB') || 0) / 100 * vh).toFixed(1) + 'px';
+            cell.style.paddingLeft   = ((pick(it,'padL') || 0) / 100 * vh).toFixed(1) + 'px';
+            cell.style.paddingRight  = ((pick(it,'padR') || 0) / 100 * vh).toFixed(1) + 'px';
+            var z = pick(it,'zIndex');     if(z != null) cell.style.zIndex  = z;
+            var v = pick(it,'visibility'); if(v != null) cell.style.opacity = v / 100;
+            var bg = pick(it,'bg');        if(bg != null) cell.style.background = bg;
           });
 
-          var FL = Object.assign({}, HERO.flexes || {}, (window.SECTION2 || {}).flexes || {});
+          // SECTION 2 cells still use the flex .hflex/.hliner model
+          var FL = (window.SECTION2 || {}).flexes || {};
           Object.keys(FL).forEach(function(nm){
             var fx = document.querySelector('.hflex[data-flex="' + nm + '"]'); if(!fx) return;
             var f = FL[nm];
-            fx.style.flex  = (pick(f,'flex') || 0) + ' 1 0';    // cell = ratio share (never moves)
+            fx.style.flex  = (pick(f,'flex') || 0) + ' 1 0';
             fx.style.order = (pick(f,'order') || 0);
             var ln = fx.querySelector('.hliner'); if(!ln) return;
             var a = String(pick(f,'align') || 'cc').toLowerCase();
@@ -1200,7 +1125,7 @@
           var names = hero.querySelector('.names');
           var namesPx = 0, ampPx = 0;
           if(names){
-            var pfBox = hero.querySelector('.hflex[data-flex="pf"] .hliner');
+            var pfBox = hero.querySelector('.cell[data-cell="pf"]');
             names.style.fontSize = '100px';
             var h0 = names.offsetHeight || 1, w0 = names.offsetWidth || 1;
             var availH = h0, availW = w0;
