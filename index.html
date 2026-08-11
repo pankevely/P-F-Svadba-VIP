@@ -101,6 +101,18 @@
       visibility_h: 100,
       visibility_v: 100
     },
+    GRID_1: {
+      zIndex_h: 945, /*section 1 as ONE layer — sits between parallax planes*/
+      zIndex_v: 945,
+      visibility_h: 100,
+      visibility_v: 100
+    },
+    GRID_2: {
+      zIndex_h: 945, /*section 2 as ONE layer — above the mountains by default*/
+      zIndex_v: 945,
+      visibility_h: 100,
+      visibility_v: 100
+    },
     BG: {
       zIndex_h: 1, /*standard 1*/
       zIndex_v: 1, /*standard 1*/
@@ -787,7 +799,7 @@
      Section 2 cells are sized/ordered/aligned/padded by JS from the SECTION 2 panel.
      H: columns side-by-side.  V: columns stacked. */
   /* Section 1 = GRID 1: one CSS-grid container; JS sets template-columns/rows + gap. */
-  .s1{ display:grid; width:100%; height:100vh; height:100dvh; height:var(--appvh,100dvh); }
+  .s1{ display:grid; position:relative; width:100%; height:100vh; height:100dvh; height:var(--appvh,100dvh); }
   /* cell = one grid item = its own alignment box (the old absolute liner is gone).
      JS sets grid-column/row, place-items (9-pt align), padding, z-index, opacity, bg. */
   .cell{ position:relative; box-sizing:border-box; min-width:0; min-height:0; overflow:hidden;
@@ -847,7 +859,7 @@
   /* section_2 row — three FULL-HEIGHT, one-third-width frames.
      On PORTRAIT screens they stack vertically (1 → 2 → 3). */
   /* Section 2 — three thirds, flex model (JS sets flex + order); Grid 2 comes later. */
-  .sections{ display:grid; width:100%; height:100vh; height:100dvh; height:var(--appvh,100dvh); align-items:stretch; }
+  .sections{ display:grid; position:relative; width:100%; height:100vh; height:100dvh; height:var(--appvh,100dvh); align-items:stretch; }
   @media (orientation: portrait){ .sections{ flex-direction:column; } }
   .section{ position:relative; flex:1 1 0; overflow:hidden; min-width:0; min-height:0;
             display:flex; flex-direction:column; }
@@ -875,7 +887,7 @@
   <!-- ===== SCROLLING layers (normal document flow) ===== -->
   <!-- screen 1 -->
   <!-- Section 1 (hero): three thirds, each with inner flex boxes -->
-  <div class="s1">
+  <div class="s1" data-layer="GRID_1">
     <div class="cell" data-cell="date"><span class="hero-date">5. september 2026 • 13:00</span></div>
     <div class="cell" data-cell="pf">
       <div class="names">
@@ -895,7 +907,7 @@
   </div>
 
   <!-- screen 2 -->
-  <div class="sections">
+  <div class="sections" data-layer="GRID_2">
     <div class="cell" data-cell="placeholder"><span class="s2note">Tu raz niečo bude, sľubujeme. Medzičasom – vyplňte <a class="pf-link" href="https://forms.gle/BbAA4TGnBj7z1JMPA" target="_blank" rel="noopener noreferrer">dotazník</a>, prosím.</span></div>
   </div>
 
