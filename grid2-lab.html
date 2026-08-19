@@ -8,44 +8,53 @@
 
 <style>
 /* ============================================================================
-   GRID 2 LAB — standalone test of the Section-2 content layout + menu switching.
+   GRID 2 LAB — standalone test of the Section-2 content layout + menu switching
+   + interactive scrollbar + scroll-to-advance-between-sections with resistance.
    NOT wired to the site engine. Units: dvw / dvh (dynamic viewport).
 
-   POSITIONING MODEL — every anchored element is placed by a TOP-CENTRE ANCHOR:
-     --ax / --ay : anchor point as a fraction of the viewport (dvw / dvh);
-                   the anchor is the element's horizontal CENTRE, at its TOP edge.
-     --w  / --h  : element size (dvw / dvh).
-   => left = ax - w/2 ; top = ay.
+   POSITIONING MODEL — anchored elements placed by a TOP-CENTRE ANCHOR:
+     --ax / --ay : anchor (viewport fraction); element's horizontal CENTRE, TOP edge.
+     --w  / --h  : element size.  => left = ax - w/2 ; top = ay.
 
-   MENU SWITCHING — the menu and the panels are generated from the SECTIONS list
-   in the script below. Each menu item owns one <section class="panel"> that fills
-   the yellow frame and scrolls its own content. Exactly one panel is .active
-   (shown); the rest are display:none, which keeps each one's scroll position and
-   makes it non-interactive — so you can leave one mid-scroll, open another, and
-   return to find it exactly where you left it.
+   SECTION MODEL — menu + panels are generated from SECTIONS (script below).
+   Each menu item owns one scrollable .panel filling the yellow frame; one is
+   .active (shown), the rest are display:none (keeping their own scroll position).
+
+   NAVIGATION:
+     • Click a menu item  -> show its panel, RESTORING its last scroll position.
+     • Drag the red thumb / click the track -> scroll the active panel.
+     • Scroll past the end (or the top) -> rubber-band resistance + a "next/prev"
+       hint; push past the threshold and it snaps to that section at its DEFAULT
+       top (headline aligned 1/6 dvh below the screen edge).
+   Behaviour constants live in CONFIG in the script.
    ============================================================================ */
 
 /* ============================================================================
-   ★ CONTROL PANEL (landscape) — the lab's tweakable knobs.
-     Portrait mirrors these in the @media block at the very bottom (same values
-     for now). Every element's own --ax/--ay/--w/--h live on its rule below.
+   ★ CONTROL PANEL (landscape) — tweakable knobs. Portrait mirrors these below.
    ============================================================================ */
 :root{
-  /* -- Menu item modifiers ------------------------------------------------ */
-  --mi-font-size:   1.5rem;   /* menu item text size */
-  --mi-line-height: 1.1em;    /* menu item line height */
-  --mi-align:       right;    /* menu item text-align */
-  --mi-pad-y:       0px;      /* menu item vertical padding */
-  --mi-pad-x:       0px;      /* menu item horizontal padding */
+  /* -- Menu item modifiers -- */
+  --mi-font-size:   1.5rem;
+  --mi-line-height: 1.1em;
+  --mi-align:       right;
+  --mi-pad-y:       0px;
+  --mi-pad-x:       0px;
 
-  /* -- Yellow article ----------------------------------------------------- */
-  --article-top-inset: calc(100dvh / 6);  /* initial start of headline/text */
+  /* -- Yellow article — the content's scroll runways -- */
+  --article-top-inset:    calc(100dvh / 6); /* DEFAULT start position of the headline */
+  --article-top-gap:      50dvh;            /* runway ABOVE content: scroll up through it before the BACK buffer appears (use dvh) */
+  --article-bottom-inset: 50dvh;            /* runway BELOW content: last line ends this far above the bottom */
   /* (article left/right padding = 1/16 of the yellow box width — see .viewport) */
 
-  /* -- Red scroll line ---------------------------------------------------- */
-  --red-thickness: clamp(2px, 0.3dvw, 5px);
+  /* -- Switch indicator (the "keep scrolling → next/prev section" cue) -- */
+  --ind-x: 50%;                            /* horizontal position within the yellow viewport */
+  --ind-y: 66%;                            /* vertical position from the top edge of the viewport */
+  --ind-bar-width: clamp(120px, 16dvw, 240px);   /* buffer-bar width */
 
-  /* -- Lab cosmetics (real colours come later from the brand kit) ---------- */
+  /* -- Red scroll line -- */
+  --red-thickness: clamp(3px, 0.35dvw, 6px);
+
+  /* -- Lab cosmetics -- */
   --c-turquoise: #29d6d6;
   --c-yellow:    #ffe800;
   --c-red:       #e11d1d;
@@ -56,8 +65,6 @@
 *{ box-sizing:border-box; }
 html,body{ margin:0; padding:0; }
 
-/* The "screen" = the full-viewport GRID 2 area. The page never scrolls; only the
-   active yellow panel scrolls its own content. */
 .screen{
   position:relative;
   width:100dvw; height:100dvh;
@@ -66,7 +73,6 @@ html,body{ margin:0; padding:0; }
   font-family:'Fira Sans Extra Condensed', system-ui, sans-serif;
 }
 
-/* Generic anchored element: top-centre anchor at (--ax,--ay), size (--w,--h). */
 .anchored{
   position:absolute;
   width:var(--w);
@@ -81,18 +87,11 @@ html,body{ margin:0; padding:0; }
   --h:  calc(100dvh * 2 / 5);
   --ax: calc(100dvw * 1 / 4);
   --ay: calc(100dvh * 1 / 6);
-
-  /* inner padding = 1/5 of the box WIDTH, on every side */
-  padding: calc(var(--w) / 5);
-
+  padding: calc(var(--w) / 5);          /* 1/5 of box width, every side */
   background:var(--c-turquoise);
-  display:flex;
-  flex-direction:column;
-  justify-content:flex-start;      /* items flow from the top, like text */
+  display:flex; flex-direction:column; justify-content:flex-start;
   overflow:hidden;
 }
-/* menu items — real buttons, styled to read as plain text; all knobs come from
-   the CONTROL PANEL (--mi-*) so they can be tuned in one place. */
 .menu-item{
   display:block; width:100%; margin:0;
   padding: var(--mi-pad-y) var(--mi-pad-x);
@@ -111,23 +110,21 @@ html,body{ margin:0; padding:0; }
   --h:  100dvh;
   --ax: calc(100dvw * 11 / 16);
   --ay: 0dvh;
-
-  --pad-x: calc(var(--w) / 16);   /* article left/right padding = 1/16 of width */
-
+  --pad-x: calc(var(--w) / 16);         /* article left/right padding */
   background:var(--c-yellow);
-  overflow:hidden;                /* the FRAME doesn't scroll; the panels do */
+  overflow:hidden;                      /* frame doesn't scroll; panels do */
 }
-/* one panel per menu item — fills the frame, scrolls its own content */
 .panel{
   position:absolute; inset:0;
   overflow-y:auto;
-  scrollbar-width:none;           /* hide native scrollbar (Firefox) */
-  padding: var(--article-top-inset) var(--pad-x) calc(100dvh / 6) var(--pad-x);
+  scrollbar-width:none;
+  padding: calc(var(--article-top-inset) + var(--article-top-gap)) var(--pad-x) var(--article-bottom-inset) var(--pad-x);
   color:var(--c-ink); line-height:1.5;
   font-size:clamp(13px, 1.1dvw, 18px);
-  display:none;                   /* hidden panels keep their scroll position */
+  display:none;
+  will-change:transform;                /* for the rubber-band pull */
 }
-.panel::-webkit-scrollbar{ display:none; }   /* hide native (WebKit) */
+.panel::-webkit-scrollbar{ display:none; }
 .panel.active{ display:block; }
 .panel-title{
   margin:0 0 0.6em;
@@ -135,8 +132,27 @@ html,body{ margin:0; padding:0; }
   font-size:clamp(22px, 2.4dvw, 40px);
 }
 .panel p{ margin:0 0 1em; }
+.panel > *:last-child{ margin-bottom:0; }   /* last line sits exactly --article-bottom-inset above the end */
 
-/* ---- 3) RED — custom scrollbar track + (provisional) thumb --------------- */
+/* switch indicator — the "keep scrolling → next section" cue: just text with a
+   buffer bar below it (no border/background), floating at (--ind-x,--ind-y). */
+.switch-indicator{
+  position:absolute; left:var(--ind-x); top:var(--ind-y);
+  transform:translate(-50%, -50%);
+  z-index:5;
+  display:flex; flex-direction:column; align-items:center; gap:.5em;
+  font:600 clamp(13px,1.2dvw,18px)/1.2 'Fira Sans Extra Condensed', system-ui, sans-serif;
+  color:#111; text-align:center; white-space:nowrap;
+  opacity:0; transition:opacity .14s ease; pointer-events:none;
+}
+.switch-indicator.show{ opacity:1; }
+.switch-indicator .si-bar{ position:relative;
+  width:var(--ind-bar-width); height:3px;
+  background:rgba(0,0,0,.2); border-radius:2px; overflow:hidden; }
+.switch-indicator .si-bar > i{ position:absolute; inset:0;
+  transform-origin:left center; transform:scaleX(0); background:#7a0000; }
+
+/* ---- 3) RED — interactive scrollbar track + proportional thumb ----------- */
 .scrollbar{
   --w:  var(--red-thickness);
   --h:  calc(100dvh * 2 / 5);
@@ -144,25 +160,24 @@ html,body{ margin:0; padding:0; }
   --ay: calc(100dvh * 1 / 6);
   background:var(--c-red);
   border-radius:999px;
+  cursor:pointer;                       /* click track to jump */
 }
-/* Provisional thumb — behaviour (proportional vs fixed) still TBD. Rebinds to
-   whichever panel is active. */
 .scrollbar .thumb{
   position:absolute; left:50%; transform:translateX(-50%);
-  width:calc(var(--red-thickness) * 2.6);
-  height:16%;                     /* placeholder size */
-  top:0;                          /* moved by JS */
+  width:calc(var(--red-thickness) * 2.4);
+  height:24px;                          /* JS sets a proportional height */
+  top:0;
   background:#7a0000; border-radius:999px;
+  cursor:grab; touch-action:none;
 }
+.scrollbar .thumb.dragging{ cursor:grabbing; }
 
-/* ---- Corner label (lab context only) ------------------------------------ */
 .lab-tag{
   position:absolute; top:10px; left:12px; z-index:10;
   font:600 12px/1 'Fira Sans Extra Condensed', system-ui, sans-serif;
   letter-spacing:.04em; color:#4a5560; opacity:.7; pointer-events:none;
 }
 
-/* ---- Portrait: same values for now — retune per element/knob here later --- */
 @media (orientation: portrait){
   :root{
     --mi-font-size:1.5rem; --mi-line-height:1.1em; --mi-align:right;
@@ -182,18 +197,14 @@ html,body{ margin:0; padding:0; }
 <body>
   <div class="screen">
     <span class="lab-tag">GRID 2 · layout lab</span>
-
-    <!-- menu + panels are generated from SECTIONS in the script below -->
     <nav class="anchored menu" id="menu" aria-label="Menu"></nav>
     <div class="anchored viewport" id="viewport"></div>
     <div class="anchored scrollbar" id="scrollbar"><div class="thumb" id="thumb"></div></div>
-
   </div>
 
   <script>
   (function(){
-    /* ---- The menu, single source of truth. Later, swap `body` for real HTML
-       per section (e.g. { label, id, body:'<p>...</p>' }). ------------------ */
+    /* ---- data (single source of truth) ---- */
     var SECTIONS = [
       { id:'program',   label:'Program' },
       { id:'dresscode', label:'Dress Code' },
@@ -202,8 +213,6 @@ html,body{ margin:0; padding:0; }
       { id:'blog',      label:'Blog' },
       { id:'kontakt',   label:'Kontakt' }
     ];
-
-    /* Shared placeholder body (doubled length so the scroll is testable). */
     var P = [
       'Consectetur adipiscing elit. Suspendisse porttitor egestas velit, nec gravida justo malesuada nec. Fusce non commodo leo, quis lacinia dui. In dignissim ullamcorper tellus, in dictum ex ultricies a. Praesent consequat dolor et ex pellentesque, quis sollicitudin diam commodo.',
       'Aliquam congue nibh in sollicitudin molestie. Nullam vulputate dignissim sapien, sed accumsan nibh malesuada a. Nunc vitae odio vel diam eleifend suscipit sit amet sit amet purus. Vestibulum tincidunt ex in aliquet dictum. Quisque blandit vulputate odio, quis finibus arcu malesuada nec.',
@@ -214,9 +223,27 @@ html,body{ margin:0; padding:0; }
       'Vivamus id felis a nibh sodales congue. Suspendisse potenti. Aenean faucibus, sapien nec convallis blandit, augue arcu semper nulla, a fermentum ligula lorem non nunc. Maecenas quis sem non ipsum posuere volutpat.',
       'Etiam nec risus nec nulla porttitor pretium. Nulla facilisi. Duis vehicula, nibh eu volutpat cursus, quam massa fermentum orci, sit amet vulputate turpis quam a mauris. Fusce ut lorem a arcu efficitur pretium in quis nunc.'
     ];
-    /* double it */
     var LOREM = P.concat(P).map(function(t){ return '<p>'+t+'</p>'; }).join('');
 
+    /* ---- behaviour knobs ---- */
+    /* ★ BEHAVIOUR CONTROL PANEL — the resistance buffer + feel.
+       Raise the *Threshold values to make advancing require a longer, firmer
+       scroll (higher = harder to trigger a section switch). */
+    var CONFIG = {
+      wheelThreshold: 800,   // RESISTANCE BUFFER (wheel/trackpad): accumulated delta to advance
+      touchThreshold: 240,   // RESISTANCE BUFFER (touch): accumulated overscroll (px) to advance
+      rubberMax:      90,    // max visual pull (px) at full resistance
+      springMs:       260,   // spring-back duration (ms)
+      releaseIdleMs:  200,   // idle after last scroll before springing back (ms)
+      cooldownMs:     450,   // swallow input briefly after a snap so the new section settles
+      edgeEps:        2,     // px tolerance for "at edge"
+      rubberStiffness:0.55,  // resistance curve (lower = the visual pull maxes out sooner)
+      arrowNext:'↓', labelNext:'Ďalej',   // forward switch-indicator text (name is appended dynamically)
+      arrowPrev:'↑', labelPrev:'Späť'      // backward switch-indicator text
+    };
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* ---- build menu + panels ---- */
     var menu  = document.getElementById('menu');
     var frame = document.getElementById('viewport');
     var track = document.getElementById('scrollbar');
@@ -225,33 +252,179 @@ html,body{ margin:0; padding:0; }
 
     SECTIONS.forEach(function(s, i){
       var btn = document.createElement('button');
-      btn.type = 'button'; btn.className = 'menu-item'; btn.textContent = s.label;
-      btn.addEventListener('click', function(){ activate(i); });
+      btn.type='button'; btn.className='menu-item'; btn.textContent=s.label;
+      btn.addEventListener('click', function(){ activate(i, false); });
       menu.appendChild(btn); items.push(btn);
 
       var panel = document.createElement('section');
-      panel.className = 'panel'; panel.id = 'panel-' + s.id;
+      panel.className='panel'; panel.id='panel-'+s.id;
       panel.setAttribute('aria-label', s.label);
-      panel.innerHTML = '<h2 class="panel-title">' + s.label + '</h2>' + LOREM;
-      panel.addEventListener('scroll', function(){ if(i === active) updateThumb(); }, {passive:true});
+      panel.innerHTML = '<h2 class="panel-title">'+s.label+'</h2>' + LOREM;
+      panel.addEventListener('scroll', function(){ if(i===active) updateThumb(); }, {passive:true});
       frame.appendChild(panel); panels.push(panel);
     });
 
+    var hint = document.createElement('div');
+    hint.className='switch-indicator';
+    hint.innerHTML='<span class="si-label"></span><span class="si-bar"><i></i></span>';
+    frame.appendChild(hint);
+    var hintLabel = hint.querySelector('.si-label');
+    var hintFill  = hint.querySelector('.si-bar > i');
+
+    /* ---- thumb (proportional + draggable) + track click ---- */
+    function sizeThumb(){
+      var vp = panels[active];
+      var ratio = Math.min(1, vp.clientHeight / (vp.scrollHeight || 1));
+      thumb.style.height = Math.max(24, Math.round(track.clientHeight * ratio)) + 'px';
+    }
     function updateThumb(){
+      sizeThumb();
       var vp = panels[active];
       var max = vp.scrollHeight - vp.clientHeight;
       var p = max > 0 ? vp.scrollTop / max : 0;
       var travel = track.clientHeight - thumb.clientHeight;
       thumb.style.top = (p * travel).toFixed(1) + 'px';
     }
-    function activate(i){
-      active = i;
-      items.forEach(function(b, j){ b.classList.toggle('active', j === i); });
-      panels.forEach(function(p, j){ p.classList.toggle('active', j === i); });
-      updateThumb();               /* reflect this panel's retained scroll pos */
+    var dragging=false, startPtrY=0, startTop=0;
+    thumb.addEventListener('pointerdown', function(e){
+      e.preventDefault(); dragging=true; thumb.classList.add('dragging');
+      thumb.setPointerCapture(e.pointerId);
+      startPtrY=e.clientY; startTop=parseFloat(thumb.style.top)||0;
+    });
+    thumb.addEventListener('pointermove', function(e){
+      if(!dragging) return;
+      var vp=panels[active];
+      var travel=track.clientHeight - thumb.clientHeight;
+      var t=Math.min(Math.max(startTop + (e.clientY-startPtrY), 0), travel);
+      var p= travel>0 ? t/travel : 0;
+      vp.scrollTop = p * (vp.scrollHeight - vp.clientHeight);
+    });
+    thumb.addEventListener('pointerup', function(e){ dragging=false; thumb.classList.remove('dragging'); });
+    thumb.addEventListener('pointercancel', function(){ dragging=false; thumb.classList.remove('dragging'); });
+    track.addEventListener('pointerdown', function(e){
+      if(e.target===thumb) return;
+      var rect=track.getBoundingClientRect();
+      var travel=track.clientHeight - thumb.clientHeight;
+      var t=Math.min(Math.max((e.clientY-rect.top) - thumb.clientHeight/2, 0), travel);
+      var p= travel>0 ? t/travel : 0;
+      var vp=panels[active];
+      vp.scrollTop = p * (vp.scrollHeight - vp.clientHeight);
+    });
+
+    /* ---- section switching ---- */
+    var savedScroll = SECTIONS.map(function(){ return null; });   // null = not visited yet
+    function gapPx(){
+      var g = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--article-top-gap'));
+      return (isNaN(g)?0:g)/100 * window.innerHeight;             // --article-top-gap is in dvh
     }
+    function defaultScroll(vp){
+      var max = Math.max(0, vp.scrollHeight - vp.clientHeight);
+      return Math.min(gapPx(), max);        // headline lands at --article-top-inset (default start)
+    }
+    function activate(i, resetToDefault){
+      var prev = active;
+      if(panels[prev] && panels[prev].classList.contains('active')) savedScroll[prev] = panels[prev].scrollTop;
+      active = i;
+      items.forEach(function(b,j){ b.classList.toggle('active', j===i); });
+      panels.forEach(function(p,j){ p.classList.toggle('active', j===i); });
+      var want = (resetToDefault || savedScroll[i]==null) ? defaultScroll(panels[i]) : savedScroll[i];
+      var max = Math.max(0, panels[i].scrollHeight - panels[i].clientHeight);
+      panels[i].scrollTop = Math.min(Math.max(want,0), max);
+      savedScroll[i] = panels[i].scrollTop;
+      clearPull(panels[i]);
+      updateThumb();
+    }
+
+    /* ---- overscroll -> resistance -> advance ---- */
+    var accum=0, dir=0, threshold=CONFIG.wheelThreshold, releaseTimer=null, cooldown=false;
+
+    function getMax(vp){ return vp.scrollHeight - vp.clientHeight; }
+    function clearPull(vp){ vp.style.transition='none'; vp.style.transform=''; }
+
+    function applyResistance(){
+      var vp=panels[active];
+      var target=active+dir;
+      var prog=Math.min(accum/threshold, 1);
+      if(!reduceMotion){
+        var pull=CONFIG.rubberMax*(1-Math.exp(-accum/(threshold*CONFIG.rubberStiffness)));
+        vp.style.transition='none';
+        vp.style.transform='translateY(' + (-dir*pull) + 'px)';
+      }
+      if(target>=0 && target<panels.length){
+        hint.classList.add('show');
+        hintLabel.textContent=(dir>0 ? CONFIG.arrowNext+' '+CONFIG.labelNext
+                                     : CONFIG.arrowPrev+' '+CONFIG.labelPrev)+': '+SECTIONS[target].label;
+        hintFill.style.transform='scaleX('+prog+')';
+      } else {
+        hint.classList.remove('show');   // no section that way: resistance only
+      }
+    }
+    function release(){
+      clearTimeout(releaseTimer);
+      var vp=panels[active];
+      if(!reduceMotion){
+        vp.style.transition='transform '+CONFIG.springMs+'ms cubic-bezier(.22,1,.36,1)';
+        vp.style.transform='translateY(0)';
+      }
+      hint.classList.remove('show');
+      accum=0; dir=0;
+    }
+    function scheduleRelease(){ clearTimeout(releaseTimer); releaseTimer=setTimeout(release, CONFIG.releaseIdleMs); }
+
+    function commit(d){
+      var target=active+d;
+      if(target<0 || target>=panels.length) return;
+      clearTimeout(releaseTimer);
+      clearPull(panels[active]);
+      hint.classList.remove('show');
+      accum=0; dir=0;
+      cooldown=true; setTimeout(function(){ cooldown=false; }, CONFIG.cooldownMs);
+      activate(target, true);            // reset to default top
+    }
+
+    frame.addEventListener('wheel', function(e){
+      if(dragging) return;
+      if(cooldown){ e.preventDefault(); return; }   // swallow input so the new section rests at its default top
+      var vp=panels[active];
+      var down=e.deltaY>0;
+      var atEdge = down ? vp.scrollTop >= getMax(vp)-CONFIG.edgeEps
+                        : vp.scrollTop <= CONFIG.edgeEps;
+      if(!atEdge) return;                 // let native scrolling handle mid-content
+      e.preventDefault();
+      threshold=CONFIG.wheelThreshold;
+      var d=down?1:-1;
+      if(d!==dir){ accum=0; dir=d; }
+      accum+=Math.abs(e.deltaY);
+      applyResistance();
+      if(accum>=threshold){ commit(dir); return; }
+      scheduleRelease();
+    }, {passive:false});
+
+    /* touch */
+    var lastTouchY=0;
+    frame.addEventListener('touchstart', function(e){ lastTouchY=e.touches[0].clientY; }, {passive:true});
+    frame.addEventListener('touchmove', function(e){
+      if(cooldown){ e.preventDefault(); lastTouchY=e.touches[0].clientY; return; }
+      var vp=panels[active];
+      var y=e.touches[0].clientY;
+      var dy=lastTouchY - y;             // >0 => intent to scroll down
+      lastTouchY=y;
+      var down=dy>0;
+      var atEdge = down ? vp.scrollTop >= getMax(vp)-CONFIG.edgeEps
+                        : vp.scrollTop <= CONFIG.edgeEps;
+      if(!atEdge) return;
+      e.preventDefault();
+      threshold=CONFIG.touchThreshold;
+      var d=down?1:-1;
+      if(d!==dir){ accum=0; dir=d; }
+      accum+=Math.abs(dy);
+      applyResistance();
+      if(accum>=threshold){ commit(dir); }
+    }, {passive:false});
+    frame.addEventListener('touchend', function(){ if(dir!==0) release(); }, {passive:true});
+
     window.addEventListener('resize', updateThumb);
-    activate(0);
+    activate(0, false);
   })();
   </script>
 </body>
