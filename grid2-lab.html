@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>GRID 2 — layout lab</title>
+
+<style>
+/* ============================================================================
+   GRID 2 LAB — standalone test of the Section-2 content layout + menu switching.
+   NOT wired to the site engine. Units: dvw / dvh (dynamic viewport).
+
+   POSITIONING MODEL — every anchored element is placed by a TOP-CENTRE ANCHOR:
+     --ax / --ay : anchor point as a fraction of the viewport (dvw / dvh);
+                   the anchor is the element's horizontal CENTRE, at its TOP edge.
+     --w  / --h  : element size (dvw / dvh).
+   => left = ax - w/2 ; top = ay.
+
+   MENU SWITCHING — the menu and the panels are generated from the SECTIONS list
+   in the script below. Each menu item owns one <section class="panel"> that fills
+   the yellow frame and scrolls its own content. Exactly one panel is .active
+   (shown); the rest are display:none, which keeps each one's scroll position and
+   makes it non-interactive — so you can leave one mid-scroll, open another, and
+   return to find it exactly where you left it.
+   ============================================================================ */
+
+/* ============================================================================
+   ★ CONTROL PANEL (landscape) — the lab's tweakable knobs.
+     Portrait mirrors these in the @media block at the very bottom (same values
+     for now). Every element's own --ax/--ay/--w/--h live on its rule below.
+   ============================================================================ */
+:root{
+  /* -- Menu item modifiers ------------------------------------------------ */
+  --mi-font-size:   1.5rem;   /* menu item text size */
+  --mi-line-height: 1.1em;    /* menu item line height */
+  --mi-align:       right;    /* menu item text-align */
+  --mi-pad-y:       0px;      /* menu item vertical padding */
+  --mi-pad-x:       0px;      /* menu item horizontal padding */
+
+  /* -- Yellow article ----------------------------------------------------- */
+  --article-top-inset: calc(100dvh / 6);  /* initial start of headline/text */
+  /* (article left/right padding = 1/16 of the yellow box width — see .viewport) */
+
+  /* -- Red scroll line ---------------------------------------------------- */
+  --red-thickness: clamp(2px, 0.3dvw, 5px);
+
+  /* -- Lab cosmetics (real colours come later from the brand kit) ---------- */
+  --c-turquoise: #29d6d6;
+  --c-yellow:    #ffe800;
+  --c-red:       #e11d1d;
+  --c-screen-bg: #eef3f6;
+  --c-ink:       #111;
+}
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; }
+
+/* The "screen" = the full-viewport GRID 2 area. The page never scrolls; only the
+   active yellow panel scrolls its own content. */
+.screen{
+  position:relative;
+  width:100dvw; height:100dvh;
+  overflow:hidden;
+  background:var(--c-screen-bg);
+  font-family:'Fira Sans Extra Condensed', system-ui, sans-serif;
+}
+
+/* Generic anchored element: top-centre anchor at (--ax,--ay), size (--w,--h). */
+.anchored{
+  position:absolute;
+  width:var(--w);
+  height:var(--h);
+  left:calc(var(--ax) - var(--w) / 2);
+  top:var(--ay);
+}
+
+/* ---- 1) TURQUOISE — menu ------------------------------------------------- */
+.menu{
+  --w:  calc(100dvw * 1 / 6);
+  --h:  calc(100dvh * 2 / 5);
+  --ax: calc(100dvw * 1 / 4);
+  --ay: calc(100dvh * 1 / 6);
+
+  /* inner padding = 1/5 of the box WIDTH, on every side */
+  padding: calc(var(--w) / 5);
+
+  background:var(--c-turquoise);
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;      /* items flow from the top, like text */
+  overflow:hidden;
+}
+/* menu items — real buttons, styled to read as plain text; all knobs come from
+   the CONTROL PANEL (--mi-*) so they can be tuned in one place. */
+.menu-item{
+  display:block; width:100%; margin:0;
+  padding: var(--mi-pad-y) var(--mi-pad-x);
+  background:none; border:none; cursor:pointer;
+  font-family:inherit; color:var(--c-ink);
+  font-size:   var(--mi-font-size);
+  line-height: var(--mi-line-height);
+  text-align:  var(--mi-align);
+}
+.menu-item:hover{ text-decoration:underline; }
+.menu-item.active{ font-weight:700; }
+
+/* ---- 2) YELLOW — fixed frame holding one scrollable panel per menu item --- */
+.viewport{
+  --w:  calc(100dvw * 2 / 5);
+  --h:  100dvh;
+  --ax: calc(100dvw * 11 / 16);
+  --ay: 0dvh;
+
+  --pad-x: calc(var(--w) / 16);   /* article left/right padding = 1/16 of width */
+
+  background:var(--c-yellow);
+  overflow:hidden;                /* the FRAME doesn't scroll; the panels do */
+}
+/* one panel per menu item — fills the frame, scrolls its own content */
+.panel{
+  position:absolute; inset:0;
+  overflow-y:auto;
+  scrollbar-width:none;           /* hide native scrollbar (Firefox) */
+  padding: var(--article-top-inset) var(--pad-x) calc(100dvh / 6) var(--pad-x);
+  color:var(--c-ink); line-height:1.5;
+  font-size:clamp(13px, 1.1dvw, 18px);
+  display:none;                   /* hidden panels keep their scroll position */
+}
+.panel::-webkit-scrollbar{ display:none; }   /* hide native (WebKit) */
+.panel.active{ display:block; }
+.panel-title{
+  margin:0 0 0.6em;
+  font-weight:700; line-height:1.15;
+  font-size:clamp(22px, 2.4dvw, 40px);
+}
+.panel p{ margin:0 0 1em; }
+
+/* ---- 3) RED — custom scrollbar track + (provisional) thumb --------------- */
+.scrollbar{
+  --w:  var(--red-thickness);
+  --h:  calc(100dvh * 2 / 5);
+  --ax: calc(100dvw * 15 / 16);
+  --ay: calc(100dvh * 1 / 6);
+  background:var(--c-red);
+  border-radius:999px;
+}
+/* Provisional thumb — behaviour (proportional vs fixed) still TBD. Rebinds to
+   whichever panel is active. */
+.scrollbar .thumb{
+  position:absolute; left:50%; transform:translateX(-50%);
+  width:calc(var(--red-thickness) * 2.6);
+  height:16%;                     /* placeholder size */
+  top:0;                          /* moved by JS */
+  background:#7a0000; border-radius:999px;
+}
+
+/* ---- Corner label (lab context only) ------------------------------------ */
+.lab-tag{
+  position:absolute; top:10px; left:12px; z-index:10;
+  font:600 12px/1 'Fira Sans Extra Condensed', system-ui, sans-serif;
+  letter-spacing:.04em; color:#4a5560; opacity:.7; pointer-events:none;
+}
+
+/* ---- Portrait: same values for now — retune per element/knob here later --- */
+@media (orientation: portrait){
+  :root{
+    --mi-font-size:1.5rem; --mi-line-height:1.1em; --mi-align:right;
+    --mi-pad-y:0px; --mi-pad-x:0px;
+    --article-top-inset: calc(100dvh / 6);
+  }
+  .menu{
+    --w:  calc(100dvw * 1 / 6);
+    --h:  calc(100dvh * 2 / 5);
+    --ax: calc(100dvw * 1 / 4);
+    --ay: calc(100dvh * 1 / 6);
+  }
+  /* .viewport / .scrollbar portrait anchor overrides go here too when tuned. */
+}
+</style>
+</head>
+<body>
+  <div class="screen">
+    <span class="lab-tag">GRID 2 · layout lab</span>
+
+    <!-- menu + panels are generated from SECTIONS in the script below -->
+    <nav class="anchored menu" id="menu" aria-label="Menu"></nav>
+    <div class="anchored viewport" id="viewport"></div>
+    <div class="anchored scrollbar" id="scrollbar"><div class="thumb" id="thumb"></div></div>
+
+  </div>
+
+  <script>
+  (function(){
+    /* ---- The menu, single source of truth. Later, swap `body` for real HTML
+       per section (e.g. { label, id, body:'<p>...</p>' }). ------------------ */
+    var SECTIONS = [
+      { id:'program',   label:'Program' },
+      { id:'dresscode', label:'Dress Code' },
+      { id:'dary',      label:'Dary' },
+      { id:'faq',       label:'Časté otázky' },
+      { id:'blog',      label:'Blog' },
+      { id:'kontakt',   label:'Kontakt' }
+    ];
+
+    /* Shared placeholder body (doubled length so the scroll is testable). */
+    var P = [
+      'Consectetur adipiscing elit. Suspendisse porttitor egestas velit, nec gravida justo malesuada nec. Fusce non commodo leo, quis lacinia dui. In dignissim ullamcorper tellus, in dictum ex ultricies a. Praesent consequat dolor et ex pellentesque, quis sollicitudin diam commodo.',
+      'Aliquam congue nibh in sollicitudin molestie. Nullam vulputate dignissim sapien, sed accumsan nibh malesuada a. Nunc vitae odio vel diam eleifend suscipit sit amet sit amet purus. Vestibulum tincidunt ex in aliquet dictum. Quisque blandit vulputate odio, quis finibus arcu malesuada nec.',
+      'Donec a arcu aliquet, mattis augue sit amet, dignissim nulla. Proin porta diam id magna mollis tristique. Etiam ipsum nunc, pulvinar sit amet vestibulum in, mattis non ex. Nam et rutrum sem. Nunc ullamcorper maximus risus vel pharetra.',
+      'Pellentesque in erat ut nibh varius dignissim. Donec finibus massa vitae egestas iaculis. In euismod varius odio sed pretium. Phasellus nec massa a est bibendum finibus a ac sapien. Morbi blandit facilisis urna et porttitor.',
+      'Praesent luctus imperdiet leo, ut faucibus elit hendrerit nec. Donec ut massa tortor. Duis nec euismod felis. Proin at eros id enim pharetra imperdiet. Curabitur volutpat quis dolor tristique pellentesque. Praesent eu nibh ut justo dignissim rhoncus.',
+      'Sed euismod, arcu quis dignissim faucibus, urna nibh porta nunc, vitae vestibulum quam risus at libero. Integer aliquet, velit non tempor euismod, magna nibh dictum arcu, non aliquam risus dolor a purus. Cras vitae fermentum lorem.',
+      'Vivamus id felis a nibh sodales congue. Suspendisse potenti. Aenean faucibus, sapien nec convallis blandit, augue arcu semper nulla, a fermentum ligula lorem non nunc. Maecenas quis sem non ipsum posuere volutpat.',
+      'Etiam nec risus nec nulla porttitor pretium. Nulla facilisi. Duis vehicula, nibh eu volutpat cursus, quam massa fermentum orci, sit amet vulputate turpis quam a mauris. Fusce ut lorem a arcu efficitur pretium in quis nunc.'
+    ];
+    /* double it */
+    var LOREM = P.concat(P).map(function(t){ return '<p>'+t+'</p>'; }).join('');
+
+    var menu  = document.getElementById('menu');
+    var frame = document.getElementById('viewport');
+    var track = document.getElementById('scrollbar');
+    var thumb = document.getElementById('thumb');
+    var items = [], panels = [], active = 0;
+
+    SECTIONS.forEach(function(s, i){
+      var btn = document.createElement('button');
+      btn.type = 'button'; btn.className = 'menu-item'; btn.textContent = s.label;
+      btn.addEventListener('click', function(){ activate(i); });
+      menu.appendChild(btn); items.push(btn);
+
+      var panel = document.createElement('section');
+      panel.className = 'panel'; panel.id = 'panel-' + s.id;
+      panel.setAttribute('aria-label', s.label);
+      panel.innerHTML = '<h2 class="panel-title">' + s.label + '</h2>' + LOREM;
+      panel.addEventListener('scroll', function(){ if(i === active) updateThumb(); }, {passive:true});
+      frame.appendChild(panel); panels.push(panel);
+    });
+
+    function updateThumb(){
+      var vp = panels[active];
+      var max = vp.scrollHeight - vp.clientHeight;
+      var p = max > 0 ? vp.scrollTop / max : 0;
+      var travel = track.clientHeight - thumb.clientHeight;
+      thumb.style.top = (p * travel).toFixed(1) + 'px';
+    }
+    function activate(i){
+      active = i;
+      items.forEach(function(b, j){ b.classList.toggle('active', j === i); });
+      panels.forEach(function(p, j){ p.classList.toggle('active', j === i); });
+      updateThumb();               /* reflect this panel's retained scroll pos */
+    }
+    window.addEventListener('resize', updateThumb);
+    activate(0);
+  })();
+  </script>
+</body>
+</html>
