@@ -8,58 +8,42 @@
 
 <style>
 /* ============================================================================
-   GRID 2 LAB — standalone test of the Section-2 content layout + menu switching
-   + interactive scrollbar + scroll-to-advance-between-sections with resistance.
+   GRID 2 LAB — Section-2 content layout + region-based section switching.
    NOT wired to the site engine. Units: dvw / dvh (dynamic viewport).
 
-   POSITIONING MODEL — anchored elements placed by a TOP-CENTRE ANCHOR:
-     --ax / --ay : anchor (viewport fraction); element's horizontal CENTRE, TOP edge.
-     --w  / --h  : element size.  => left = ax - w/2 ; top = ay.
+   Each section's CONTENT is one native-scrolling stack:
+     BUFFER-BEFORE · GAP-BEFORE · CORE · GAP-AFTER · BUFFER-AFTER
+   Rest position: GAP-BEFORE's top at the screen top (BUFFER-BEFORE parked above),
+   so CORE starts --gap-before below the top edge.
+   Scroll DOWN to the bottom of BUFFER-AFTER  -> next section.
+   Scroll UP   to the top   of BUFFER-BEFORE  -> previous section.
+   The switch indicators live at the inner edge of each buffer; their text opacity
+   and bar grow as you scroll through the buffer, finishing at the *-finish points.
 
-   SECTION MODEL — menu + panels are generated from SECTIONS (script below).
-   Each menu item owns one scrollable .panel filling the yellow frame; one is
-   .active (shown), the rest are display:none (keeping their own scroll position).
-
-   NAVIGATION:
-     • Click a menu item  -> show its panel, RESTORING its last scroll position.
-     • Drag the red thumb / click the track -> scroll the active panel.
-     • Scroll past the end (or the top) -> rubber-band resistance + a "next/prev"
-       hint; push past the threshold and it snaps to that section at its DEFAULT
-       top (headline aligned 1/6 dvh below the screen edge).
-   Behaviour constants live in CONFIG in the script.
+   The magenta/green/red tints are DEBUG only (to see the regions while tuning).
    ============================================================================ */
 
 /* ============================================================================
-   ★ CONTROL PANEL (landscape) — tweakable knobs. Portrait mirrors these below.
+   ★ CONTROL PANEL (CSS — layout & regions) ★  Portrait mirrors these at bottom.
    ============================================================================ */
 :root{
-  /* -- Menu item modifiers -- */
-  --mi-font-size:   1.5rem;
-  --mi-line-height: 1.1em;
-  --mi-align:       right;
-  --mi-pad-y:       0px;
-  --mi-pad-x:       0px;
+  /* -- Region heights (the scroll runways). "1/6 dvh" = 100dvh/6, etc. -- */
+  --gap-before:    calc(100dvh / 6);   /* breathing room above CORE (= default start inset) */
+  --gap-after:     calc(100dvh / 6);   /* breathing room below CORE */
+  --buffer-before: calc(100dvh / 3);   /* up-runway; reach its top → previous section */
+  --buffer-after:  calc(100dvh / 2);   /* down-runway; reach its bottom → next section */
 
-  /* -- Yellow article — the content's scroll runways -- */
-  --article-top-inset:    calc(100dvh / 6); /* DEFAULT start position of the headline */
-  --article-top-gap:      50dvh;            /* runway ABOVE content: scroll up through it before the BACK buffer appears (use dvh) */
-  --article-bottom-inset: 50dvh;            /* runway BELOW content: last line ends this far above the bottom */
-  /* (article left/right padding = 1/16 of the yellow box width — see .viewport) */
-
-  /* -- Switch indicator (the "keep scrolling → next/prev section" cue) -- */
-  --ind-x: 50%;                            /* horizontal position within the yellow viewport */
-  --ind-y: 66%;                            /* vertical position from the top edge of the viewport */
-  --ind-bar-width: clamp(120px, 16dvw, 240px);   /* buffer-bar width */
-
-  /* -- Red scroll line -- */
-  --red-thickness: clamp(3px, 0.35dvw, 6px);
+  /* -- Switch indicator -- */
+  --ind-bar-width: clamp(120px, 16dvw, 240px);
 
   /* -- Lab cosmetics -- */
-  --c-turquoise: #29d6d6;
-  --c-yellow:    #ffe800;
-  --c-red:       #e11d1d;
-  --c-screen-bg: #eef3f6;
-  --c-ink:       #111;
+  --c-panel-bg: #f5f5f5;
+  --c-red:      #e11d1d;
+  --c-ink:      #111;
+  /* debug region tints (set alpha to 0 to hide) */
+  --t-buffer: rgba(255, 0, 255, .16);
+  --t-gap:    rgba(0, 210, 0, .20);
+  --t-core:   rgba(255, 0, 0, .10);
 }
 
 *{ box-sizing:border-box; }
@@ -69,16 +53,13 @@ html,body{ margin:0; padding:0; }
   position:relative;
   width:100dvw; height:100dvh;
   overflow:hidden;
-  background:var(--c-screen-bg);
+  background:#eef3f6;
   font-family:'Fira Sans Extra Condensed', system-ui, sans-serif;
 }
-
 .anchored{
   position:absolute;
-  width:var(--w);
-  height:var(--h);
-  left:calc(var(--ax) - var(--w) / 2);
-  top:var(--ay);
+  width:var(--w); height:var(--h);
+  left:calc(var(--ax) - var(--w) / 2); top:var(--ay);
 }
 
 /* ---- 1) TURQUOISE — menu ------------------------------------------------- */
@@ -87,88 +68,89 @@ html,body{ margin:0; padding:0; }
   --h:  calc(100dvh * 2 / 5);
   --ax: calc(100dvw * 1 / 4);
   --ay: calc(100dvh * 1 / 6);
-  padding: calc(var(--w) / 5);          /* 1/5 of box width, every side */
-  background:var(--c-turquoise);
-  display:flex; flex-direction:column; justify-content:flex-start;
-  overflow:hidden;
+  padding: calc(var(--w) / 5);
+  background:#29d6d6;
+  display:flex; flex-direction:column; justify-content:flex-start; overflow:hidden;
 }
+:root{ --mi-font-size:1.5rem; --mi-line-height:1.1em; --mi-align:right; --mi-pad-y:0px; --mi-pad-x:0px; }
 .menu-item{
   display:block; width:100%; margin:0;
   padding: var(--mi-pad-y) var(--mi-pad-x);
   background:none; border:none; cursor:pointer;
   font-family:inherit; color:var(--c-ink);
-  font-size:   var(--mi-font-size);
-  line-height: var(--mi-line-height);
-  text-align:  var(--mi-align);
+  font-size:var(--mi-font-size); line-height:var(--mi-line-height); text-align:var(--mi-align);
 }
 .menu-item:hover{ text-decoration:underline; }
 .menu-item.active{ font-weight:700; }
 
-/* ---- 2) YELLOW — fixed frame holding one scrollable panel per menu item --- */
+/* ---- 2) YELLOW frame — now padding/margin 0; holds the scrolling panels --- */
 .viewport{
   --w:  calc(100dvw * 2 / 5);
   --h:  100dvh;
   --ax: calc(100dvw * 11 / 16);
   --ay: 0dvh;
-  --pad-x: calc(var(--w) / 16);         /* article left/right padding */
-  background:var(--c-yellow);
-  overflow:hidden;                      /* frame doesn't scroll; panels do */
+  margin:0; padding:0;
+  background:var(--c-panel-bg);
+  overflow:hidden;
 }
 .panel{
   position:absolute; inset:0;
-  overflow-y:auto;
-  scrollbar-width:none;
-  padding: calc(var(--article-top-inset) + var(--article-top-gap)) var(--pad-x) var(--article-bottom-inset) var(--pad-x);
-  color:var(--c-ink); line-height:1.5;
-  font-size:clamp(13px, 1.1dvw, 18px);
+  margin:0; padding:0;
+  overflow-y:auto; scrollbar-width:none;
   display:none;
-  will-change:transform;                /* for the rubber-band pull */
 }
 .panel::-webkit-scrollbar{ display:none; }
 .panel.active{ display:block; }
-.panel-title{
-  margin:0 0 0.6em;
-  font-weight:700; line-height:1.15;
-  font-size:clamp(22px, 2.4dvw, 40px);
-}
-.panel p{ margin:0 0 1em; }
-.panel > *:last-child{ margin-bottom:0; }   /* last line sits exactly --article-bottom-inset above the end */
+.panel.settling{ overflow:hidden; }        /* pin at default briefly after a switch */
 
-/* switch indicator — the "keep scrolling → next section" cue: just text with a
-   buffer bar below it (no border/background), floating at (--ind-x,--ind-y). */
+.content{ width:100%; }
+
+/* regions */
+.buffer{ position:relative; width:100%; background:var(--t-buffer); }
+.buffer-before{ height:var(--buffer-before); }
+.buffer-after{  height:var(--buffer-after); }
+.gap{ width:100%; background:var(--t-gap); }
+.gap-before{ height:var(--gap-before); }
+.gap-after{  height:var(--gap-after); }
+
+.core{
+  width:100%; padding:0; display:flow-root;   /* no padding; flow-root stops margin-collapse */
+  background:var(--t-core);
+  color:var(--c-ink); line-height:1.5; font-size:clamp(13px, 1.1dvw, 18px);
+}
+.core .panel-title{ margin:0 0 0.6em; font-weight:700; line-height:1.15; font-size:clamp(22px, 2.4dvw, 40px); }
+.core p{ margin:0 0 1em; }
+.core > *:last-child{ margin-bottom:0; }
+
+/* switch indicator — text + bar; anchored to the inner edge of its buffer */
 .switch-indicator{
-  position:absolute; left:var(--ind-x); top:var(--ind-y);
-  transform:translate(-50%, -50%);
-  z-index:5;
+  position:absolute; left:50%; transform:translateX(-50%);
   display:flex; flex-direction:column; align-items:center; gap:.5em;
   font:600 clamp(13px,1.2dvw,18px)/1.2 'Fira Sans Extra Condensed', system-ui, sans-serif;
-  color:#111; text-align:center; white-space:nowrap;
-  opacity:0; transition:opacity .14s ease; pointer-events:none;
+  color:var(--c-ink); text-align:center; white-space:nowrap;
+  opacity:0; pointer-events:none;
 }
 .switch-indicator.show{ opacity:1; }
-.switch-indicator .si-bar{ position:relative;
-  width:var(--ind-bar-width); height:3px;
+.ind-back{ bottom:0; }     /* bottom-centre of BUFFER-BEFORE */
+.ind-next{ top:0; }        /* top-centre of BUFFER-AFTER */
+.switch-indicator .si-label{ opacity:0; }                 /* JS animates 0→1 */
+.switch-indicator .si-bar{ position:relative; width:var(--ind-bar-width); height:3px;
   background:rgba(0,0,0,.2); border-radius:2px; overflow:hidden; }
 .switch-indicator .si-bar > i{ position:absolute; inset:0;
-  transform-origin:left center; transform:scaleX(0); background:#7a0000; }
+  transform-origin:left center; transform:scaleX(0); background:#7a0000; }  /* JS animates 0→1 */
 
-/* ---- 3) RED — interactive scrollbar track + proportional thumb ----------- */
+/* ---- 3) RED — interactive scrollbar (scoped to CORE + GAPS) --------------- */
 .scrollbar{
-  --w:  var(--red-thickness);
+  --w:  clamp(3px, 0.35dvw, 6px);
   --h:  calc(100dvh * 2 / 5);
   --ax: calc(100dvw * 15 / 16);
   --ay: calc(100dvh * 1 / 6);
-  background:var(--c-red);
-  border-radius:999px;
-  cursor:pointer;                       /* click track to jump */
+  background:var(--c-red); border-radius:999px; cursor:pointer;
 }
 .scrollbar .thumb{
   position:absolute; left:50%; transform:translateX(-50%);
-  width:calc(var(--red-thickness) * 2.4);
-  height:24px;                          /* JS sets a proportional height */
-  top:0;
-  background:#7a0000; border-radius:999px;
-  cursor:grab; touch-action:none;
+  width:calc(clamp(3px,0.35dvw,6px) * 2.4); height:24px; top:0;
+  background:#7a0000; border-radius:999px; cursor:grab; touch-action:none;
 }
 .scrollbar .thumb.dragging{ cursor:grabbing; }
 
@@ -179,18 +161,12 @@ html,body{ margin:0; padding:0; }
 }
 
 @media (orientation: portrait){
+  /* same values for now — retune the regions / menu here for portrait later */
   :root{
-    --mi-font-size:1.5rem; --mi-line-height:1.1em; --mi-align:right;
-    --mi-pad-y:0px; --mi-pad-x:0px;
-    --article-top-inset: calc(100dvh / 6);
+    --gap-before:calc(100dvh / 6); --gap-after:calc(100dvh / 6);
+    --buffer-before:calc(100dvh / 3); --buffer-after:calc(100dvh / 2);
   }
-  .menu{
-    --w:  calc(100dvw * 1 / 6);
-    --h:  calc(100dvh * 2 / 5);
-    --ax: calc(100dvw * 1 / 4);
-    --ay: calc(100dvh * 1 / 6);
-  }
-  /* .viewport / .scrollbar portrait anchor overrides go here too when tuned. */
+  .menu{ --w:calc(100dvw*1/6); --h:calc(100dvh*2/5); --ax:calc(100dvw*1/4); --ay:calc(100dvh*1/6); }
 }
 </style>
 </head>
@@ -204,7 +180,6 @@ html,body{ margin:0; padding:0; }
 
   <script>
   (function(){
-    /* ---- data (single source of truth) ---- */
     var SECTIONS = [
       { id:'program',   label:'Program' },
       { id:'dresscode', label:'Dress Code' },
@@ -225,206 +200,177 @@ html,body{ margin:0; padding:0; }
     ];
     var LOREM = P.concat(P).map(function(t){ return '<p>'+t+'</p>'; }).join('');
 
-    /* ---- behaviour knobs ---- */
-    /* ★ BEHAVIOUR CONTROL PANEL — the resistance buffer + feel.
-       Raise the *Threshold values to make advancing require a longer, firmer
-       scroll (higher = harder to trigger a section switch). */
+    /* ★ BEHAVIOUR CONTROL PANEL — switch feel + indicator finish points.
+       *Finish = fraction of the buffer scroll at which that animation completes
+       (before the actual switch at the far edge). Separate per element & side. */
     var CONFIG = {
-      wheelThreshold: 800,   // RESISTANCE BUFFER (wheel/trackpad): accumulated delta to advance
-      touchThreshold: 240,   // RESISTANCE BUFFER (touch): accumulated overscroll (px) to advance
-      rubberMax:      90,    // max visual pull (px) at full resistance
-      springMs:       260,   // spring-back duration (ms)
-      releaseIdleMs:  200,   // idle after last scroll before springing back (ms)
-      cooldownMs:     450,   // swallow input briefly after a snap so the new section settles
-      edgeEps:        2,     // px tolerance for "at edge"
-      rubberStiffness:0.55,  // resistance curve (lower = the visual pull maxes out sooner)
-      arrowNext:'↓', labelNext:'Ďalej',   // forward switch-indicator text (name is appended dynamically)
-      arrowPrev:'↑', labelPrev:'Späť'      // backward switch-indicator text
+      cooldownMs: 450,    // pin the new section at its default briefly after a switch
+      edgeEps:    2,      // px tolerance for "reached the edge"
+      indBeforeTextFinish: 0.80,
+      indBeforeBarFinish:  0.80,
+      indAfterTextFinish:  0.80,
+      indAfterBarFinish:   0.80,
+      // Switch-indicator text = GENERIC COPY + SECTION-NAME (name injected per CONTENT block).
+      // "generic" = shared copy today; per-section copy can be added later without touching this.
+      'switch-indicator_copy_before_generic':'↑ Späť: ',   // + <switch-indicator_section-name_before>
+      'switch-indicator_copy_after_generic' :'↓ Ďalej: ',  // + <switch-indicator_section-name_after>
+      labelTop:'↑ Navrch'   // first section's before-buffer (GRID #1 hook; no-op in the lab)
     };
-    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    /* ---- build menu + panels ---- */
     var menu  = document.getElementById('menu');
     var frame = document.getElementById('viewport');
     var track = document.getElementById('scrollbar');
     var thumb = document.getElementById('thumb');
-    var items = [], panels = [], active = 0;
+    var items = [], panels = [], info = [], savedScroll = [], active = 0;
+    var settling=false, settleTimer=null;
+    var clamp=function(v,a,b){ return Math.min(Math.max(v,a),b); };
 
     SECTIONS.forEach(function(s, i){
-      var btn = document.createElement('button');
+      var last = (i === SECTIONS.length-1);
+      // menu item
+      var btn=document.createElement('button');
       btn.type='button'; btn.className='menu-item'; btn.textContent=s.label;
       btn.addEventListener('click', function(){ activate(i, false); });
       menu.appendChild(btn); items.push(btn);
 
-      var panel = document.createElement('section');
-      panel.className='panel'; panel.id='panel-'+s.id;
-      panel.setAttribute('aria-label', s.label);
-      panel.innerHTML = '<h2 class="panel-title">'+s.label+'</h2>' + LOREM;
-      panel.addEventListener('scroll', function(){ if(i===active) updateThumb(); }, {passive:true});
+      // panel > content > regions
+      var nameBefore = (i>0)   ? SECTIONS[i-1].label : '';   // <switch-indicator_section-name_before>
+      var nameAfter  = (!last) ? SECTIONS[i+1].label : '';   // <switch-indicator_section-name_after>
+      var backLabel = (i>0) ? (CONFIG['switch-indicator_copy_before_generic'] + nameBefore) : CONFIG.labelTop;
+      var nextLabel = (!last) ? (CONFIG['switch-indicator_copy_after_generic'] + nameAfter) : '';
+      var indHTML = function(cls,label){ return '<div class="switch-indicator '+cls+'"><span class="si-label">'+label+'</span><span class="si-bar"><i></i></span></div>'; };
+
+      var panel=document.createElement('section');
+      panel.className='panel'; panel.id='panel-'+s.id; panel.setAttribute('aria-label', s.label);
+      panel.innerHTML =
+        '<div class="content">'+
+          '<div class="buffer buffer-before">'+ indHTML('ind-back', backLabel) +'</div>'+
+          '<div class="gap gap-before"></div>'+
+          '<div class="core"><h2 class="panel-title">'+s.label+'</h2>'+LOREM+'</div>'+
+          '<div class="gap gap-after"></div>'+
+          (last ? '' : '<div class="buffer buffer-after">'+ indHTML('ind-next', nextLabel) +'</div>')+
+        '</div>';
       frame.appendChild(panel); panels.push(panel);
+      info.push({ indBack:panel.querySelector('.ind-back'), indNext:panel.querySelector('.ind-next') });
+      savedScroll.push(null);
+
+      panel.addEventListener('scroll', function(){ if(i===active) onScroll(); }, {passive:true});
     });
 
-    var hint = document.createElement('div');
-    hint.className='switch-indicator';
-    hint.innerHTML='<span class="si-label"></span><span class="si-bar"><i></i></span>';
-    frame.appendChild(hint);
-    var hintLabel = hint.querySelector('.si-label');
-    var hintFill  = hint.querySelector('.si-bar > i');
+    var metricsActive = null;
+    function measure(sel){ var e=panels[active].querySelector(sel); return e ? e.offsetHeight : 0; }
+    function computeMetrics(){
+      metricsActive = {
+        bufferBefore: measure('.buffer-before'),
+        gapBefore:    measure('.gap-before'),
+        core:         measure('.core'),
+        gapAfter:     measure('.gap-after'),
+        bufferAfter:  measure('.buffer-after')   // 0 on last section
+      };
+    }
 
-    /* ---- thumb (proportional + draggable) + track click ---- */
-    function sizeThumb(){
-      var vp = panels[active];
-      var ratio = Math.min(1, vp.clientHeight / (vp.scrollHeight || 1));
-      thumb.style.height = Math.max(24, Math.round(track.clientHeight * ratio)) + 'px';
+    function setAnim(ind, p, textFinish, barFinish){
+      ind.classList.toggle('show', p > 0);
+      ind.querySelector('.si-label').style.opacity = clamp(p/textFinish, 0, 1);
+      ind.querySelector('.si-bar > i').style.transform = 'scaleX(' + clamp(p/barFinish, 0, 1) + ')';
+    }
+    function updateIndicators(){
+      var vp=panels[active], m=metricsActive;
+      var max=vp.scrollHeight - vp.clientHeight;
+      var it=info[active];
+      if(it.indBack && m.bufferBefore>0){
+        var pb = clamp((m.bufferBefore - vp.scrollTop)/m.bufferBefore, 0, 1);
+        setAnim(it.indBack, pb, CONFIG.indBeforeTextFinish, CONFIG.indBeforeBarFinish);
+      }
+      if(it.indNext && m.bufferAfter>0){
+        var pa = clamp((vp.scrollTop - (max - m.bufferAfter))/m.bufferAfter, 0, 1);
+        setAnim(it.indNext, pa, CONFIG.indAfterTextFinish, CONFIG.indAfterBarFinish);
+      }
+    }
+
+    function readingRange(){
+      var vp=panels[active], m=metricsActive;
+      var max=vp.scrollHeight - vp.clientHeight;
+      return { top:m.bufferBefore, bot:Math.max(m.bufferBefore, max - m.bufferAfter),
+               reading:(m.gapBefore + m.core + m.gapAfter), max:max };
     }
     function updateThumb(){
-      sizeThumb();
-      var vp = panels[active];
-      var max = vp.scrollHeight - vp.clientHeight;
-      var p = max > 0 ? vp.scrollTop / max : 0;
-      var travel = track.clientHeight - thumb.clientHeight;
-      thumb.style.top = (p * travel).toFixed(1) + 'px';
+      var vp=panels[active]; var r=readingRange();
+      var ratio=Math.min(1, vp.clientHeight / Math.max(1, r.reading));
+      var th=Math.max(24, Math.round(track.clientHeight * ratio)); thumb.style.height=th+'px';
+      var span=Math.max(1, r.bot - r.top);
+      var p=clamp((vp.scrollTop - r.top)/span, 0, 1);
+      thumb.style.top=(p*(track.clientHeight - th)).toFixed(1)+'px';
     }
+
+    function onScroll(){
+      if(settling) return;
+      var vp=panels[active], m=metricsActive;
+      var max=vp.scrollHeight - vp.clientHeight;
+      updateIndicators(); updateThumb();
+      if(m.bufferAfter>0 && active<panels.length-1 && vp.scrollTop >= max - CONFIG.edgeEps){ activate(active+1, true); }
+      else if(active>0 && vp.scrollTop <= CONFIG.edgeEps){ activate(active-1, true); }
+      /* active===0 at top: no-op (reserved for the GRID #1 jump) */
+    }
+
+    function activate(i, reset){
+      var prev=active;
+      if(panels[prev] && panels[prev].classList.contains('active')){
+        savedScroll[prev] = reset ? null : panels[prev].scrollTop;
+      }
+      active=i;
+      items.forEach(function(b,j){ b.classList.toggle('active', j===i); });
+      panels.forEach(function(p,j){ p.classList.toggle('active', j===i); });
+      computeMetrics();
+      var def=metricsActive.bufferBefore;
+      var max=Math.max(0, panels[i].scrollHeight - panels[i].clientHeight);
+      var want=(reset || savedScroll[i]==null) ? def : savedScroll[i];
+      panels[i].scrollTop=clamp(want, 0, max);
+      savedScroll[i]=panels[i].scrollTop;
+      updateIndicators(); updateThumb();
+      settling=true; panels[i].classList.add('settling');
+      clearTimeout(settleTimer);
+      settleTimer=setTimeout(function(){ settling=false; panels[i].classList.remove('settling'); }, CONFIG.cooldownMs);
+    }
+
+    /* thumb drag + track click -> scroll within the reading range */
     var dragging=false, startPtrY=0, startTop=0;
+    function scrollFromThumb(topPx){
+      var vp=panels[active]; var r=readingRange();
+      var travel=track.clientHeight - thumb.clientHeight;
+      var p= travel>0 ? clamp(topPx,0,travel)/travel : 0;
+      vp.scrollTop = r.top + p*(r.bot - r.top);
+    }
     thumb.addEventListener('pointerdown', function(e){
-      e.preventDefault(); dragging=true; thumb.classList.add('dragging');
-      thumb.setPointerCapture(e.pointerId);
+      e.preventDefault(); dragging=true; thumb.classList.add('dragging'); thumb.setPointerCapture(e.pointerId);
       startPtrY=e.clientY; startTop=parseFloat(thumb.style.top)||0;
     });
-    thumb.addEventListener('pointermove', function(e){
-      if(!dragging) return;
-      var vp=panels[active];
-      var travel=track.clientHeight - thumb.clientHeight;
-      var t=Math.min(Math.max(startTop + (e.clientY-startPtrY), 0), travel);
-      var p= travel>0 ? t/travel : 0;
-      vp.scrollTop = p * (vp.scrollHeight - vp.clientHeight);
-    });
-    thumb.addEventListener('pointerup', function(e){ dragging=false; thumb.classList.remove('dragging'); });
+    thumb.addEventListener('pointermove', function(e){ if(dragging) scrollFromThumb(startTop + (e.clientY-startPtrY)); });
+    thumb.addEventListener('pointerup', function(){ dragging=false; thumb.classList.remove('dragging'); });
     thumb.addEventListener('pointercancel', function(){ dragging=false; thumb.classList.remove('dragging'); });
     track.addEventListener('pointerdown', function(e){
       if(e.target===thumb) return;
       var rect=track.getBoundingClientRect();
-      var travel=track.clientHeight - thumb.clientHeight;
-      var t=Math.min(Math.max((e.clientY-rect.top) - thumb.clientHeight/2, 0), travel);
-      var p= travel>0 ? t/travel : 0;
-      var vp=panels[active];
-      vp.scrollTop = p * (vp.scrollHeight - vp.clientHeight);
+      scrollFromThumb((e.clientY-rect.top) - thumb.clientHeight/2);
     });
 
-    /* ---- section switching ---- */
-    var savedScroll = SECTIONS.map(function(){ return null; });   // null = not visited yet
-    function gapPx(){
-      var g = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--article-top-gap'));
-      return (isNaN(g)?0:g)/100 * window.innerHeight;             // --article-top-gap is in dvh
-    }
-    function defaultScroll(vp){
-      var max = Math.max(0, vp.scrollHeight - vp.clientHeight);
-      return Math.min(gapPx(), max);        // headline lands at --article-top-inset (default start)
-    }
-    function activate(i, resetToDefault){
-      var prev = active;
-      if(panels[prev] && panels[prev].classList.contains('active')) savedScroll[prev] = panels[prev].scrollTop;
-      active = i;
-      items.forEach(function(b,j){ b.classList.toggle('active', j===i); });
-      panels.forEach(function(p,j){ p.classList.toggle('active', j===i); });
-      var want = (resetToDefault || savedScroll[i]==null) ? defaultScroll(panels[i]) : savedScroll[i];
-      var max = Math.max(0, panels[i].scrollHeight - panels[i].clientHeight);
-      panels[i].scrollTop = Math.min(Math.max(want,0), max);
-      savedScroll[i] = panels[i].scrollTop;
-      clearPull(panels[i]);
-      updateThumb();
-    }
-
-    /* ---- overscroll -> resistance -> advance ---- */
-    var accum=0, dir=0, threshold=CONFIG.wheelThreshold, releaseTimer=null, cooldown=false;
-
-    function getMax(vp){ return vp.scrollHeight - vp.clientHeight; }
-    function clearPull(vp){ vp.style.transition='none'; vp.style.transform=''; }
-
-    function applyResistance(){
+    /* Desktop wheel ANYWHERE on the page scrolls the ACTIVE panel, even when the
+       cursor isn't over it. When the cursor IS over the panel, native scrolling
+       handles it (no double-scroll). Either way the panel's 'scroll' event fires,
+       so the section-switch logic is unaffected. */
+    window.addEventListener('wheel', function(e){
+      if(e.ctrlKey) return;                       // leave pinch-zoom alone
+      if(settling){ e.preventDefault(); return; } // stay pinned right after a switch
       var vp=panels[active];
-      var target=active+dir;
-      var prog=Math.min(accum/threshold, 1);
-      if(!reduceMotion){
-        var pull=CONFIG.rubberMax*(1-Math.exp(-accum/(threshold*CONFIG.rubberStiffness)));
-        vp.style.transition='none';
-        vp.style.transform='translateY(' + (-dir*pull) + 'px)';
-      }
-      if(target>=0 && target<panels.length){
-        hint.classList.add('show');
-        hintLabel.textContent=(dir>0 ? CONFIG.arrowNext+' '+CONFIG.labelNext
-                                     : CONFIG.arrowPrev+' '+CONFIG.labelPrev)+': '+SECTIONS[target].label;
-        hintFill.style.transform='scaleX('+prog+')';
-      } else {
-        hint.classList.remove('show');   // no section that way: resistance only
-      }
-    }
-    function release(){
-      clearTimeout(releaseTimer);
-      var vp=panels[active];
-      if(!reduceMotion){
-        vp.style.transition='transform '+CONFIG.springMs+'ms cubic-bezier(.22,1,.36,1)';
-        vp.style.transform='translateY(0)';
-      }
-      hint.classList.remove('show');
-      accum=0; dir=0;
-    }
-    function scheduleRelease(){ clearTimeout(releaseTimer); releaseTimer=setTimeout(release, CONFIG.releaseIdleMs); }
-
-    function commit(d){
-      var target=active+d;
-      if(target<0 || target>=panels.length) return;
-      clearTimeout(releaseTimer);
-      clearPull(panels[active]);
-      hint.classList.remove('show');
-      accum=0; dir=0;
-      cooldown=true; setTimeout(function(){ cooldown=false; }, CONFIG.cooldownMs);
-      activate(target, true);            // reset to default top
-    }
-
-    frame.addEventListener('wheel', function(e){
-      if(dragging) return;
-      if(cooldown){ e.preventDefault(); return; }   // swallow input so the new section rests at its default top
-      var vp=panels[active];
-      var down=e.deltaY>0;
-      var atEdge = down ? vp.scrollTop >= getMax(vp)-CONFIG.edgeEps
-                        : vp.scrollTop <= CONFIG.edgeEps;
-      if(!atEdge) return;                 // let native scrolling handle mid-content
+      if(vp.contains(e.target)) return;           // over the panel → native scroll
       e.preventDefault();
-      threshold=CONFIG.wheelThreshold;
-      var d=down?1:-1;
-      if(d!==dir){ accum=0; dir=d; }
-      accum+=Math.abs(e.deltaY);
-      applyResistance();
-      if(accum>=threshold){ commit(dir); return; }
-      scheduleRelease();
+      var f = e.deltaMode===1 ? 16 : (e.deltaMode===2 ? vp.clientHeight : 1);
+      vp.scrollTop += e.deltaY * f;
     }, {passive:false});
 
-    /* touch */
-    var lastTouchY=0;
-    frame.addEventListener('touchstart', function(e){ lastTouchY=e.touches[0].clientY; }, {passive:true});
-    frame.addEventListener('touchmove', function(e){
-      if(cooldown){ e.preventDefault(); lastTouchY=e.touches[0].clientY; return; }
-      var vp=panels[active];
-      var y=e.touches[0].clientY;
-      var dy=lastTouchY - y;             // >0 => intent to scroll down
-      lastTouchY=y;
-      var down=dy>0;
-      var atEdge = down ? vp.scrollTop >= getMax(vp)-CONFIG.edgeEps
-                        : vp.scrollTop <= CONFIG.edgeEps;
-      if(!atEdge) return;
-      e.preventDefault();
-      threshold=CONFIG.touchThreshold;
-      var d=down?1:-1;
-      if(d!==dir){ accum=0; dir=d; }
-      accum+=Math.abs(dy);
-      applyResistance();
-      if(accum>=threshold){ commit(dir); }
-    }, {passive:false});
-    frame.addEventListener('touchend', function(){ if(dir!==0) release(); }, {passive:true});
-
-    window.addEventListener('resize', updateThumb);
+    window.addEventListener('resize', function(){ computeMetrics(); updateIndicators(); updateThumb(); });
     activate(0, false);
+    if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ computeMetrics(); updateThumb(); }); }
   })();
   </script>
 </body>
