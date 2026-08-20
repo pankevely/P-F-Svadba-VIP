@@ -33,6 +33,11 @@
   --buffer-before: calc(100dvh / 3);   /* up-runway; reach its top → previous section */
   --buffer-after:  calc(100dvh / 2);   /* down-runway; reach its bottom → next section */
 
+  /* CORE minimum height — keeps each section ≥ one screen so the switch geometry never
+     collapses on short/empty content. Leave --min-height-custom commented to use default. */
+  --min-height-default: calc(100dvh - var(--gap-before) - var(--gap-after));
+  /* --min-height-custom: 70dvh;   ← set a dvh value here to override; comment out for default */
+
   /* -- Switch indicator -- */
   --ind-bar-width: clamp(120px, 16dvw, 240px);
 
@@ -103,36 +108,45 @@ html,body{ margin:0; padding:0; }
 .panel.active{ display:block; }
 .panel.settling{ overflow:hidden; }        /* pin at default briefly after a switch */
 
-.content{ width:100%; }
+/* .content — explicit flex column. flex-shrink:0 on every region so their fixed
+   heights are always honoured (the panel scrolls; regions never get squeezed). */
+.content{ width:100%; display:flex; flex-direction:column; }
+.content > *{ flex-shrink:0; }
 
 /* regions */
-.buffer{ position:relative; width:100%; background:var(--t-buffer); }
-.buffer-before{ height:var(--buffer-before); }
-.buffer-after{  height:var(--buffer-after); }
+/* Each buffer is a FLEX COLUMN that parks its switch-indicator at the inner edge,
+   horizontally centred. Add more children to the indicator and they stay aligned. */
+.buffer{ position:relative; width:100%; background:var(--t-buffer);
+         display:flex; flex-direction:column; align-items:center; }
+.buffer-before{ height:var(--buffer-before); justify-content:flex-end; }    /* indicator → centre-BOTTOM */
+.buffer-after{  height:var(--buffer-after);  justify-content:flex-start; }  /* indicator → centre-TOP */
 .gap{ width:100%; background:var(--t-gap); }
 .gap-before{ height:var(--gap-before); }
 .gap-after{  height:var(--gap-after); }
 
 .core{
   width:100%; padding:0; display:flow-root;   /* no padding; flow-root stops margin-collapse */
+  /* Robustness: keep the reading region (gap-before + core + gap-after) at least one
+     screen tall, so a short/empty CORE can never let the after-buffer peek at rest or
+     collapse the switch geometry. Tall content grows past this normally. */
+  min-height: var(--min-height-custom, var(--min-height-default));
   background:var(--t-core);
   color:var(--c-ink); line-height:1.5; font-size:clamp(13px, 1.1dvw, 18px);
 }
-.core .panel-title{ margin:0 0 0.6em; font-weight:700; line-height:1.15; font-size:clamp(22px, 2.4dvw, 40px); }
+.core .panel-title, .core h1{ margin:0 0 0.6em; font-weight:700; line-height:1.15; font-size:clamp(22px, 2.4dvw, 40px); }
 .core p{ margin:0 0 1em; }
 .core > *:last-child{ margin-bottom:0; }
+.core .load-note{ opacity:.65; font-style:italic; }
 
-/* switch indicator — text + bar; anchored to the inner edge of its buffer */
+/* switch indicator — its OWN flex column (text + bar + any elements you add),
+   centred; the buffer's flex places it centre-bottom / centre-top. */
 .switch-indicator{
-  position:absolute; left:50%; transform:translateX(-50%);
   display:flex; flex-direction:column; align-items:center; gap:.5em;
   font:600 clamp(13px,1.2dvw,18px)/1.2 'Fira Sans Extra Condensed', system-ui, sans-serif;
   color:var(--c-ink); text-align:center; white-space:nowrap;
   opacity:0; pointer-events:none;
 }
 .switch-indicator.show{ opacity:1; }
-.ind-back{ bottom:0; }     /* bottom-centre of BUFFER-BEFORE */
-.ind-next{ top:0; }        /* top-centre of BUFFER-AFTER */
 .switch-indicator .si-label{ opacity:0; }                 /* JS animates 0→1 */
 .switch-indicator .si-bar{ position:relative; width:var(--ind-bar-width); height:3px;
   background:rgba(0,0,0,.2); border-radius:2px; overflow:hidden; }
@@ -181,24 +195,29 @@ html,body{ margin:0; padding:0; }
   <script>
   (function(){
     var SECTIONS = [
-      { id:'program',   label:'Program' },
-      { id:'dresscode', label:'Dress Code' },
-      { id:'dary',      label:'Dary' },
-      { id:'faq',       label:'Časté otázky' },
-      { id:'blog',      label:'Blog' },
-      { id:'kontakt',   label:'Kontakt' }
+      { id:'program',   label:'Program',      src:'content/program.html' },
+      { id:'dresscode', label:'Dress Code',   src:'content/dresscode.html' },
+      { id:'dary',      label:'Dary',         src:'content/dary.html' },
+      { id:'faq',       label:'Časté otázky', src:'content/faq.html' },
+      { id:'blog',      label:'Blog',         src:'content/blog.html' },
+      { id:'kontakt',   label:'Kontakt',      src:'content/kontakt.html' }
     ];
-    var P = [
-      'Consectetur adipiscing elit. Suspendisse porttitor egestas velit, nec gravida justo malesuada nec. Fusce non commodo leo, quis lacinia dui. In dignissim ullamcorper tellus, in dictum ex ultricies a. Praesent consequat dolor et ex pellentesque, quis sollicitudin diam commodo.',
-      'Aliquam congue nibh in sollicitudin molestie. Nullam vulputate dignissim sapien, sed accumsan nibh malesuada a. Nunc vitae odio vel diam eleifend suscipit sit amet sit amet purus. Vestibulum tincidunt ex in aliquet dictum. Quisque blandit vulputate odio, quis finibus arcu malesuada nec.',
-      'Donec a arcu aliquet, mattis augue sit amet, dignissim nulla. Proin porta diam id magna mollis tristique. Etiam ipsum nunc, pulvinar sit amet vestibulum in, mattis non ex. Nam et rutrum sem. Nunc ullamcorper maximus risus vel pharetra.',
-      'Pellentesque in erat ut nibh varius dignissim. Donec finibus massa vitae egestas iaculis. In euismod varius odio sed pretium. Phasellus nec massa a est bibendum finibus a ac sapien. Morbi blandit facilisis urna et porttitor.',
-      'Praesent luctus imperdiet leo, ut faucibus elit hendrerit nec. Donec ut massa tortor. Duis nec euismod felis. Proin at eros id enim pharetra imperdiet. Curabitur volutpat quis dolor tristique pellentesque. Praesent eu nibh ut justo dignissim rhoncus.',
-      'Sed euismod, arcu quis dignissim faucibus, urna nibh porta nunc, vitae vestibulum quam risus at libero. Integer aliquet, velit non tempor euismod, magna nibh dictum arcu, non aliquam risus dolor a purus. Cras vitae fermentum lorem.',
-      'Vivamus id felis a nibh sodales congue. Suspendisse potenti. Aenean faucibus, sapien nec convallis blandit, augue arcu semper nulla, a fermentum ligula lorem non nunc. Maecenas quis sem non ipsum posuere volutpat.',
-      'Etiam nec risus nec nulla porttitor pretium. Nulla facilisi. Duis vehicula, nibh eu volutpat cursus, quam massa fermentum orci, sit amet vulputate turpis quam a mauris. Fusce ut lorem a arcu efficitur pretium in quis nunc.'
-    ];
-    var LOREM = P.concat(P).map(function(t){ return '<p>'+t+'</p>'; }).join('');
+    /* Placeholder CORE body (simple lorem). The dumb fragment files in content/<id>.html
+       hold the same content and are the editable SOURCE; on "push" their HTML is copied
+       into CONTENT below so a plain file:// double-click shows the styled page. */
+    var LOREM = [
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+      'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+      'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
+      'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+      'Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit.',
+      'Vivamus euismod mauris. In ut quam vitae odio lacinia tincidunt. Praesent ut ligula non mi varius sagittis.',
+      'Sed dignissim lacinia nunc. Curabitur tortor. Pellentesque nibh. Aenean quam. In scelerisque sem at dolor.',
+      'Maecenas mattis. Sed convallis tristique sem. Proin ut ligula vel nunc egestas porttitor.',
+      'Morbi lectus risus, iaculis vel, suscipit quis, luctus non, massa. Fusce ac turpis quis ligula lacinia aliquet.',
+      'Mauris ipsum. Nulla metus metus, ullamcorper vel, tincidunt sed, euismod in, nibh. Quisque volutpat condimentum velit.'
+    ].map(function(t){ return '<p>'+t+'</p>'; }).join('');
+    function FRAG(title){ return '<h1>'+title+'</h1>'+LOREM; }
 
     /* ★ BEHAVIOUR CONTROL PANEL — switch feel + indicator finish points.
        *Finish = fraction of the buffer scroll at which that animation completes
@@ -246,7 +265,7 @@ html,body{ margin:0; padding:0; }
         '<div class="content">'+
           '<div class="buffer buffer-before">'+ indHTML('ind-back', backLabel) +'</div>'+
           '<div class="gap gap-before"></div>'+
-          '<div class="core"><h2 class="panel-title">'+s.label+'</h2>'+LOREM+'</div>'+
+          '<div class="core"></div>'+   /* filled from content/<id>.html by loadContent() */
           '<div class="gap gap-after"></div>'+
           (last ? '' : '<div class="buffer buffer-after">'+ indHTML('ind-next', nextLabel) +'</div>')+
         '</div>';
@@ -369,7 +388,34 @@ html,body{ margin:0; padding:0; }
     }, {passive:false});
 
     window.addEventListener('resize', function(){ computeMetrics(); updateIndicators(); updateThumb(); });
+
+    /* CORE content INLINED for zero-dependency file:// preview. Source of truth = the
+       dumb fragments in content/<id>.html; on "push" I copy each file's HTML into the
+       matching CONTENT entry. (A served deploy could fetch these instead.) */
+    var CONTENT = {
+      program:   FRAG('Program'),
+      dresscode: FRAG('Dress Code'),
+      dary:      FRAG('Dary'),
+      faq:       FRAG('Časté otázky'),
+      blog:      FRAG('Blog'),
+      kontakt:   FRAG('Kontakt')
+    };
+    function afterLoad(i){
+      if(i===active){
+        computeMetrics();
+        var max=Math.max(0, panels[i].scrollHeight - panels[i].clientHeight);
+        panels[i].scrollTop=Math.min(metricsActive.bufferBefore, max);
+        savedScroll[i]=panels[i].scrollTop;
+        updateIndicators(); updateThumb();
+      }
+    }
+    function loadContent(i){
+      panels[i].querySelector('.core').innerHTML = CONTENT[SECTIONS[i].id] || ('<h1>'+SECTIONS[i].label+'</h1>');
+      afterLoad(i);
+    }
+
     activate(0, false);
+    SECTIONS.forEach(function(s,i){ loadContent(i); });
     if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ computeMetrics(); updateThumb(); }); }
   })();
   </script>
