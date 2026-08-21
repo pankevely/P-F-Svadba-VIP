@@ -6,11 +6,6 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Patrícia &amp; Filip — 5. 9. 2026</title>
 
-<!-- Favicons -->
-<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
-<link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png">
-<link rel="apple-touch-icon" sizes="180x180" href="assets/img/apple-touch-icon.png">
-
 <!-- ============================================================================
      ★ CONTROL PANEL  — GENERAL CONTROLS ★
      Site-wide switches.
@@ -58,7 +53,7 @@
 <script>
   window.LAYERS = {
 
-    VIEW_CONTROLS: {
+    controls: {
       zIndex_h: 1000, /*standard 1000*/
       zIndex_v: 1000, /*standard 1000*/
       visibility_h: 100,
@@ -106,13 +101,13 @@
       visibility_h: 100,
       visibility_v: 100
     },
-    VIEW_HERO: {
+    GRID_1: {
       zIndex_h: 945, /*section 1 as ONE layer — sits between parallax planes*/
       zIndex_v: 945,
       visibility_h: 100,
       visibility_v: 100
     },
-    VIEW_BODY: {
+    GRID_2: {
       zIndex_h: 945, /*section 2 as ONE layer — above the mountains by default*/
       zIndex_v: 945,
       visibility_h: 100,
@@ -475,7 +470,7 @@
 </script>
 
 <!-- ============================================================================
-     ★ CONTROL PANEL  — VIEW_HERO ★
+     ★ CONTROL PANEL  — GRID 1 ★
      Section 1 = ONE CSS-grid container holding five items: date, pf, buttonQ
      (button + its caption), buttonScroll, location. No column wrappers, no liner.
 
@@ -494,7 +489,7 @@
      Every parameter has _h (landscape) / _v (portrait) variants.
      ============================================================================ -->
 <script>
-  window.VIEW_HERO = {
+  window.GRID1 = {
 
     // ===== CONTAINER SIZE (% of one screen) =====
     sectionWidth_h: 100,
@@ -648,63 +643,79 @@
 </script>
 
 <!-- ============================================================================
-     ★ CONTROL PANEL  — VIEW_BODY ★
-     VIEW_BODY (screen 2) = a CSS-grid container, laid out the same way as VIEW_HERO.
-     Three grid items — MENU (left), CONTENT (off-centre), SCROLLBAR (right) — placed at
-     the lab anchors via the column tracks below. CONTENT holds the continuous stream
-     GAP-FIRST · CORE · GAP · … · GAP-LAST (single scroll axis). MENU and SCROLLBAR are
-     position:sticky: they ride up as VIEW_BODY reveals, then pin at top 1/6vh while CONTENT
-     keeps scrolling. The VIEW_BODY CONTROLLER (script near end of body) applies this grid,
-     builds the stream from the CORE <template>s, and wires the scrollbar + scroll-spy.
-     Heights are % of --appvh; column tracks are in vw.
+     ★ CONTROL PANEL  — GRID 2 ★
+     Section 2 = the ported GRID-2 system (from grid2_lab). NO LONGER a CSS grid of
+     cells: it is a section-switching viewer. Desktop (_h): side menu + buffer/gap/
+     core switching panels + switch indicators + custom scrollbar. Mobile (_v): all
+     cores stacked with gaps + hamburger popup. The GRID 2 CONTROLLER (script near the
+     end of <body>) reads these params and builds the DOM from the CORE <template>s in .s2.
+     SCOPE (from the parameters worksheet): shared params carry _h/_v; desktop-only carry
+     _h; mobile-only carry _v; behaviour constants are orientation-independent.
+     Region sizes are numbers = % of --appvh (heights / y-anchors) or % of viewport width
+     (widths / x-anchors); the controller computes them to px. Some values stay as raw CSS
+     lengths (clamp()/inset shorthand) and pass straight through.
      ============================================================================ -->
 <script>
-  window.VIEW_BODY = {
+  window.GRID2 = {
 
-    // ===== CONTAINER =====
+    // ===== CONTAINER SIZE (% of one screen) — sizes the .s2 box =====
     sectionWidth_h: 100,
     sectionWidth_v: 100,
+    sectionHeight_h: 100,
+    sectionHeight_v: 100,
 
-    // ===== GRID SKELETON =====
-    // columns_h reproduce the lab bands: [margin][MENU 1/6][gap][CONTENT 2/5][SCROLLBAR band][rest]
-    //   → MENU centre 1/4, CONTENT centre 11/16, SCROLLBAR centre 15/16.
-    columns_h: '16.667vw 16.667vw 15.417vw 40vw 10vw 1.25vw',
-    columns_v: '1fr',
-    gap_h: 0,
-    gap_v: 0,
+    // ===== REGION HEIGHTS (switch geometry) — % of --appvh =====
+    gapBefore_h: 16.667,    /* GAP-BEFORE: breathing room above CORE = default rest inset (100/6) */
+    gapBefore_v: 16.667,
+    gapAfter_h: 16.667,     /* GAP-AFTER: breathing room below CORE (100/6) */
+    gapAfter_v: 16.667,
+    bufferBefore_h: 33.333, /* BUFFER-BEFORE (desktop): up-runway; reach its top = previous section (100/3) */
+    bufferAfter_h: 50,      /* BUFFER-AFTER (desktop): down-runway; reach its bottom = next section (100/2) */
+    minHeightCustom_h: 0,   /* CORE min-height override (% of --appvh); 0 = default = 100 - gapBefore - gapAfter */
 
-    // ===== ITEMS (grid placement) =====
-    items: {
-      menu:      { colStart_h: 2, colStart_v: 1, colSpan_h: 1, colSpan_v: 1 },
-      content:   { colStart_h: 4, colStart_v: 1, colSpan_h: 1, colSpan_v: 1 },
-      scrollbar: { colStart_h: 5, colStart_v: 1, colSpan_h: 1, colSpan_v: 1 }
-    },
+    // ===== SWITCH INDICATOR (desktop) =====
+    indBarWidth_h: 'clamp(120px, 16dvw, 240px)',  /* indicator bar width (raw CSS length) */
 
-    // ===== MENU + SCROLLBAR sticky rail (desktop) — heights % of --appvh =====
-    menuHeight_h: 40,           /* 2/5 vh */
-    menuStickyTop_h: 16.667,    /* 1/6 vh — the reveal offset AND the pin offset */
-    scrollbarHeight_h: 40,      /* 2/5 vh */
-    scrollbarStickyTop_h: 16.667,
-    scrollbarWidth_h: 'clamp(3px, 0.35dvw, 6px)',
+    // ===== DESKTOP ANCHORS — top-centre model: left = ax - w/2 ; top = ay =====
+    // w & ax = % of viewport width ; h & ay = % of --appvh. Desktop-only (_h).
+    menu:      { w_h: 16.667, h_h: 40,  ax_h: 25,    ay_h: 16.667 },
+    viewport:  { w_h: 40,     h_h: 100, ax_h: 68.75, ay_h: 0 },
+    scrollbar: { w_h: 'clamp(3px, 0.35dvw, 6px)', h_h: 40, ax_h: 93.75, ay_h: 16.667 },
 
-    // ===== CONTENT STREAM — gaps around/between cores, % of --appvh =====
-    gapFirst_h: 16.667,   gapFirst_v: 16.667,
-    gap_stream_h: 16.667, gap_stream_v: 16.667,
-    gapLast_h: 16.667,    gapLast_v: 16.667,
-    coreSectionHeight_h: 100, coreSectionHeight_v: 100,  /* GAP + CORE + GAP per section = this % of --appvh; core min-height is DERIVED (first uses GAP-FIRST, last uses GAP-LAST) */
-
-    // ===== MENU ITEM STYLING (shared) =====
+    // ===== MENU ITEM STYLING (shared) — raw CSS values =====
     miFontSize_h: '1.5rem',  miFontSize_v: '1.5rem',
-    miLineHeight_h: '1.7em', miLineHeight_v: '1.6em',
-    miAlign_h: 'right',      miAlign_v: 'center',
+    miLineHeight_h: '1.1em', miLineHeight_v: '1.1em',
+    miAlign_h: 'right',      miAlign_v: 'right',
+    miPadY_h: '0px',         miPadY_v: '0px',
+    miPadX_h: '0px',         miPadX_v: '0px',
 
-    // ===== COLOURS (placeholders — brand kit later) =====
-    menuBg_h: '#29d6d6',         menuBg_v: '#29d6d6',
+    // ===== MOBILE STACK (mobile-only, _v) =====
+    gapMobile_v: 16.667,       /* between cores, % of --appvh */
+    gapMobileFirst_v: 16.667,  /* before first core */
+    gapMobileLast_v: 16.667,   /* after last core */
+    mPadX_v: 12.5,             /* stack left/right padding, % of viewport width (100/8) */
+    mPopupInset_v: '33dvh calc(100dvw/16) calc(100dvw/16) 33dvw',  /* popup inset: top right bottom left (raw) */
+
+    // ===== COLOURS (placeholders — swapped for brand kit in the content/brand stage) =====
+    menuBg_h: '#29d6d6',       menuBg_v: '#29d6d6',       /* menu + popup fill */
+    panelBg_h: '#f5f5f5',      panelBg_v: '#f5f5f5',      /* content viewport bg */
     scrollbarColor_h: '#e11d1d', scrollbarColor_v: '#e11d1d',
-    ink_h: '#111',               ink_v: '#111',
-    panelBg_h: 'transparent',    panelBg_v: 'transparent',
+    ink_h: '#111',             ink_v: '#111',             /* GRID 2 text colour */
 
-    uvodLabel: 'Úvod'
+    // ===== BEHAVIOUR (desktop switch engine; orientation-independent) =====
+    behavior: {
+      cooldownMs: 450,            /* new section pinned at default after a switch (settle) */
+      edgeEps: 2,                 /* px tolerance for reaching a buffer edge */
+      indBeforeTextFinish: 0.80,  /* BEFORE-buffer fraction where back-indicator TEXT is full */
+      indBeforeBarFinish: 0.80,   /* BEFORE-buffer fraction where back-indicator BAR is full */
+      indAfterTextFinish: 0.80,   /* AFTER-buffer fraction where next-indicator TEXT is full */
+      indAfterBarFinish: 0.80,    /* AFTER-buffer fraction where next-indicator BAR is full */
+      copyBackGeneric: '↑ Späť: ',   /* back indicator copy (section name appended) */
+      copyNextGeneric: '↓ Ďalej: ',  /* next indicator copy (section name appended) */
+      labelTop: '↑ Navrch',          /* section-0 BEFORE-buffer label (the GRID 1 exit hook) */
+      uvodLabel: 'Úvod'              /* menu-only exit item (unlock -> GRID 1 top); NOT a content section */
+    }
+
   };
 </script>
 
@@ -900,7 +911,7 @@
   }
 
   /* ---- SCROLLING layers (normal flow) --------------------------------- */
-  /* Section 1 = VIEW_HERO: one full-height CSS-grid container; JS sets template-columns/rows + gap. */
+  /* Section 1 = GRID 1: one full-height CSS-grid container; JS sets template-columns/rows + gap. */
   .s1{ display:grid; position:relative; width:100%; height:100vh; height:100dvh; height:var(--appvh,100dvh); }
   /* cell = one grid item = its own alignment box (the old absolute liner is gone).
      JS sets grid-column/row, place-items (9-pt align), padding, z-index, opacity, bg. */
@@ -943,6 +954,10 @@
   /* buttonQ caption (its area = buttonQnote) */
   .qnote{ font-family:'Fira Sans Extra Condensed', system-ui, sans-serif; font-weight:600;
           color:var(--text-accent); font-size:clamp(13px, 1.4vw, 20px); text-align:center; }
+  /* -- Section 2 placeholder -- */
+  /* GRID 2 placeholder copy (sized/styled from text_buttonQnote by JS) */
+  .s2note{ font-family:'Fira Sans Extra Condensed', system-ui, sans-serif; font-weight:600;
+           color:var(--text-accent); text-align:center; }
   /* scroll arrow — rest + hover states; JS click scrolls one screen down */
   .hero-scroll{ display:inline-block; line-height:0; cursor:pointer; }
   .hero-scroll img{ width:44px; height:auto; display:block; }
@@ -950,57 +965,97 @@
   .hero-scroll:hover .arr-rest{ display:none; }
   .hero-scroll:hover .arr-hover{ display:block; }
 
-  /* VIEW_BODY (screen 2) = CSS-grid container; height driven by the CONTENT stream. */
-  .s2{ position:relative; width:100%; display:grid; align-items:start; }
+  /* Section 2 = GRID 2: full-height container; the GRID 2 CONTROLLER mounts the ported
+     switch system inside it (desktop) / stacked cores (mobile) as absolute/fixed children. */
+  .s2{ display:grid; position:relative; width:100%; height:100vh; height:100dvh; height:var(--appvh,100dvh); align-items:stretch; }
 
   /* ============================================================
-     VIEW_BODY  (g2- namespaced)
-     Grid placement (grid-column) + stream gap heights + sticky offsets + colours are set
-     by the VIEW_BODY CONTROLLER from window.VIEW_BODY. MENU and SCROLLBAR are position:sticky
-     (ride up with the reveal, then pin at their 1/6vh offset). Faint gap/core tints are DEBUG
-     and are removed in the content/brand stage.
+     GRID 2 SYSTEM  (ported from grid2_lab.html, g2- namespaced)
+     Region heights / anchors / colours / menu styling are set as
+     CSS vars by the GRID 2 CONTROLLER from window.GRID2 (computed
+     against --appvh). The --g2-t-* tints are DEBUG (region
+     visibility) and get removed in the content/brand stage.
      ============================================================ */
+  :root{
+    --g2-t-buffer: rgba(255, 0, 255, .16);   /* DEBUG */
+    --g2-t-gap:    rgba(0, 210, 0, .20);      /* DEBUG */
+    --g2-t-core:   rgba(255, 0, 0, .10);      /* DEBUG */
+  }
+
+  /* shared CORE typography */
+  .g2-core h1, .g2-m-core h1{ margin:0 0 0.6em; font-weight:700; line-height:1.15; font-size:clamp(22px, 2.4dvw, 40px); }
+  .g2-core p, .g2-m-core p{ margin:0 0 1em; }
+  .g2-core > *:last-child, .g2-m-core > *:last-child{ margin-bottom:0; }
+
+  /* CORE content sources (Option A) — never rendered directly */
   .g2-core-src{ display:none; }
 
-  /* --- MENU (left column, sticky) --- */
-  .g2-menu{ justify-self:stretch; margin-top:var(--g2-menu-top); height:var(--g2-menu-h);
-    position:sticky; top:var(--g2-menu-top); z-index:5;
-    background:var(--g2-menu-bg); display:flex; flex-direction:column; justify-content:center;
-    padding:calc(100vw/6/5); overflow:hidden; }
-  .g2-menu-item{ display:block; width:100%; background:none; border:none; cursor:pointer; font-family:inherit;
-    color:var(--g2-ink); font-size:var(--g2-mi-font-size); line-height:var(--g2-mi-line-height);
-    text-align:var(--g2-mi-align); padding:0; }
+  /* ---- DESKTOP ( _h ) ---- */
+  .g2-desktop-root{ display:block; }
+  .g2-mobile-root{ display:none; }
+  .g2-anchored{ position:absolute; width:var(--g2-w); height:var(--g2-h);
+    left:calc(var(--g2-ax) - var(--g2-w) / 2); top:var(--g2-ay); }
+
+  .g2-menu{ padding:calc(var(--g2-w) / 5); background:var(--g2-menu-bg);
+    display:flex; flex-direction:column; justify-content:flex-start; overflow:hidden; }
+  .g2-menu-item{ display:block; width:100%; margin:0; padding:var(--g2-mi-pad-y) var(--g2-mi-pad-x);
+    background:none; border:none; cursor:pointer; font-family:inherit; color:var(--g2-ink);
+    font-size:var(--g2-mi-font-size); line-height:var(--g2-mi-line-height); text-align:var(--g2-mi-align); }
   .g2-menu-item:hover{ text-decoration:underline; }
   .g2-menu-item.active{ font-weight:700; }
 
-  /* --- CONTENT (off-centre column): the single-axis stream --- */
-  .g2-content{ justify-self:stretch; width:100%; }
-  .g2-gap{ width:100%; height:var(--g2-gap); background:rgba(0,210,0,.12); }        /* DEBUG tint */
-  .g2-gap-first{ height:var(--g2-gap-first); }
-  .g2-gap-last{ height:var(--g2-gap-last); }
-  .g2-core{ width:100%; display:flow-root; padding:0 var(--g2-core-pad,0);
-    color:var(--g2-ink); background:var(--g2-panel-bg); line-height:1.5;
-    font-size:clamp(15px,1.1dvw,19px); box-shadow:inset 0 0 0 100vmax rgba(255,0,0,.05); } /* DEBUG tint */
-  .g2-core h1{ margin:0 0 .6em; font-weight:700; line-height:1.15; font-size:clamp(22px,2dvw,34px); }
-  .g2-core p{ margin:0 0 1em; }
-  .g2-core > *:last-child{ margin-bottom:0; }
+  .g2-viewport{ margin:0; padding:0; background:var(--g2-panel-bg); overflow:hidden; }
+  /* Panels are NON-scrollable in page mode (so the page itself scrolls to 100% to lock);
+     the active panel takes over its own scroll only once locked (body.g2-locked). */
+  .g2-panel{ position:absolute; inset:0; margin:0; padding:0; overflow-y:hidden; overscroll-behavior:contain; scrollbar-width:none; display:none; }
+  .g2-panel::-webkit-scrollbar{ display:none; }
+  .g2-panel.active{ display:block; }
+  body.g2-locked .g2-panel.active{ overflow-y:auto; }
+  .g2-panel.settling{ overflow:hidden; }
+  .g2-content{ width:100%; display:flex; flex-direction:column; }
+  .g2-content > *{ flex-shrink:0; }
 
-  /* --- SCROLLBAR (right column, sticky) --- */
-  .g2-scrollbar{ justify-self:center; margin-top:var(--g2-sb-top); width:var(--g2-sb-w); height:var(--g2-sb-h);
-    position:sticky; top:var(--g2-sb-top); z-index:5;
-    background:var(--g2-scrollbar); border-radius:999px; cursor:pointer; }
-  .g2-thumb{ position:absolute; left:50%; transform:translateX(-50%); width:calc(var(--g2-sb-w) * 2.4);
-    height:24px; top:0; background:#7a0000; border-radius:999px; cursor:grab; touch-action:none; }
+  .g2-buffer{ position:relative; width:100%; background:var(--g2-t-buffer);
+    display:flex; flex-direction:column; align-items:center; }
+  .g2-buffer-before{ height:var(--g2-buffer-before); justify-content:flex-end; }
+  .g2-buffer-after{  height:var(--g2-buffer-after);  justify-content:flex-start; }
+  .g2-gap{ width:100%; background:var(--g2-t-gap); }
+  .g2-gap-before{ height:var(--g2-gap-before); }
+  .g2-gap-after{  height:var(--g2-gap-after); }
+  .g2-core{ width:100%; padding:0; display:flow-root; min-height:var(--g2-min-height);
+    background:var(--g2-t-core); color:var(--g2-ink); line-height:1.5; font-size:clamp(13px, 1.1dvw, 18px); }
 
-  /* --- mobile hamburger + popup (MENU/SCROLLBAR hidden on mobile) --- */
-  .g2-m-hamburger{ position:fixed; right:16px; bottom:16px; z-index:996; width:56px; height:56px; border-radius:50%;
-    border:none; cursor:pointer; background:var(--g2-menu-bg); color:#012; font-size:26px; line-height:1;
-    box-shadow:0 2px 8px rgba(0,0,0,.25); pointer-events:auto; display:none; }
-  .g2-m-popup{ position:fixed; inset:33dvh calc(100dvw/16) calc(100dvw/16) 33dvw; z-index:995; background:var(--g2-menu-bg);
-    box-shadow:0 2px 16px rgba(0,0,0,.3); pointer-events:auto; display:flex; flex-direction:column; justify-content:center; gap:.4em;
-    padding:1em; overflow:auto; }
+  .g2-switch-indicator{ display:flex; flex-direction:column; align-items:center; gap:.5em;
+    font:600 clamp(13px,1.2dvw,18px)/1.2 'Fira Sans Extra Condensed', system-ui, sans-serif;
+    color:var(--g2-ink); text-align:center; white-space:nowrap; opacity:0; pointer-events:none; }
+  .g2-switch-indicator.show{ opacity:1; }
+  .g2-switch-indicator .g2-si-label{ opacity:0; }
+  .g2-switch-indicator .g2-si-bar{ position:relative; width:var(--g2-ind-bar-width); height:3px;
+    background:rgba(0,0,0,.2); border-radius:2px; overflow:hidden; }
+  .g2-switch-indicator .g2-si-bar > i{ position:absolute; inset:0; transform-origin:left center; transform:scaleX(0); background:#7a0000; }
+
+  .g2-scrollbar{ background:var(--g2-scrollbar); border-radius:999px; cursor:pointer; }
+  .g2-scrollbar .g2-thumb{ position:absolute; left:50%; transform:translateX(-50%);
+    width:calc(var(--g2-w) * 2.4); height:24px; top:0;
+    background:#7a0000; border-radius:999px; cursor:grab; touch-action:none; }
+  .g2-scrollbar .g2-thumb.dragging{ cursor:grabbing; }
+
+  /* ---- MOBILE ( _v ) ---- */
+  .g2-m-viewport{ position:absolute; inset:0; overflow-y:auto; padding:0 var(--g2-m-pad-x); background:var(--g2-panel-bg); }
+  .g2-m-core{ width:100%; display:flow-root; background:var(--g2-t-core);
+    color:var(--g2-ink); line-height:1.5; font-size:clamp(15px, 4dvw, 22px); }
+  .g2-gap-mobile{       height:var(--g2-gap-mobile);       background:var(--g2-t-gap); }
+  .g2-gap-mobile-first{ height:var(--g2-gap-mobile-first); background:var(--g2-t-gap); }
+  .g2-gap-mobile-last{  height:var(--g2-gap-mobile-last);  background:var(--g2-t-gap); }
+  .g2-m-hamburger{ position:fixed; right:16px; bottom:16px; z-index:22;
+    width:56px; height:56px; border-radius:50%; border:none; cursor:pointer;
+    background:var(--g2-menu-bg); color:#012; font-size:26px; line-height:1;
+    box-shadow:0 2px 8px rgba(0,0,0,.25); }
+  .g2-m-popup{ position:fixed; inset:var(--g2-m-popup-inset); z-index:21;
+    background:var(--g2-menu-bg); box-shadow:0 2px 16px rgba(0,0,0,.3);
+    display:flex; flex-direction:column; justify-content:center; gap:.4em; padding:1em; overflow:auto; }
   .g2-m-popup[hidden]{ display:none; }
-  .g2-m-popup .g2-menu-item{ text-align:center; font-size:clamp(18px,6dvw,28px); line-height:1.6; }
+  .g2-m-popup .g2-menu-item{ text-align:center; font-size:clamp(18px,6dvw,28px); line-height:1.4; }
 </style>
 </head>
 <body>
@@ -1018,17 +1073,14 @@
   <div class="parallax" data-layer="parallax_06"><img src="assets/img/parallax_06.webp" alt=""></div>
   <div class="parallax" data-layer="parallax_07"><img src="assets/img/parallax_07.webp" alt=""></div>
 
-  <div class="controls" data-layer="VIEW_CONTROLS">
+  <div class="controls" data-layer="controls">
     <button class="theme-toggle" type="button" aria-label="Prepnúť svetlý/tmavý režim"></button>
-    <!-- VIEW_BODY mobile menu lives in VIEW_CONTROLS so it sits above the parallax planes -->
-    <button class="g2-m-hamburger" id="g2MHamburger" type="button" aria-label="Menu">☰</button>
-    <div class="g2-m-popup" id="g2MPopup" hidden></div>
   </div>
 
   <!-- ===== SCROLLING layers (normal document flow) ===== -->
   <!-- screen 1 -->
   <!-- Section 1 (hero): three thirds, each with inner flex boxes -->
-  <div class="s1" data-layer="VIEW_HERO">
+  <div class="s1" data-layer="GRID_1">
     <div class="cell" data-cell="date"><span class="hero-date">5. september 2026 • 13:00</span></div>
     <div class="cell" data-cell="pf">
       <div class="names">
@@ -1047,23 +1099,34 @@
     <div class="cell" data-cell="location"><span class="hero-location"><a class="pf-link" href="https://maps.app.goo.gl/CcpAZgbuzZKfHp6Y9" target="_blank" rel="noopener">Rezort Partizán</a> • Obyce, Zlaté Moravce</span></div>
   </div>
 
-  <!-- screen 2 : VIEW_BODY — CSS-grid with MENU / CONTENT / SCROLLBAR.
-       The VIEW_BODY CONTROLLER places the grid, builds the CONTENT stream from the CORE
-       <template>s below, and pins MENU + SCROLLBAR with position:sticky. -->
-  <div class="s2" data-layer="VIEW_BODY">
-    <nav class="g2-menu" id="g2Menu" aria-label="Menu"></nav>
-    <div class="g2-content" id="g2Content"></div>
-    <div class="g2-scrollbar" id="g2Scrollbar"><div class="g2-thumb" id="g2Thumb"></div></div>
+  <!-- screen 2 : GRID 2 system (ported from grid2_lab, g2- namespaced).
+       The GRID 2 CONTROLLER builds the menu / panels / mobile stack from the
+       CORE <template> blocks below and reads window.GRID2 for all tuning. -->
+  <div class="s2" data-layer="GRID_2">
 
-    <!-- CORE content sources (Option A): one per section; edit the HTML between the tags
-         (paste from content/<id>.html). data-section = id, data-label = menu text. -->
+    <!-- desktop ( _h ): side menu + switching viewport + custom scrollbar -->
+    <div class="g2-desktop-root" id="g2DesktopRoot">
+      <nav class="g2-anchored g2-menu" id="g2Menu" aria-label="Menu"></nav>
+      <div class="g2-anchored g2-viewport" id="g2Viewport"></div>
+      <div class="g2-anchored g2-scrollbar" id="g2Scrollbar"><div class="g2-thumb" id="g2Thumb"></div></div>
+    </div>
+
+    <!-- mobile ( _v ): stacked cores + hamburger popup -->
+    <div class="g2-mobile-root" id="g2MobileRoot">
+      <div class="g2-m-viewport" id="g2MViewport"></div>
+      <button class="g2-m-hamburger" id="g2MHamburger" type="button" aria-label="Menu">☰</button>
+      <div class="g2-m-popup" id="g2MPopup" hidden></div>
+    </div>
+
+    <!-- CORE content sources (Option A): one block per section; the engine clones each
+         into its desktop panel AND its mobile core. data-section = id, data-label = menu text.
+         To update a section, edit the HTML between its <template> tags (paste from content/<id>.html). -->
     <template class="g2-core-src" data-section="program"   data-label="Program"><h1>Program</h1><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p></template>
     <template class="g2-core-src" data-section="dresscode" data-label="Dress Code"><h1>Dress Code</h1><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p></template>
     <template class="g2-core-src" data-section="dary"      data-label="Dary"><h1>Dary</h1><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p></template>
     <template class="g2-core-src" data-section="faq"       data-label="Časté otázky"><h1>Časté otázky</h1><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p></template>
     <template class="g2-core-src" data-section="blog"      data-label="Blog"><h1>Blog</h1><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p></template>
     <template class="g2-core-src" data-section="kontakt"   data-label="Kontakt"><h1>Kontakt</h1><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p></template>
-  </div>
   </div>
 
   <!-- ============ ENGINE (reads the control-panel sections above) ============ -->
@@ -1072,7 +1135,7 @@
       var LAYERS   = window.LAYERS   || {};
       var PARALLAX = window.PARALLAX || {};
       var GENERAL  = window.GENERAL  || {};
-      var VIEW_HERO    = window.VIEW_HERO    || {};
+      var GRID1    = window.GRID1    || {};
 
       // ---- STABLE viewport size: frozen so the mobile URL bar (which changes
       //      innerHeight on scroll) can't reflow the layout. Updated only on a
@@ -1135,18 +1198,18 @@
                   + '%) sepia(' + g('tint',0) + '%) hue-rotate(' + g('tintHue',0) + 'deg)';
         });
 
-        // ---- VIEW_HERO (Section 1): one grid, five cells, all from VIEW_HERO CONTROLS ----
+        // ---- GRID 1 (Section 1): one grid, five cells, all from GRID 1 CONTROLS ----
         var hero = document.querySelector('.s1');
         if(hero){
-          hero.style.width  = ((pick(VIEW_HERO,'sectionWidth')  || 100) / 100 * document.documentElement.clientWidth).toFixed(1) + 'px';
-          hero.style.height = ((pick(VIEW_HERO,'sectionHeight') || 100) / 100 * APPH).toFixed(1) + 'px';
-          // VIEW_HERO: container track skeleton
-          var gCols = pick(VIEW_HERO,'columns'); if(gCols != null) hero.style.gridTemplateColumns = gCols;
-          var gRows = pick(VIEW_HERO,'rows');    if(gRows != null) hero.style.gridTemplateRows    = gRows;
-          hero.style.gap = ((pick(VIEW_HERO,'gap') || 0)) + 'px';
+          hero.style.width  = ((pick(GRID1,'sectionWidth')  || 100) / 100 * document.documentElement.clientWidth).toFixed(1) + 'px';
+          hero.style.height = ((pick(GRID1,'sectionHeight') || 100) / 100 * APPH).toFixed(1) + 'px';
+          // GRID 1: container track skeleton
+          var gCols = pick(GRID1,'columns'); if(gCols != null) hero.style.gridTemplateColumns = gCols;
+          var gRows = pick(GRID1,'rows');    if(gRows != null) hero.style.gridTemplateRows    = gRows;
+          hero.style.gap = ((pick(GRID1,'gap') || 0)) + 'px';
           var aV = function(v){ return v === 't' ? 'start' : (v === 'b' ? 'end' : 'center'); };
           var aH = function(h){ return h === 'l' ? 'start' : (h === 'r' ? 'end' : 'center'); };
-          var ITEMS = VIEW_HERO.items || {};
+          var ITEMS = GRID1.items || {};
           Object.keys(ITEMS).forEach(function(nm){
             var cell = document.querySelector('.cell[data-cell="' + nm + '"]'); if(!cell) return;
             var it = ITEMS[nm];
@@ -1215,7 +1278,46 @@
 
         }
 
-        // ---- VIEW_BODY (Section 2): layout owned by the VIEW_BODY CONTROLLER (script near end of body) ----
+        // ---- GRID 2 (Section 2): one grid, one placeholder cell ----
+        var G2 = window.GRID2 || {};
+        var g2el = document.querySelector('.s2');
+        if(g2el){
+          g2el.style.width  = ((pick(G2,'sectionWidth')  || 100) / 100 * document.documentElement.clientWidth).toFixed(1) + 'px';
+          g2el.style.height = ((pick(G2,'sectionHeight') || 100) / 100 * APPH).toFixed(1) + 'px';
+          var g2c = pick(G2,'columns'); if(g2c != null) g2el.style.gridTemplateColumns = g2c;
+          var g2r = pick(G2,'rows');    if(g2r != null) g2el.style.gridTemplateRows    = g2r;
+          g2el.style.gap = ((pick(G2,'gap') || 0)) + 'px';
+          var g2V = function(v){ return v === 't' ? 'start' : (v === 'b' ? 'end' : 'center'); };
+          var g2H = function(h){ return h === 'l' ? 'start' : (h === 'r' ? 'end' : 'center'); };
+          var G2I = G2.items || {};
+          Object.keys(G2I).forEach(function(nm){
+            var cell = g2el.querySelector('.cell[data-cell="' + nm + '"]'); if(!cell) return;
+            var it = G2I[nm];
+            cell.style.gridColumn = (pick(it,'colStart') || 1) + ' / span ' + (pick(it,'colSpan') || 1);
+            cell.style.gridRow    = (pick(it,'rowStart') || 1) + ' / span ' + (pick(it,'rowSpan') || 1);
+            var a = String(pick(it,'align') || 'cc').toLowerCase();
+            cell.style.alignItems   = g2V(a.charAt(0));
+            cell.style.justifyItems = g2H(a.charAt(1));
+            cell.style.paddingTop    = ((pick(it,'padT') || 0) / 100 * vh).toFixed(1) + 'px';
+            cell.style.paddingBottom = ((pick(it,'padB') || 0) / 100 * vh).toFixed(1) + 'px';
+            cell.style.paddingLeft   = ((pick(it,'padL') || 0) / 100 * vh).toFixed(1) + 'px';
+            cell.style.paddingRight  = ((pick(it,'padR') || 0) / 100 * vh).toFixed(1) + 'px';
+            var z = pick(it,'zIndex');     if(z != null) cell.style.zIndex  = z;
+            var vv = pick(it,'visibility'); if(vv != null) cell.style.opacity = vv / 100;
+            var bg = pick(it,'bg');        if(bg != null) cell.style.background = bg;
+          });
+        }
+        // GRID 2 placeholder copy — styled by the text_buttonQnote TEXT entry
+        var s2n = document.querySelector('.s2note');
+        if(s2n){
+          var T2 = window.TEXT || {};
+          var q2 = function(k){ return pick(T2['text_buttonQnote'] || {}, k); };
+          var sz2 = q2('size'); if(sz2 == null) sz2 = 12;
+          s2n.style.fontSize = (sz2 / 100 * NAMES_PX).toFixed(2) + 'px';
+          var w2 = q2('weight'); if(w2 != null) s2n.style.fontWeight = w2;
+          var f2 = q2('font');   if(f2 != null) s2n.style.fontFamily = f2;
+          var c2 = q2('case');   if(c2 != null) s2n.style.textTransform = c2;
+        }
 
         // ---- BUTTON (.qbtn) + LINK styling (CSS vars) ----
         var UI = window.BUTTONLINK || {};
@@ -1253,7 +1355,7 @@
       function apply(){
         var vh = APPH;
         var y  = window.scrollY || window.pageYOffset || 0;
-        var maxScroll = Math.max(1, APPH);   // VIEW_HERO -> VIEW_BODY handoff = one screen; parallax completes here, then freezes
+        var maxScroll = Math.max(1, document.documentElement.scrollHeight - vh);
         var mSt  = pick(PARALLAX, 'masterStart')        || 0;
         var mDi  = pick(PARALLAX, 'masterDistance')     || 0;
         var mAcc = pick(PARALLAX, 'masterAcceleration') || 0;
@@ -1303,7 +1405,9 @@
       var root = document.documentElement;
       var scr = document.querySelector('.hero-scroll');
       if(scr){ scr.addEventListener('click', function(){
-        var _vb=document.querySelector('.s2'); window.scrollTo({ top: _vb ? Math.round(_vb.getBoundingClientRect().top + (window.scrollY||0)) : (window.innerHeight||0), left:0, behavior:'smooth' }); // → top of VIEW_BODY
+        // GRID 1 arrow → scroll to 100% + lock into GRID 2 (desktop only, §6.2).
+        if(!vertical() && window.GRID2ENGINE && window.GRID2ENGINE.lockToBottom){ window.GRID2ENGINE.lockToBottom(); return; }
+        window.scrollBy({ top: (window.innerHeight || document.documentElement.clientHeight), left: 0, behavior: 'smooth' });
       }); }
       var btn  = document.querySelector('.theme-toggle');
       if(btn){
@@ -1316,137 +1420,270 @@
     })();
   </script>
 
-  <!-- ============ VIEW_BODY CONTROLLER (CSS-grid layout + single-axis stream; g2- namespaced) ============
-       VIEW_BODY is a CSS-grid container with three items: MENU (left), CONTENT (off-centre),
-       SCROLLBAR (right), placed at the lab anchors from window.VIEW_BODY. CONTENT is one continuous
-       native scroll GAP → CORE → GAP → ... → GAP; MENU and SCROLLBAR are position:sticky (they ride up
-       with the reveal, then pin at top 1/6vh while CONTENT keeps scrolling). The parallax freezes once
-       VIEW_BODY covers the viewport (engine clamps its progress to the first screen). This controller:
-       applies the grid, builds the stream, wires the scrollbar thumb + scroll-spy + mobile hamburger. -->
+  <!-- ============ GRID 2 CONTROLLER (ported from grid2_lab.html, g2- namespaced) ============
+       Desktop (_h): section-switching viewer (menu + buffer/gap/core panels + indicators + scrollbar).
+       Mobile (_v): stacked cores + hamburger popup (PROVISIONAL lab-style; the "one continuous scroll"
+       mobile integration is a later stage). Mode is driven by the site's orientation test
+       (innerHeight >= innerWidth) and rebuilt on a genuine resize/rotate. GRID 1<->2 lock glue (§6):
+       the switch engine + wheel-capture are active ONLY in locked mode. All tuning is in window.GRID2. -->
   <script>
   (function(){
-    var C = window.VIEW_BODY || {};
+    var G2  = window.GRID2 || {};
+    var BEH = G2.behavior || {};
+    var clamp = function(v,a,b){ return Math.min(Math.max(v,a),b); };
     function vertical(){ return window.innerHeight >= window.innerWidth; }
-    function pick(o,b){ if(!o) return undefined; return o[b+(vertical()?'_v':'_h')]; }
-    function appH(){ var v=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--appvh')); return v>0?v:window.innerHeight; }
+    function pick(obj, base){ if(!obj) return undefined; return obj[base + (vertical() ? '_v' : '_h')]; }
+    function appH(){ var v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--appvh')); return (v>0)?v:window.innerHeight; }
     function appW(){ return document.documentElement.clientWidth; }
-    function pxH(p){ return (p/100*appH()).toFixed(1)+'px'; }
-    function pxW(p){ return (p/100*appW()).toFixed(1)+'px'; }
-    var clamp=function(v,a,b){ return Math.min(Math.max(v,a),b); };
+    function isNum(v){ return typeof v === 'number'; }
+    function pxH(pct){ return (pct/100*appH()).toFixed(1)+'px'; }   // % of --appvh
+    function pxW(pct){ return (pct/100*appW()).toFixed(1)+'px'; }   // % of viewport width
 
-    var s2=document.querySelector('.s2');
-    var menuEl=document.getElementById('g2Menu'), contentEl=document.getElementById('g2Content');
-    var sbEl=document.getElementById('g2Scrollbar'), thumb=document.getElementById('g2Thumb');
-    var ham=document.getElementById('g2MHamburger'), pop=document.getElementById('g2MPopup');
-    if(!s2||!contentEl) return;
+    var s2       = document.querySelector('.s2');
+    var deskRoot = document.getElementById('g2DesktopRoot');
+    var mobRoot  = document.getElementById('g2MobileRoot');
+    if(!s2 || !deskRoot || !mobRoot) return;
 
-    var SECTIONS=Array.prototype.map.call(s2.querySelectorAll('template.g2-core-src'), function(t){
-      return { id:t.getAttribute('data-section'), label:t.getAttribute('data-label')||t.getAttribute('data-section'), html:t.innerHTML };
+    // ---- CORE sources (Option A): read the <template> blocks once ----
+    var SECTIONS = Array.prototype.map.call(s2.querySelectorAll('template.g2-core-src'), function(t){
+      return { id: t.getAttribute('data-section'),
+               label: t.getAttribute('data-label') || t.getAttribute('data-section'),
+               html: t.innerHTML };
     });
 
-    // build the CONTENT stream once: GAP, CORE, GAP, CORE, ..., GAP
-    var h='<div class="g2-gap g2-gap-first" data-gap="0"></div>';
-    SECTIONS.forEach(function(s,i){
-      h+='<div class="g2-core" id="g2core-'+s.id+'" data-idx="'+i+'">'+s.html+'</div>';
-      h+='<div class="g2-gap'+(i===SECTIONS.length-1?' g2-gap-last':'')+'" data-gap="'+(i+1)+'"></div>';
-    });
-    contentEl.innerHTML=h;
-    var gapEls=Array.prototype.slice.call(contentEl.querySelectorAll('.g2-gap'));
-    var coreEls=Array.prototype.slice.call(contentEl.querySelectorAll('.g2-core'));
-
-    // menus (side menu + mobile popup): Uvod + sections
-    var mh='<button type="button" class="g2-menu-item g2-uvod" data-goto="top">'+(C.uvodLabel||'Úvod')+'</button>';
-    SECTIONS.forEach(function(s,i){ mh+='<button type="button" class="g2-menu-item" data-goto="'+i+'">'+s.label+'</button>'; });
-    menuEl.innerHTML=mh; pop.innerHTML=mh;
-    var menuItems=Array.prototype.slice.call(document.querySelectorAll('.g2-menu-item'));
-
-    function targetY(i){ return Math.round(gapEls[i].getBoundingClientRect().top + window.scrollY); }
-    function onMenuClick(e){ var b=e.target.closest('.g2-menu-item'); if(!b) return;
-      var g=b.getAttribute('data-goto');
-      if(g==='top') window.scrollTo({top:0,behavior:'smooth'});
-      else window.scrollTo({top:targetY(+g),behavior:'smooth'});
-      pop.hidden=true;
-    }
-    menuEl.addEventListener('click', onMenuClick);
-    pop.addEventListener('click', onMenuClick);
-    ham.addEventListener('click', function(){ pop.hidden=!pop.hidden; });
-
-    // ---- CSS vars + grid layout from window.VIEW_BODY ----
-    function setV(k,v){ if(v!=null) s2.style.setProperty(k,v); }
-    function vH(name){ var v=pick(C,name); return v==null?null:pxH(v); }
+    // ---- shared: push GRID2 params into CSS vars (computed vs --appvh) ----
     function setVars(){
-      setV('--g2-gap-first', vH('gapFirst'));
-      setV('--g2-gap', vH('gap_stream'));
-      setV('--g2-gap-last', vH('gapLast'));
-      sizeCores();
-      setV('--g2-menu-h', vH('menuHeight'));
-      setV('--g2-menu-top', vH('menuStickyTop'));
-      setV('--g2-sb-h', vH('scrollbarHeight'));
-      setV('--g2-sb-top', vH('scrollbarStickyTop'));
-      setV('--g2-sb-w', pick(C,'scrollbarWidth'));
-      setV('--g2-core-pad', vertical()? pxW(8) : '0px');
-      [['miFontSize','--g2-mi-font-size'],['miLineHeight','--g2-mi-line-height'],['miAlign','--g2-mi-align']].forEach(function(p){ setV(p[1], pick(C,p[0])); });
-      [['menuBg','--g2-menu-bg'],['scrollbarColor','--g2-scrollbar'],['ink','--g2-ink'],['panelBg','--g2-panel-bg']].forEach(function(p){ setV(p[1], pick(C,p[0])); });
+      var st = s2.style;
+      var gb=pick(G2,'gapBefore'), ga=pick(G2,'gapAfter'), bb=pick(G2,'bufferBefore'), ba=pick(G2,'bufferAfter');
+      if(gb!=null) st.setProperty('--g2-gap-before', pxH(gb));
+      if(ga!=null) st.setProperty('--g2-gap-after',  pxH(ga));
+      if(bb!=null) st.setProperty('--g2-buffer-before', pxH(bb));
+      if(ba!=null) st.setProperty('--g2-buffer-after',  pxH(ba));
+      var mc = pick(G2,'minHeightCustom');
+      var minPct = (mc && mc>0) ? mc : (100 - (gb||0) - (ga||0));
+      st.setProperty('--g2-min-height', pxH(minPct));
+      var ibw = pick(G2,'indBarWidth'); if(ibw!=null) st.setProperty('--g2-ind-bar-width', ibw);
+      [['miFontSize','--g2-mi-font-size'],['miLineHeight','--g2-mi-line-height'],['miAlign','--g2-mi-align'],['miPadY','--g2-mi-pad-y'],['miPadX','--g2-mi-pad-x']]
+        .forEach(function(p){ var v=pick(G2,p[0]); if(v!=null) st.setProperty(p[1], v); });
+      [['menuBg','--g2-menu-bg'],['panelBg','--g2-panel-bg'],['scrollbarColor','--g2-scrollbar'],['ink','--g2-ink']]
+        .forEach(function(p){ var v=pick(G2,p[0]); if(v!=null) st.setProperty(p[1], v); });
+      var gm=pick(G2,'gapMobile'), gmf=pick(G2,'gapMobileFirst'), gml=pick(G2,'gapMobileLast'), mpx=pick(G2,'mPadX'), mpi=pick(G2,'mPopupInset');
+      if(gm!=null)  st.setProperty('--g2-gap-mobile', pxH(gm));
+      if(gmf!=null) st.setProperty('--g2-gap-mobile-first', pxH(gmf));
+      if(gml!=null) st.setProperty('--g2-gap-mobile-last', pxH(gml));
+      if(mpx!=null) st.setProperty('--g2-m-pad-x', pxW(mpx));
+      if(mpi!=null) st.setProperty('--g2-m-popup-inset', mpi);
     }
-    function sizeCores(){
-      var sec=pick(C,'coreSectionHeight'); if(sec==null) sec=100;
-      var gf=pick(C,'gapFirst')||0, gg=pick(C,'gap_stream')||0, gl=pick(C,'gapLast')||0, last=coreEls.length-1;
-      coreEls.forEach(function(c,i){ var gb=(i===0?gf:gg), ga=(i===last?gl:gg); c.style.minHeight=pxH(Math.max(0, sec-gb-ga)); });
+    function anchorEl(el, cfg){
+      if(!el || !cfg) return;
+      var w=pick(cfg,'w'), h=pick(cfg,'h'), ax=pick(cfg,'ax'), ay=pick(cfg,'ay');
+      if(w!=null)  el.style.setProperty('--g2-w',  isNum(w)?pxW(w):w);
+      if(h!=null)  el.style.setProperty('--g2-h',  isNum(h)?pxH(h):h);
+      if(ax!=null) el.style.setProperty('--g2-ax', isNum(ax)?pxW(ax):ax);
+      if(ay!=null) el.style.setProperty('--g2-ay', isNum(ay)?pxH(ay):ay);
     }
-    function layoutGrid(){
-      s2.style.gridTemplateColumns = pick(C,'columns') || '1fr';
-      s2.style.gap = ((pick(C,'gap')||0))+'px';
-      var items=C.items||{};
-      [['menu',menuEl],['content',contentEl],['scrollbar',sbEl]].forEach(function(pr){
-        var it=items[pr[0]], el=pr[1]; if(!it||!el) return;
-        el.style.gridColumn=(pick(it,'colStart')||1)+' / span '+(pick(it,'colSpan')||1);
-        el.style.gridRow='1';
+    function setAnchors(){
+      anchorEl(document.getElementById('g2Menu'), G2.menu);
+      anchorEl(document.getElementById('g2Viewport'), G2.viewport);
+      anchorEl(document.getElementById('g2Scrollbar'), G2.scrollbar);
+    }
+
+    var built = null;      // active engine object
+    var locked = false;
+    var lockToBottom = function(){}, unlockToTop = function(){};   // (re)assigned by buildDesktop
+    function maxScroll(){ return Math.max(0, document.documentElement.scrollHeight - appH()); }
+
+    /* ============================================================
+       DESKTOP ENGINE ( _h )
+       ============================================================ */
+    function buildDesktop(){
+      var ac=new AbortController(), sig={signal:ac.signal};
+      var CONFIG = {
+        cooldownMs:(BEH.cooldownMs!=null?BEH.cooldownMs:450),
+        edgeEps:(BEH.edgeEps!=null?BEH.edgeEps:2),
+        indBeforeTextFinish:(BEH.indBeforeTextFinish!=null?BEH.indBeforeTextFinish:0.80),
+        indBeforeBarFinish:(BEH.indBeforeBarFinish!=null?BEH.indBeforeBarFinish:0.80),
+        indAfterTextFinish:(BEH.indAfterTextFinish!=null?BEH.indAfterTextFinish:0.80),
+        indAfterBarFinish:(BEH.indAfterBarFinish!=null?BEH.indAfterBarFinish:0.80),
+        copyBack:(BEH.copyBackGeneric||''), copyNext:(BEH.copyNextGeneric||''), labelTop:(BEH.labelTop||'')
+      };
+      var menu=document.getElementById('g2Menu'), frame=document.getElementById('g2Viewport'),
+          track=document.getElementById('g2Scrollbar'), thumb=document.getElementById('g2Thumb');
+      menu.innerHTML=''; frame.innerHTML='';
+      var items=[],panels=[],info=[],savedScroll=[],active=0,metricsActive=null,settling=false,settleTimer=null;
+
+      setAnchors();
+
+      // Úvod — menu-only exit control (no panel); the exception to lock-trigger #3
+      var uvod=document.createElement('button'); uvod.type='button'; uvod.className='g2-menu-item g2-uvod';
+      uvod.textContent=(BEH.uvodLabel||'Úvod');
+      uvod.addEventListener('click', function(){ unlockToTop(); }, sig);
+      menu.appendChild(uvod);
+
+      SECTIONS.forEach(function(s,i){
+        var last=(i===SECTIONS.length-1);
+        var btn=document.createElement('button'); btn.type='button'; btn.className='g2-menu-item'; btn.textContent=s.label;
+        btn.addEventListener('click', function(){ if(!locked) lockToBottom(); activate(i,false); }, sig);
+        menu.appendChild(btn); items.push(btn);
+
+        var nameBefore=(i>0)?SECTIONS[i-1].label:'', nameAfter=(!last)?SECTIONS[i+1].label:'';
+        var backLabel=(i>0)?(CONFIG.copyBack+nameBefore):CONFIG.labelTop;
+        var nextLabel=(!last)?(CONFIG.copyNext+nameAfter):'';
+        var ind=function(cls,label){ return '<div class="g2-switch-indicator '+cls+'"><span class="g2-si-label">'+label+'</span><span class="g2-si-bar"><i></i></span></div>'; };
+
+        var panel=document.createElement('section'); panel.className='g2-panel'; panel.id='g2panel-'+s.id;
+        panel.innerHTML='<div class="g2-content">'+
+          '<div class="g2-buffer g2-buffer-before">'+ind('g2-ind-back',backLabel)+'</div>'+
+          '<div class="g2-gap g2-gap-before"></div>'+
+          '<div class="g2-core"></div>'+
+          '<div class="g2-gap g2-gap-after"></div>'+
+          (last?'':'<div class="g2-buffer g2-buffer-after">'+ind('g2-ind-next',nextLabel)+'</div>')+
+        '</div>';
+        frame.appendChild(panel); panels.push(panel);
+        info.push({ indBack:panel.querySelector('.g2-ind-back'), indNext:panel.querySelector('.g2-ind-next') });
+        savedScroll.push(null);
+        panel.addEventListener('scroll', function(){ if(i===active) onScroll(); }, {passive:true, signal:ac.signal});
       });
+
+      function measure(sel){ var e=panels[active].querySelector(sel); return e?e.offsetHeight:0; }
+      function computeMetrics(){ metricsActive={ bufferBefore:measure('.g2-buffer-before'), gapBefore:measure('.g2-gap-before'),
+        core:measure('.g2-core'), gapAfter:measure('.g2-gap-after'), bufferAfter:measure('.g2-buffer-after') }; }
+      function setAnim(indEl,p,tf,bf){ if(!indEl) return; indEl.classList.toggle('show',p>0);
+        indEl.querySelector('.g2-si-label').style.opacity=clamp(p/tf,0,1);
+        indEl.querySelector('.g2-si-bar > i').style.transform='scaleX('+clamp(p/bf,0,1)+')'; }
+      function updateIndicators(){ var vp=panels[active],m=metricsActive,max=vp.scrollHeight-vp.clientHeight,it=info[active];
+        if(it.indBack && m.bufferBefore>0) setAnim(it.indBack, clamp((m.bufferBefore-vp.scrollTop)/m.bufferBefore,0,1), CONFIG.indBeforeTextFinish, CONFIG.indBeforeBarFinish);
+        if(it.indNext && m.bufferAfter>0) setAnim(it.indNext, clamp((vp.scrollTop-(max-m.bufferAfter))/m.bufferAfter,0,1), CONFIG.indAfterTextFinish, CONFIG.indAfterBarFinish); }
+      function readingRange(){ var vp=panels[active],m=metricsActive,max=vp.scrollHeight-vp.clientHeight;
+        return { top:m.bufferBefore, bot:Math.max(m.bufferBefore,max-m.bufferAfter), reading:(m.gapBefore+m.core+m.gapAfter) }; }
+      function updateThumb(){ var vp=panels[active],r=readingRange();
+        var ratio=Math.min(1, vp.clientHeight/Math.max(1,r.reading));
+        var th=Math.max(24, Math.round(track.clientHeight*ratio)); thumb.style.height=th+'px';
+        var span=Math.max(1,r.bot-r.top), p=clamp((vp.scrollTop-r.top)/span,0,1);
+        thumb.style.top=(p*(track.clientHeight-th)).toFixed(1)+'px'; }
+      function onScroll(){ if(settling) return; var vp=panels[active],m=metricsActive,max=vp.scrollHeight-vp.clientHeight;
+        updateIndicators(); updateThumb();
+        if(m.bufferAfter>0 && active<panels.length-1 && vp.scrollTop>=max-CONFIG.edgeEps) activate(active+1,true);
+        else if(active>0 && vp.scrollTop<=CONFIG.edgeEps) activate(active-1,true); }
+      function activate(i,reset){ var prev=active;
+        if(panels[prev]&&panels[prev].classList.contains('active')) savedScroll[prev]=reset?null:panels[prev].scrollTop;
+        active=i;
+        items.forEach(function(b,j){ b.classList.toggle('active',j===i); });
+        panels.forEach(function(p,j){ p.classList.toggle('active',j===i); });
+        computeMetrics();
+        var def=metricsActive.bufferBefore, max=Math.max(0,panels[i].scrollHeight-panels[i].clientHeight);
+        var want=(reset||savedScroll[i]==null)?def:savedScroll[i];
+        panels[i].scrollTop=clamp(want,0,max); savedScroll[i]=panels[i].scrollTop;
+        updateIndicators(); updateThumb();
+        settling=true; panels[i].classList.add('settling'); clearTimeout(settleTimer);
+        settleTimer=setTimeout(function(){ settling=false; panels[i].classList.remove('settling'); }, CONFIG.cooldownMs); }
+      function goToDefault(){ activate(active,true); }
+
+      // custom scrollbar (only usable while locked)
+      var dragging=false,startPtrY=0,startTop=0;
+      function scrollFromThumb(topPx){ var vp=panels[active],r=readingRange(),travel=track.clientHeight-thumb.clientHeight;
+        var p=travel>0?clamp(topPx,0,travel)/travel:0; vp.scrollTop=r.top+p*(r.bot-r.top); }
+      thumb.addEventListener('pointerdown', function(e){ if(!locked) return; e.preventDefault(); dragging=true; thumb.classList.add('dragging'); thumb.setPointerCapture(e.pointerId); startPtrY=e.clientY; startTop=parseFloat(thumb.style.top)||0; }, sig);
+      thumb.addEventListener('pointermove', function(e){ if(dragging) scrollFromThumb(startTop+(e.clientY-startPtrY)); }, sig);
+      thumb.addEventListener('pointerup', function(){ dragging=false; thumb.classList.remove('dragging'); }, sig);
+      thumb.addEventListener('pointercancel', function(){ dragging=false; thumb.classList.remove('dragging'); }, sig);
+      track.addEventListener('pointerdown', function(e){ if(!locked || e.target===thumb) return; var rect=track.getBoundingClientRect(); scrollFromThumb((e.clientY-rect.top)-thumb.clientHeight/2); }, sig);
+
+      // wheel — active ONLY while locked
+      window.addEventListener('wheel', function(e){
+        if(!locked || dragging) return;
+        var vp=panels[active];
+        if(active===0 && e.deltaY<0 && vp.scrollTop<=CONFIG.edgeEps){ e.preventDefault(); unlockToTop(); return; }  // exit up through section-0 before-buffer
+        if(settling){ e.preventDefault(); return; }
+        if(vp.contains(e.target)) return;               // native panel scroll (overscroll-behavior:contain keeps the page pinned)
+        e.preventDefault();
+        var f=e.deltaMode===1?16:(e.deltaMode===2?vp.clientHeight:1);
+        vp.scrollTop+=e.deltaY*f;
+      }, {passive:false, signal:ac.signal});
+
+      // page-mode → auto-lock at 100%; while locked → re-pin to the bottom
+      window.addEventListener('scroll', function(){
+        if(locked){ var mx=maxScroll(); if(Math.abs(window.scrollY-mx)>2) window.scrollTo(0,mx); return; }
+        if(window.scrollY >= maxScroll()-CONFIG.edgeEps) lockToBottom();
+      }, {passive:true, signal:ac.signal});
+
+      function relayout(){ setAnchors(); computeMetrics(); updateIndicators(); updateThumb(); }
+
+      // lock / unlock (desktop only) — assigned to the outer refs, exposed via the arrow + API
+      lockToBottom = function(){
+        if(vertical() || !built || built.mode!=='h') return;
+        window.scrollTo(0, maxScroll());
+        locked=true; document.body.classList.add('g2-locked');
+        activate(active,true);                       // land the active section at its default
+      };
+      unlockToTop = function(){
+        locked=false; document.body.classList.remove('g2-locked');
+        window.scrollTo(0,0);                          // insta-jump to the very top of GRID 1 (§6)
+      };
+
+      // initial fill — page mode, dormant
+      activate(0,false);
+      SECTIONS.forEach(function(s,i){ panels[i].querySelector('.g2-core').innerHTML=s.html; });
+      computeMetrics(); updateIndicators(); updateThumb();
+
+      return { mode:'h', relayout:relayout, goToDefault:goToDefault,
+        goToSection:function(i){ if(!locked) lockToBottom(); activate(i,false); },
+        destroy:function(){ ac.abort(); clearTimeout(settleTimer); menu.innerHTML=''; frame.innerHTML=''; document.body.classList.remove('g2-locked'); } };
     }
 
-    // ---- custom scrollbar maps the whole content scroll (VIEW_BODY top → page bottom) ----
-    function range(){ var start=s2.offsetTop; var max=Math.max(start, document.documentElement.scrollHeight - appH()); return {start:start,max:max}; }
-    function onScroll(){
-      var y=window.scrollY||0, r=range();
-      var span=Math.max(1, r.max-r.start), p=clamp((y-r.start)/span,0,1);
-      var vpH=appH(), contentH=Math.max(vpH,(r.max-r.start)+vpH), trackH=sbEl.clientHeight||1;
-      var th=Math.max(24, Math.round(trackH*(vpH/contentH)));
-      thumb.style.height=th+'px';
-      thumb.style.top=(p*(trackH-th)).toFixed(1)+'px';
-    }
-
-    // ---- scroll-spy: highlight the section whose CORE is near the top ----
-    var io=new IntersectionObserver(function(entries){
-      entries.forEach(function(en){ if(en.isIntersecting){ var i=en.target.getAttribute('data-idx');
-        menuItems.forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-goto')===String(i)); }); } });
-    }, { rootMargin:'-8% 0px -82% 0px', threshold:0 });
-    coreEls.forEach(function(c){ io.observe(c); });
-
-    // ---- scrollbar drag / track click ----
-    var dragging=false;
-    function scrollFromThumb(clientY){ var rect=sbEl.getBoundingClientRect(), r=range();
-      var travel=sbEl.clientHeight-thumb.clientHeight; var p=travel>0?clamp((clientY-rect.top-thumb.clientHeight/2)/travel,0,1):0;
-      window.scrollTo(0, Math.round(r.start+p*(r.max-r.start))); }
-    thumb.addEventListener('pointerdown', function(e){ e.preventDefault(); dragging=true; thumb.setPointerCapture(e.pointerId); });
-    thumb.addEventListener('pointermove', function(e){ if(dragging) scrollFromThumb(e.clientY); });
-    thumb.addEventListener('pointerup', function(){ dragging=false; });
-    thumb.addEventListener('pointercancel', function(){ dragging=false; });
-    sbEl.addEventListener('pointerdown', function(e){ if(e.target===thumb) return; scrollFromThumb(e.clientY); });
-
-    // ---- orientation: desktop menu+scrollbar vs mobile hamburger ----
-    function applyMode(){ var v=vertical();
-      menuEl.style.display = v?'none':'';
-      sbEl.style.display   = v?'none':'';
-      ham.style.display    = v?'block':'none';
+    /* ============================================================
+       MOBILE ENGINE ( _v )  — provisional lab-style stack (no lock)
+       ============================================================ */
+    function buildMobile(){
+      var ac=new AbortController(), sig={signal:ac.signal};
+      var mv=document.getElementById('g2MViewport'), ham=document.getElementById('g2MHamburger'), pop=document.getElementById('g2MPopup');
+      var html='<div class="g2-gap-mobile-first"></div>';
+      SECTIONS.forEach(function(s,i){
+        html+='<div class="g2-m-core" id="g2mcore-'+s.id+'">'+s.html+'</div>';
+        if(i<SECTIONS.length-1) html+='<div class="g2-gap-mobile"></div>';
+      });
+      html+='<div class="g2-gap-mobile-last"></div>';
+      mv.innerHTML=html;
+      pop.innerHTML=SECTIONS.map(function(s){ return '<button type="button" class="g2-menu-item" data-target="g2mcore-'+s.id+'">'+s.label+'</button>'; }).join('');
       pop.hidden=true;
-      setVars(); layoutGrid();
+      ham.addEventListener('click', function(){ pop.hidden=!pop.hidden; }, sig);
+      pop.addEventListener('click', function(e){ var b=e.target.closest('.g2-menu-item'); if(!b) return;
+        var t=document.getElementById(b.getAttribute('data-target')); if(t) t.scrollIntoView({behavior:'smooth', block:'start'}); pop.hidden=true; }, sig);
+      return { mode:'v', relayout:function(){}, destroy:function(){ ac.abort(); mv.innerHTML=''; pop.innerHTML=''; pop.hidden=true; } };
     }
-    var wasV=vertical();
-    window.addEventListener('scroll', onScroll, {passive:true});
-    window.addEventListener('resize', function(){ var nv=vertical(); wasV=nv; applyMode(); onScroll(); }, {passive:true});
-    window.addEventListener('orientationchange', function(){ applyMode(); onScroll(); });
-    applyMode(); onScroll();
-    if(document.fonts&&document.fonts.ready) document.fonts.ready.then(function(){ setVars(); layoutGrid(); onScroll(); });
+
+    /* ============================================================
+       MODE CONTROLLER — orientation via the site's vertical(), rebuilt on genuine change
+       ============================================================ */
+    var wasVertical = vertical();
+    function setMode(){
+      var m = vertical() ? 'v' : 'h';
+      if(built && built.mode===m){ setVars(); built.relayout(); return; }
+      if(built) built.destroy();
+      locked=false; document.body.classList.remove('g2-locked');
+      deskRoot.style.display = (m==='h') ? 'block' : 'none';
+      mobRoot.style.display  = (m==='v') ? 'block' : 'none';
+      setVars();
+      built = (m==='v') ? buildMobile() : buildDesktop();
+    }
+
+    window.GRID2ENGINE = {
+      lockToBottom: function(){ lockToBottom(); },
+      unlockToTop:  function(){ unlockToTop(); },
+      isLocked:     function(){ return locked; },
+      goToSection:  function(i){ if(built && built.goToSection) built.goToSection(i); }
+    };
+
+    function onResize(){
+      var nowV = vertical(), flip = (nowV !== wasVertical); wasVertical = nowV;
+      if(flip) setMode();
+      else { setVars(); if(built) built.relayout(); }
+    }
+    window.addEventListener('resize', onResize, {passive:true});
+    window.addEventListener('orientationchange', onResize);
+
+    setMode();
+    if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ setVars(); if(built) built.relayout(); }); }
   })();
   </script>
 </body>
